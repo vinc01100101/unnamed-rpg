@@ -59,22 +59,18 @@ module.exports = () => {
             bg.style.transform = "none";
           };
           this.fadeOut = () => {
-            console.log("FADE OUT");
             bg.style.opacity = 0;
           };
           this.setHorizontal = () => {
-            console.log("SET HORIZONTAL");
+            const rand = Math.floor(Math.random() * 19);
             bg.style.top = "0px";
             bg.style.width = "200%";
             bg.style.height = "100%";
             bg.style.transitionProperty = "transform, opacity";
             bg.style.transitionDuration = "10s, 1s";
-            bg.style.backgroundImage = `url(${
-              window.location.href
-            }img/${Math.floor(Math.random() * 20)})`;
+            bg.style.backgroundImage = `url(${window.location.href}img/${rand})`;
           };
           this.moveLeft = () => {
-            console.log("MOVE LEFT");
             bg.style.left = "0px";
             bg.style.transform = `translateX(-50%)`;
             bg.style.opacity = 1;
@@ -106,7 +102,6 @@ module.exports = () => {
         if (counter == 4) {
           switchBG(bgCounter % 2);
         }
-        console.log(counter + "_" + bgCounter);
         counter++;
         //reset
         if (counter == 11) {

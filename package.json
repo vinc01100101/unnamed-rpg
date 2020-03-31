@@ -4,18 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server"
+    "start": "webpack && node server"
   },
   "keywords": [],
   "author": "vince-r",
   "license": "ISC",
   "dependencies": {
+    "async-disk-cache": "^2.0.0",
     "bcryptjs": "^2.4.3",
     "colors": "^1.4.0",
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
-    "memory-cache": "^0.2.0",
     "mongoose": "^5.9.6",
     "mongoose-unique-validator": "^2.0.3",
     "passport": "^0.4.1",
