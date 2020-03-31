@@ -81,6 +81,17 @@ module.exports = function Login(props) {
       >
         About
       </button>
+      <button
+        onClick={() => {
+          props._setStateCallback(currState => {
+            return {
+              bgIsOn: !currState.bgIsOn
+            };
+          });
+        }}
+      >
+        Turn {props.bgIsOn ? "OFF" : "ON"} bg
+      </button>
     </div>
   );
 };

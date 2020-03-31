@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack && node server"
+    "compile": "webpack && node server",
+    "start": "node server"
   },
   "keywords": [],
   "author": "vince-r",

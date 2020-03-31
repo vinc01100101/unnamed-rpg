@@ -4,6 +4,7 @@ const Login = require("./gamepage/Login");
 const Register = require("./gamepage/Register");
 const About = require("./gamepage/About");
 const SelectServer = require("./gamepage/SelectServer");
+const BgAnimate = require("./BgAnimate");
 
 module.exports = () => {
   return class extends React.Component {
@@ -38,7 +39,11 @@ module.exports = () => {
         info: {
           type: "",
           message: ""
-        }
+        },
+
+        //Bg Animation Object
+        bgAnimate: new BgAnimate(),
+        bgIsOn: true
       };
 
       this._updateInput = this._updateInput.bind(this);
@@ -47,169 +52,17 @@ module.exports = () => {
     }
 
     componentDidMount() {
-      const bgs = [
-        document.querySelector("#backgroundImg0"),
-        document.querySelector("#backgroundImg1"),
-        document.querySelector(".backgroundImg")
-      ];
-      class BgConstructor {
-        constructor(bg) {
-          this.reset = () => {
-            bg.style.transition = "none";
-            bg.style.transform = "none";
-          };
-          this.fadeOut = () => {
-            bg.style.opacity = 0;
-          };
-          this.setHorizontal = () => {
-            const rand = Math.floor(Math.random() * 19);
-            bg.style.top = "0px";
-            bg.style.width = "200%";
-            bg.style.height = "100%";
-            bg.style.transitionProperty = "transform, opacity";
-            bg.style.transitionDuration = "10s, 1s";
-            bg.style.transitionTimingFunction = "linear";
-            bg.style.backgroundImage = `url(${window.location.href}img/${rand})`;
-          };
-          this.moveLeft = () => {
-            bg.style.left = "0px";
-            bg.style.transform = `translateX(-50%)`;
-            bg.style.opacity = 1;
-          };
-          this.moveRight = () => {
-            bg.style.left = "-100%";
-            bg.style.transform = `translateX(50%)`;
-            bg.style.opacity = 1;
-          };
-          this.setVertical = () => {
-            const rand = Math.floor(Math.random() * 19);
-            bg.style.left = "0px";
-            bg.style.width = "100%";
-            bg.style.height = "200%";
-            bg.style.transitionProperty = "transform, opacity";
-            bg.style.transitionDuration = "10s, 1s";
-            bg.style.transitionTimingFunction = "linear";
-            bg.style.backgroundImage = `url(${window.location.href}img/${rand})`;
-          };
-          this.moveUp = () => {
-            bg.style.top = "0px";
-            bg.style.transform = `translateY(-50%)`;
-            bg.style.opacity = 1;
-          };
-          this.moveDown = () => {
-            bg.style.top = "-100%";
-            bg.style.transform = `translateY(50%)`;
-            bg.style.opacity = 1;
-          };
-          this.setDiagonal = () => {
-            const rand = Math.floor(Math.random() * 19);
-            bg.style.width = "200%";
-            bg.style.height = "200%";
-            bg.style.transitionProperty = "transform, opacity";
-            bg.style.transitionDuration = "10s, 1s";
-            bg.style.transitionTimingFunction = "linear";
-            bg.style.backgroundImage = `url(${window.location.href}img/${rand})`;
-          };
-          this.moveUpLeft = () => {
-            bg.style.top = "0px";
-            bg.style.left = "0px";
-            bg.style.transform = `translate(-50%,-50%)`;
-            bg.style.opacity = 1;
-          };
-          this.moveUpRight = () => {
-            bg.style.top = "0px";
-            bg.style.left = "-100%";
-            bg.style.transform = `translate(50%,-50%)`;
-            bg.style.opacity = 1;
-          };
-          this.moveDownLeft = () => {
-            bg.style.top = "-100%";
-            bg.style.left = "0px";
-            bg.style.transform = `translate(-50%,50%)`;
-            bg.style.opacity = 1;
-          };
-          this.moveDownRight = () => {
-            bg.style.top = "-100%";
-            bg.style.left = "-100%";
-            bg.style.transform = `translate(50%,50%)`;
-            bg.style.opacity = 1;
-          };
-          this.setScale = () => {
-            const rand = Math.floor(Math.random() * 19);
-            bg.style.transitionProperty = "transform, opacity";
-            bg.style.transitionDuration = "10s, 1s";
-            bg.style.transitionTimingFunction = "linear";
-            bg.style.backgroundImage = `url(${window.location.href}img/${rand})`;
-          };
-          this.zoomIn = () => {
-            bg.style.left = "0px";
-            bg.style.top = "0px";
-            bg.style.width = "100%";
-            bg.style.height = "100%";
-            bg.style.transform = `scale(2,2)`;
-            bg.style.opacity = 1;
-          };
-          this.zoomOut = () => {
-            bg.style.left = "-50%";
-            bg.style.top = "-50%";
-            bg.style.width = "200%";
-            bg.style.height = "200%";
-            bg.style.transform = `scale(0.5,0.5)`;
-            bg.style.opacity = 1;
-          };
-        }
+      this.state.bgAnimate.initialize();
+      this.state.bgAnimate.startTransition();
+    }
+    componentDidUpdate(prevProps, prevState) {
+      console.log("DID UPDATE");
+      if (prevState.bgIsOn != this.state.bgIsOn) {
+        console.log("SWITCHING.....");
+        this.state.bgIsOn
+          ? this.state.bgAnimate.startTransition()
+          : this.state.bgAnimate.endTransition();
       }
-      const bgObject = [new BgConstructor(bgs[0]), new BgConstructor(bgs[1])];
-      const methods = {
-        setHorizontal: ["moveLeft", "moveRight"],
-        setVertical: ["moveUp", "moveDown"],
-        setDiagonal: [
-          "moveUpLeft",
-          "moveUpRight",
-          "moveDownLeft",
-          "moveDownRight"
-        ],
-        setScale: ["zoomIn", "zoomOut"]
-      };
-      const methProps = Object.keys(methods);
-      let set;
-      const setBG = bgNum => {
-        set = Math.floor(Math.random() * methProps.length);
-        bgObject[bgNum].reset();
-        setTimeout(() => {
-          console.log(methProps[set]);
-          bgObject[bgNum][methProps[set]]();
-        }, 1000);
-      };
-
-      const switchBG = bgNum => {
-        const methArr = methods[methProps[set]];
-        const move = Math.floor(Math.random() * methArr.length);
-        //wtf logic
-        console.log(methArr[move]);
-        bgObject[bgNum][methArr[move]]();
-        bgObject[1 - bgNum].fadeOut();
-      };
-
-      //TIMER
-      let counter = 0,
-        bgCounter = 0;
-      const bgTimer = setInterval(() => {
-        //set
-        if (counter == 0) {
-          setBG(bgCounter % 2);
-        }
-        //switch
-        if (counter == 4) {
-          switchBG(bgCounter % 2);
-        }
-        counter++;
-        //reset
-        if (counter == 9) {
-          counter = 0;
-          bgCounter++;
-        }
-      }, 1000);
     }
     _setStateCallback(toChange) {
       this.setState(toChange);
@@ -284,6 +137,8 @@ module.exports = () => {
               _setStateCallback={this._setStateCallback}
               input={this.state.input}
               info={this.state.info}
+              bgIsOn={this.state.bgIsOn}
+              // bgAnimate={this.state.bgAnimate}
             />
           )}
 
