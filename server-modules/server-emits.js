@@ -1,6 +1,6 @@
 module.exports = (io, cb) => {
   io.on("connection", socket => {
-    cb(socket);
+    // cb(socket); //will use this soon
     console.log(
       "User " +
         socket.request.user.username +

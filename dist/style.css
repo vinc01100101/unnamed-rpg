@@ -34,6 +34,7 @@ body {
 }
 #modal-bg,
 #loading {
+  z-index: 9;
   display: flex;
   flex-direction: column;
   align-items: center;

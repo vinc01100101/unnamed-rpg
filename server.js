@@ -133,7 +133,7 @@ mongoose.connect(
         if (err)
           return res.json({
             type: "error",
-            message: "Error while logging in."
+            message: "Error while logging in. :" + err
           });
         if (!user) {
           return res.json({
@@ -159,7 +159,7 @@ mongoose.connect(
     app.get("/logout", (req, res) => {
       console.log("User " + req.user.username + " logged out.");
 
-      users[req.user._id].disconnect();
+      // users[req.user._id].disconnect();
       req.logout();
       res.json({ type: "success", message: "" });
     });

@@ -47,6 +47,7 @@ module.exports = (app, passport, dbModel, io) => {
   passport.use(
     new LocalStrategy((username, password, done) => {
       console.log("LOCAL STRATEGY");
+      username = username.toLowerCase();
       try {
         dbModel.findOne({ username }, (err, doc) => {
           if (err) throw err;

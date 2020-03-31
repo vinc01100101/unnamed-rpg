@@ -25,13 +25,6 @@ module.exports = function SelectServer(props) {
       >
         Back
       </button>
-      <button
-        onClick={() => {
-          socket.emit("try emit", "HEYY");
-        }}
-      >
-        Try Emit
-      </button>
     </div>
   );
 };
