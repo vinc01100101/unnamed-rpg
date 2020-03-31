@@ -69,9 +69,7 @@ module.exports = () => {
             bg.style.height = "100%";
             bg.style.transitionProperty = "transform, opacity";
             bg.style.transitionDuration = "10s, 1s";
-            bg.style.backgroundImage = `url(${
-              window.location.href
-            }img/${Math.floor(Math.random() * 20)})`;
+            bg.src = `/img/titles/${Math.floor(Math.random() * 20)}.png`;
           };
           this.moveLeft = () => {
             console.log("MOVE LEFT");
@@ -177,8 +175,8 @@ module.exports = () => {
     render() {
       return (
         <div id="GamePageContainer">
-          <div id="backgroundImg0" className="backgroundImg"></div>
-          <div id="backgroundImg1" className="backgroundImg"></div>
+          <img id="backgroundImg0" className="backgroundImg" />
+          <img id="backgroundImg1" className="backgroundImg" />
           {this.state.show.Login && (
             <Login
               _updateInput={this._updateInput}

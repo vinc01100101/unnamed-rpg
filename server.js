@@ -154,11 +154,11 @@ mongoose.connect(
       req.logout();
       res.json({ type: "success", message: "" });
     });
-    app.get("/img/:num", (req, res) => {
-      res.sendFile(
-        __dirname + "/server-img-src/titles/" + req.params.num + ".png"
-      );
-    });
+    // app.get("/img/:num", (req, res) => {
+    //   res.sendFile(
+    //     __dirname + "/server-img-src/titles/" + req.params.num + ".png"
+    //   );
+    // });
     const port = process.env.PORT || 8080;
     http.listen(port, () => {
       console.log("Listening to port: " + port);
