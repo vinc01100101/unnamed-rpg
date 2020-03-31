@@ -13,6 +13,7 @@ const passport = require("passport");
 require("dotenv").config();
 const colors = require("colors");
 const bcrypt = require("bcryptjs");
+const cache = require("memory-cache");
 
 //server middlewares
 const logger = require("./server-middlewares/logger");
@@ -154,11 +155,24 @@ mongoose.connect(
       req.logout();
       res.json({ type: "success", message: "" });
     });
-    // app.get("/img/:num", (req, res) => {
-    //   res.sendFile(
-    //     __dirname + "/server-img-src/titles/" + req.params.num + ".png"
-    //   );
-    // });
+    //login background
+    app.get("/img/:num", (req, res) => {
+      //cache images
+      const c = cache.get("/titles/" + req.params.num);
+      if (c) {
+        console.log("Sending cached");
+        res.sendFile(c);
+      } else {
+        console.log("Creating cache");
+        cache.put(
+          "/titles/" + req.params.num,
+          __dirname + "/server-img-src/titles/" + req.params.num + ".png"
+        );
+        res.sendFile(
+          __dirname + "/server-img-src/titles/" + req.params.num + ".png"
+        );
+      }
+    });
     const port = process.env.PORT || 8080;
     http.listen(port, () => {
       console.log("Listening to port: " + port);
