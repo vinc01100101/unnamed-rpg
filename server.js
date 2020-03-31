@@ -13,15 +13,6 @@ const passport = require("passport");
 require("dotenv").config();
 const colors = require("colors");
 const bcrypt = require("bcryptjs");
-// const cache = require("memory-cache");
-//but nah.. WE GO WILD! :D
-// const cache = require("persistent-cache");
-//but that's only for server caching :(
-// const Cache = require("async-disk-cache");
-// const cache = new Cache("background-images", {
-//   compression: "gzip",
-//   supportBuffer: true
-// });
 
 //server middlewares
 const logger = require("./server-middlewares/logger");
@@ -163,68 +154,6 @@ mongoose.connect(
       req.logout();
       res.json({ type: "success", message: "" });
     });
-    //memory-cache package, sadly this is only for memory cache
-    // app.get("/img/:num", (req, res) => {
-    //   //cache images
-    //   const c = cache.get("/titles/" + req.params.num);
-    //   if (c) {
-    //     console.log("Sending cached");
-    //     res.sendFile(c);
-    //   } else {
-    //     console.log("Creating cache");
-    //     cache.put(
-    //       "/titles/" + req.params.num,
-    //       __dirname + "/server-img-src/titles/" + req.params.num + ".png"
-    //     );
-    //     res.sendFile(
-    //       __dirname + "/server-img-src/titles/" + req.params.num + ".png"
-    //     );
-    //   }
-    // });
-
-    // persistent-cache package, only for server caching
-    // app.get("/img/:num", (req, res) => {
-    //   //cache images
-    //   const images = cache();
-    //   const c = images.getSync("/titleImage" + req.params.num);
-    //   if (c) {
-    //     console.log("Sending cached");
-    //     res.sendFile(c);
-    //   } else {
-    //     console.log("Creating cache");
-    //     images.putSync(
-    //       "/titleImage" + req.params.num,
-    //       __dirname + "/server-img-src/titles/" + req.params.num + ".png"
-    //     );
-    //     res.sendFile(
-    //       __dirname + "/server-img-src/titles/" + req.params.num + ".png"
-    //     );
-    //   }
-    // });
-
-    //async-disk-cache package,also server caching
-    //caching on disk
-    // app.get("/img/:num", (req, res) => {
-    //   //cache images
-    //   cache.get("/titleImage" + req.params.num).then(cacheEntry => {
-    //     if (cacheEntry.isCached) {
-    //       console.log("Sending cached");
-    //       res.sendFile(cacheEntry.value);
-    //     } else {
-    //       console.log("Creating cache");
-    //       cache
-    //         .set(
-    //           "/titleImage" + req.params.num,
-    //           __dirname + "/server-img-src/titles/" + req.params.num + ".png"
-    //         )
-    //         .then(() => {
-    //           res.sendFile(
-    //             __dirname + "/server-img-src/titles/" + req.params.num + ".png"
-    //           );
-    //         });
-    //     }
-    //   });
-    // });
 
     app.get("/img/:num", (req, res) => {
       res.sendFile(

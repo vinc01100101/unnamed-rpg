@@ -25,6 +25,8 @@ router.post("/", (req, res) => {
             characters: { "": "" },
             sharedStash: { "": "" }
           });
+          //usernames only used for set reference entry
+          newDoc.usernames = undefined;
           newDoc.save((e, save) => {
             if (e) {
               res.json({
