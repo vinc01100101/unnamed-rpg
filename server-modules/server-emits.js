@@ -1,9 +1,19 @@
-module.exports = io => {
+module.exports = (io, cb) => {
   io.on("connection", socket => {
-    console.log("User connected with ID: " + socket.id);
+    cb(socket);
+    console.log(
+      "User " +
+        socket.request.user.username +
+        " connected with ID: " +
+        socket.id
+    );
 
-    socket.on("login", data => {
-      console.log(data);
+    socket.on("try emit", data => {
+      console.log("Emit from " + socket.request.user.username + " " + data);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("User " + socket.request.user.username + " disconnected.");
     });
   });
 };

@@ -11,9 +11,10 @@ head
     link(rel='stylesheet', href='./style.css', type='text/css')
 
 body(oncontextmenu="event.preventDefault()")
-    div(id="page") #{page}
+    div(id='variables')
+        div(id="page") #{page}
 
     div(id='root')
 
-    script(src='./socket.io/socket.io.js', type='application/javascript')
+    script(src='./socket.io/socket.io.js')
     script(src='./gate-bundle.js', type='application/javascript')

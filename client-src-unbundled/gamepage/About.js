@@ -2,7 +2,7 @@ const React = require("react");
 
 module.exports = function About(props) {
   return (
-    <div>
+    <div className="formContainer">
       <h3>About</h3>
       <button
         onClick={() => {

@@ -110,13 +110,55 @@ mongoose.connect(
 
     //routes
     auth(app, passport, dbModel, io);
-    emits(io);
+    let users = {};
+    emits(io, socket => {
+      users[socket.request.user._id] = socket;
+    });
     app.get("/", (req, res) => {
+      console.log(JSON.stringify(users));
       res.render(__dirname + "/dist/index.pug", { page: "GamePage" });
     });
 
-    app.post("/login", (req, res) => {});
+    app.post("/login", (req, res, next) => {
+      passport.authenticate("local", (err, user, info) => {
+        if (err)
+          return res.json({
+            type: "error",
+            message: "Error while logging in."
+          });
+        if (!user) {
+          return res.json({
+            type: "error",
+            message: info.message
+          });
+        } else {
+          req.login(user, err => {
+            if (err)
+              return res.json({
+                type: "error",
+                message: "failed to login req.login :" + err
+              });
+            return res.json({
+              type: "success",
+              message: "Authenticated."
+            });
+          });
+        }
+      })(req, res, next);
+    });
 
+    app.get("/logout", (req, res) => {
+      console.log("User " + req.user.username + " logged out.");
+
+      users[req.user._id].disconnect();
+      req.logout();
+      res.json({ type: "success", message: "" });
+    });
+    app.get("/img/:num", (req, res) => {
+      res.sendFile(
+        __dirname + "/server-img-src/titles/" + req.params.num + ".png"
+      );
+    });
     const port = process.env.PORT || 8080;
     http.listen(port, () => {
       console.log("Listening to port: " + port);

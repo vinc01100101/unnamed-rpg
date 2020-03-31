@@ -10,12 +10,10 @@ router.post("/", (req, res) => {
     console.log(
       "Blank username or password, client might be editing the client code."
     );
-    res.end(
-      JSON.stringify({
-        type: "error",
-        message: "Invalid username."
-      })
-    );
+    res.json({
+      type: "error",
+      message: "Invalid username."
+    });
   } else {
     callThisToAttemptSave();
     function callThisToAttemptSave() {
@@ -29,28 +27,22 @@ router.post("/", (req, res) => {
           });
           newDoc.save((e, save) => {
             if (e) {
-              res.end(
-                JSON.stringify({
-                  type: "error",
-                  message:
-                    "Error during saving data USER LEVEL, please try again. Error message: " +
-                    e
-                })
-              );
+              res.json({
+                type: "error",
+                message:
+                  "Error during saving data USER LEVEL, please try again. Error message: " +
+                  e
+              });
             } else if (!save) {
-              res.end(
-                JSON.stringify({
-                  type: "error",
-                  message: "Failed to save data, please try again."
-                })
-              );
+              res.json({
+                type: "error",
+                message: "Failed to save data, please try again."
+              });
             } else {
-              res.end(
-                JSON.stringify({
-                  type: "success",
-                  message: "Registration successful. Retries: " + retries
-                })
-              );
+              res.json({
+                type: "success",
+                message: "Registration successful. Retries: " + retries
+              });
             }
           });
         })
@@ -62,10 +54,13 @@ router.post("/", (req, res) => {
               retries++;
               callThisToAttemptSave();
             } else {
-              res.end("Server busy, please try again. Retries: " + retries);
+              res.json({
+                type: "error",
+                message: "Server busy, please try again. Retries: " + retries
+              });
             }
           } else {
-            res.end(JSON.stringify(data));
+            res.json(data);
           }
         });
     }

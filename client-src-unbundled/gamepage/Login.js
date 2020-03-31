@@ -5,6 +5,12 @@ module.exports = function Login(props) {
   //thus it will not recognize socket until it is authenticated.
 
   const __login = () => {
+    props._setStateCallback({
+      popup: {
+        loading: true
+      }
+    });
+
     const req = new XMLHttpRequest();
     req.open("POST", "/login", true);
     req.setRequestHeader("Content-Type", "application/json");
@@ -12,7 +18,16 @@ module.exports = function Login(props) {
     req.onreadystatechange = () => {
       if (req.readyState == 4 && req.status == 200) {
         const json = JSON.parse(req.responseText);
-        console.log(JSON.stringify(json));
+        if (json.type == "error") {
+          props._setStateCallback({
+            info: json,
+            popup: {
+              loading: false
+            }
+          });
+        } else if (json.type == "success") {
+          props._toggleVisibility("SelectServer");
+        }
       }
     };
 
@@ -25,7 +40,7 @@ module.exports = function Login(props) {
   };
 
   return (
-    <div>
+    <div className="formContainer">
       <h3>Login</h3>
       {/* error-success message */}
       <p

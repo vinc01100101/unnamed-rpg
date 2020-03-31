@@ -1,11 +1,9 @@
 const React = require("react");
-const clientEmitsListener = require("./client-emits-listener");
 
 const Login = require("./gamepage/Login");
 const Register = require("./gamepage/Register");
 const About = require("./gamepage/About");
-
-let socket;
+const SelectServer = require("./gamepage/SelectServer");
 
 module.exports = () => {
   return class extends React.Component {
@@ -49,11 +47,77 @@ module.exports = () => {
     }
 
     componentDidMount() {
-      socket = io();
-      clientEmitsListener(socket);
+      const bgs = [
+        document.querySelector("#backgroundImg0"),
+        document.querySelector("#backgroundImg1"),
+        document.querySelector(".backgroundImg")
+      ];
+      class BgConstructor {
+        constructor(bg) {
+          this.reset = () => {
+            bg.style.transition = "none";
+            bg.style.transform = "none";
+          };
+          this.fadeOut = () => {
+            console.log("FADE OUT");
+            bg.style.opacity = 0;
+          };
+          this.setHorizontal = () => {
+            console.log("SET HORIZONTAL");
+            bg.style.top = "0px";
+            bg.style.width = "200%";
+            bg.style.height = "100%";
+            bg.style.transitionProperty = "transform, opacity";
+            bg.style.transitionDuration = "10s, 1s";
+            bg.style.backgroundImage = `url(${
+              window.location.href
+            }img/${Math.floor(Math.random() * 20)})`;
+          };
+          this.moveLeft = () => {
+            console.log("MOVE LEFT");
+            bg.style.left = "0px";
+            bg.style.transform = `translateX(-50%)`;
+            bg.style.opacity = 1;
+          };
+        }
+      }
+      const bgObject = [new BgConstructor(bgs[0]), new BgConstructor(bgs[1])];
+
+      const setBG = bgNum => {
+        bgObject[bgNum].reset();
+      };
+      const switchBG = bgNum => {
+        bgObject[bgNum].setHorizontal();
+        bgObject[bgNum].moveLeft();
+        bgObject[1 - bgNum].fadeOut();
+      };
+
+      //TIMER
+      let counter = 0,
+        bgCounter = 0;
+      const bgTimer = setInterval(() => {
+        //set
+        if (counter == 0) {
+          setBG(bgCounter % 2);
+        }
+        //switch
+        if (counter == 1) {
+          switchBG(bgCounter % 2);
+        }
+        console.log(counter + "_" + bgCounter);
+        counter++;
+        //reset
+        if (counter == 11) {
+          counter = 0;
+          bgCounter++;
+        }
+      }, 1000);
     }
     _setStateCallback(toChange) {
       this.setState(toChange);
+      // const clientEmitsListener = require("./gamepage/client-emits-listener");
+      // const socket = io();
+      // clientEmitsListener(socket);
     }
     _toggleVisibility(component) {
       const fader = document.querySelector("#fader");
@@ -83,14 +147,21 @@ module.exports = () => {
 
           this.setState({
             newVisibility,
-            newInput
+            newInput,
+            info: {
+              type: "",
+              message: ""
+            },
+            popup: {
+              loading: false
+            }
           });
         }
         if (counter >= 20) {
           clearInterval(faderTimer);
           fader.style.display = "none";
         }
-      }, 50);
+      }, 25);
     }
     _updateInput(e) {
       const elem = e.target;
@@ -105,7 +176,9 @@ module.exports = () => {
 
     render() {
       return (
-        <div>
+        <div id="GamePageContainer">
+          <div id="backgroundImg0" className="backgroundImg"></div>
+          <div id="backgroundImg1" className="backgroundImg"></div>
           {this.state.show.Login && (
             <Login
               _updateInput={this._updateInput}
@@ -126,7 +199,12 @@ module.exports = () => {
             />
           )}
 
-          {this.state.show.SelectServer && <SelectServer />}
+          {this.state.show.SelectServer && (
+            <SelectServer
+              _toggleVisibility={this._toggleVisibility}
+              _setStateCallback={this._setStateCallback}
+            />
+          )}
 
           {this.state.show.InGame && <InGame />}
 
@@ -145,7 +223,6 @@ module.exports = () => {
               <div className="modal-fg"></div>
             </div>
           )}
-
           <div id="fader"></div>
         </div>
       );

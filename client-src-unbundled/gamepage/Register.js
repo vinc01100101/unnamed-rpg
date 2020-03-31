@@ -16,7 +16,7 @@ module.exports = function Register(props) {
       props._setStateCallback({
         info: {
           type: "error",
-          message: "No entry must be left blank."
+          message: "No blank entries allowed."
         }
       });
     } else {
@@ -56,7 +56,7 @@ module.exports = function Register(props) {
   };
 
   return (
-    <div>
+    <div className="formContainer">
       <h3>Register</h3>
       {/* error-success message */}
       <p
@@ -68,7 +68,11 @@ module.exports = function Register(props) {
       >
         {props.info.message}
       </p>
-      <p>Username must only contain alphanumeric characters.</p>
+      <p>
+        Username must only contain
+        <br />
+        alphanumeric characters.
+      </p>
       <input
         id="regUsername"
         type="text"

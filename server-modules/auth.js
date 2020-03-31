@@ -39,7 +39,7 @@ module.exports = (app, passport, dbModel, io) => {
         console.log("Deserialize failed, no ID found: " + id);
         done(null, false);
       } else {
-        console.log("User " + doc.name + " deserialized");
+        console.log("User " + doc.username + " deserialized");
         done(null, doc);
       }
     });
@@ -57,7 +57,7 @@ module.exports = (app, passport, dbModel, io) => {
             console.log("Wrong password");
             done(null, false, { message: "Incorrect password" });
           } else {
-            console.log("User " + doc.name + " is authenticated");
+            console.log("User " + doc.username + " is authenticated");
             done(null, doc);
           }
         });
