@@ -3,3 +3,4 @@ node_modules
 dist/gate-bundle.js
 .vscode
 dist/images
+ws.code-workspace
