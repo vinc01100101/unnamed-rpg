@@ -1,4 +1,5 @@
 const React = require("react");
+const InfoMessage = require("./InfoMessage");
 
 module.exports = function Register(props) {
   //we use ajax here because io uses passport auth,
@@ -59,15 +60,7 @@ module.exports = function Register(props) {
     <div className="formContainer">
       <h3>Register</h3>
       {/* error-success message */}
-      <p
-        style={{
-          color:
-            (props.info.type == "error" && "red") ||
-            (props.info.type == "success" && "green")
-        }}
-      >
-        {props.info.message}
-      </p>
+      <InfoMessage info={props.info} />
       <p>
         Username must only contain
         <br />

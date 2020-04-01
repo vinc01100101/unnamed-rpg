@@ -90,6 +90,15 @@ input {
   background-color: black;
   color: antiquewhite;
 }
+.formContainer ul {
+  list-style-type: none;
+  width: 120px;
+  background-color: rgba(0, 0, 0, 0);
+  color: white;
+  padding: 0;
+  margin: 0;
+}
+
 @media (min-width: 700px) {
   body {
     display: flex;
@@ -101,4 +110,19 @@ input {
     min-width: 700px;
     min-height: 500px;
   }
+}
+
+/* Select Character Css */
+
+#gridChars {
+  width: 80%;
+  grid-template-columns: 120px 120px;
+}
+.selectCharFrame {
+  width: 100px;
+  height: 150px;
+  border: solid black 5px;
+}
+.selectCharFrame:hover {
+  background-color: rgba(0, 0, 0, 0.7);
 }

@@ -1,4 +1,5 @@
 const React = require("react");
+const InfoMessage = require("./InfoMessage");
 
 module.exports = function Login(props) {
   //we use ajax here because io uses passport auth,
@@ -27,6 +28,9 @@ module.exports = function Login(props) {
           });
         } else if (json.type == "success") {
           props._toggleVisibility("SelectServer");
+          props._setStateCallback({
+            usersCount: json.message
+          });
         }
       }
     };
@@ -43,15 +47,7 @@ module.exports = function Login(props) {
     <div className="formContainer">
       <h3>Login</h3>
       {/* error-success message */}
-      <p
-        style={{
-          color:
-            (props.info.type == "error" && "red") ||
-            (props.info.type == "success" && "green")
-        }}
-      >
-        {props.info.message}
-      </p>
+      <InfoMessage info={props.info} />
       <input
         id="username"
         type="text"

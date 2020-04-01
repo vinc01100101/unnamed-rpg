@@ -4,6 +4,8 @@ const Login = require("./gamepage/Login");
 const Register = require("./gamepage/Register");
 const About = require("./gamepage/About");
 const SelectServer = require("./gamepage/SelectServer");
+const SelectCharacter = require("./gamepage/SelectCharacter");
+const CreateCharacter = require("./gamepage/CreateCharacter");
 const BgAnimate = require("./BgAnimate");
 
 module.exports = () => {
@@ -12,14 +14,7 @@ module.exports = () => {
       super(props);
       this.state = {
         //toggles
-        show: {
-          Login: true,
-          Register: false,
-          SelectServer: false,
-          InGame: false,
-          About: false
-        },
-
+        show: "Login",
         //modal types
         popup: {
           loading: false,
@@ -43,7 +38,10 @@ module.exports = () => {
 
         //Bg Animation Object
         bgAnimate: new BgAnimate(),
-        bgIsOn: true
+        bgIsOn: true,
+
+        //users count
+        usersCount: 0
       };
 
       this._updateInput = this._updateInput.bind(this);
@@ -66,9 +64,6 @@ module.exports = () => {
     }
     _setStateCallback(toChange) {
       this.setState(toChange);
-      // const clientEmitsListener = require("./gamepage/client-emits-listener");
-      // const socket = io();
-      // clientEmitsListener(socket);
     }
     _toggleVisibility(component) {
       const fader = document.querySelector("#fader");
@@ -83,13 +78,6 @@ module.exports = () => {
 
         fader.style.opacity = opaq;
         if (counter == 10) {
-          //toggle vis
-          const newVisibility = this.state.show;
-          for (const props in newVisibility) {
-            newVisibility[props] = false;
-          }
-          newVisibility[component] = true;
-
           //clear inputs
           const newInput = this.state.input;
           for (const prop in newInput) {
@@ -97,7 +85,7 @@ module.exports = () => {
           }
 
           this.setState({
-            newVisibility,
+            show: component,
             newInput,
             info: {
               type: "",
@@ -130,7 +118,7 @@ module.exports = () => {
         <div id="GamePageContainer">
           <div id="backgroundImg0" className="backgroundImg" />
           <div id="backgroundImg1" className="backgroundImg" />
-          {this.state.show.Login && (
+          {this.state.show == "Login" && (
             <Login
               _updateInput={this._updateInput}
               _toggleVisibility={this._toggleVisibility}
@@ -142,7 +130,7 @@ module.exports = () => {
             />
           )}
 
-          {this.state.show.Register && (
+          {this.state.show == "Register" && (
             <Register
               _updateInput={this._updateInput}
               _toggleVisibility={this._toggleVisibility}
@@ -152,16 +140,30 @@ module.exports = () => {
             />
           )}
 
-          {this.state.show.SelectServer && (
+          {this.state.show == "SelectServer" && (
             <SelectServer
+              _toggleVisibility={this._toggleVisibility}
+              _setStateCallback={this._setStateCallback}
+              info={this.state.info}
+              usersCount={this.state.usersCount}
+            />
+          )}
+          {this.state.show == "SelectCharacter" && (
+            <SelectCharacter
+              _toggleVisibility={this._toggleVisibility}
+              _setStateCallback={this._setStateCallback}
+            />
+          )}
+          {this.state.show == "CreateCharacter" && (
+            <CreateCharacter
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
             />
           )}
 
-          {this.state.show.InGame && <InGame />}
+          {this.state.show == "InGame" && <InGame />}
 
-          {this.state.show.About && (
+          {this.state.show == "About" && (
             <About _toggleVisibility={this._toggleVisibility} />
           )}
 

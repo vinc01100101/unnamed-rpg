@@ -112,7 +112,7 @@ mongoose.connect(
     auth(app, passport, dbModel, io);
     let users = {};
     emits(io, socket => {
-      users[socket.request.user._id] = socket;
+      users[socket.request.user._id] = socket.request.user.username;
     });
     app.get("/", (req, res) => {
       console.log(JSON.stringify(users));
@@ -140,7 +140,7 @@ mongoose.connect(
               });
             return res.json({
               type: "success",
-              message: "Authenticated."
+              message: Object.keys(users).length
             });
           });
         }
