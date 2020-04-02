@@ -155,11 +155,12 @@ mongoose.connect(
       res.json({ type: "success", message: "" });
     });
 
-    app.get("/img/:num", (req, res) => {
-      res.sendFile(
-        __dirname + "/server-img-src/titles/" + req.params.num + ".jpg"
-      );
-    });
+    //comment these out, i will use static images
+    // app.get("/img/:num", (req, res) => {
+    //   res.sendFile(
+    //     __dirname + "/server-img-src/titles/" + req.params.num + ".jpg"
+    //   );
+    // });
 
     const port = process.env.PORT || 8080;
     http.listen(port, () => {

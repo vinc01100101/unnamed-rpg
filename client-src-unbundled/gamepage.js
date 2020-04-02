@@ -116,8 +116,8 @@ module.exports = () => {
     render() {
       return (
         <div id="GamePageContainer">
-          <div id="backgroundImg0" className="backgroundImg" />
-          <div id="backgroundImg1" className="backgroundImg" />
+          <img id="backgroundImg0" className="backgroundImg" />
+          <img id="backgroundImg1" className="backgroundImg" />
           {this.state.show == "Login" && (
             <Login
               _updateInput={this._updateInput}

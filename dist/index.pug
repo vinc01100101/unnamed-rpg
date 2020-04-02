@@ -5,7 +5,7 @@ html(lang="en")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title unnamedRPG
         link(rel='stylesheet', href='./style.css', type='text/css')
-        link(rel='manifest', href='/manifest.json')
+        //- link(rel='manifest', href='/manifest.json')
 
     body(oncontextmenu="event.preventDefault()")
         div(id='variables')
@@ -17,5 +17,16 @@ html(lang="en")
 
         script(src='./socket.io/socket.io.js')
         script(src='./gate-bundle.js', type='application/javascript')
-        
-        
+        script.
+            if('serviceWorker' in navigator){
+                window.addEventListener('load',()=>{
+                    navigator.serviceWorker.register('service-worker.js').then(swReg=>{
+                        console.log("Service worker has been registered: " + swReg)
+                    }).catch(e=>{
+                        console.log("Error while registering the service worker: " + e)
+                    })
+                        
+                    
+                })
+                
+            }

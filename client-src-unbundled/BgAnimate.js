@@ -23,7 +23,7 @@ module.exports = function bgAnimate() {
           bg.style.transitionProperty = "transform, opacity";
           bg.style.transitionDuration = "10s, 1s";
           bg.style.transitionTimingFunction = "linear";
-          bg.style.backgroundImage = `url(${window.location.href}img/${rand})`;
+          bg.src = `/images/titles/${rand}.jpg`;
         };
         this.moveLeft = () => {
           bg.style.left = "0px";
@@ -43,7 +43,7 @@ module.exports = function bgAnimate() {
           bg.style.transitionProperty = "transform, opacity";
           bg.style.transitionDuration = "10s, 1s";
           bg.style.transitionTimingFunction = "linear";
-          bg.style.backgroundImage = `url(${window.location.href}img/${rand})`;
+          bg.src = `/images/titles/${rand}.jpg`;
         };
         this.moveUp = () => {
           bg.style.top = "0px";
@@ -62,7 +62,7 @@ module.exports = function bgAnimate() {
           bg.style.transitionProperty = "transform, opacity";
           bg.style.transitionDuration = "10s, 1s";
           bg.style.transitionTimingFunction = "linear";
-          bg.style.backgroundImage = `url(${window.location.href}img/${rand})`;
+          bg.src = `/images/titles/${rand}.jpg`;
         };
         this.moveUpLeft = () => {
           bg.style.top = "0px";
@@ -93,7 +93,7 @@ module.exports = function bgAnimate() {
           bg.style.transitionProperty = "transform, opacity";
           bg.style.transitionDuration = "10s, 1s";
           bg.style.transitionTimingFunction = "linear";
-          bg.style.backgroundImage = `url(${window.location.href}img/${rand})`;
+          bg.src = `/images/titles/${rand}.jpg`;
         };
         this.zoomIn = () => {
           bg.style.left = "0px";
