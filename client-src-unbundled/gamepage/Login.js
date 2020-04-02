@@ -32,6 +32,20 @@ module.exports = function Login(props) {
             usersCount: json.message
           });
         }
+      } else {
+        props._setStateCallback({
+          popup: {
+            loading: false,
+            modal: false
+          },
+          info: {
+            type: "error",
+            message:
+              req.status == 0
+                ? "Please check your network connection"
+                : "Connection failed"
+          }
+        });
       }
     };
 

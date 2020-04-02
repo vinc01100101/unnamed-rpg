@@ -1,8 +1,8 @@
 const filesToCache = ["/", "style.css", "gate-bundle.js"];
-const staticCacheName = "inGameAssets-v3";
-// for (let i = 0; i < 19; i++) {
-//   filesToCache.push("/images/titles/" + i + ".jpg");
-// }
+const staticCacheName = "inGameAssets-v1";
+for (let i = 0; i < 19; i++) {
+  filesToCache.push("/images/titles/" + i + ".jpg");
+}
 self.addEventListener("install", event => {
   self.skipWaiting();
   console.log("Installing service worker");
