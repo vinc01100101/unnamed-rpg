@@ -1,3 +1,8 @@
+//Odin
+
+//GLOBAL variables
+const GLOBALS = require("./GLOBALS");
+
 //server
 const express = require("express");
 const app = express();
@@ -110,12 +115,8 @@ mongoose.connect(
 
     //routes
     auth(app, passport, dbModel, io);
-    let users = {};
-    emits(io, socket => {
-      users[socket.request.user._id] = socket.request.user.username;
-    });
+    emits(io);
     app.get("/", (req, res) => {
-      console.log(JSON.stringify(users));
       res.render(__dirname + "/dist/index.pug", { page: "GamePage" });
     });
 
@@ -140,7 +141,7 @@ mongoose.connect(
               });
             return res.json({
               type: "success",
-              message: Object.keys(users).length
+              message: ""
             });
           });
         }
@@ -150,17 +151,9 @@ mongoose.connect(
     app.get("/logout", (req, res) => {
       console.log("User " + req.user.username + " logged out.");
 
-      // users[req.user._id].disconnect();
       req.logout();
       res.json({ type: "success", message: "" });
     });
-
-    //comment these out, i will use static images
-    // app.get("/img/:num", (req, res) => {
-    //   res.sendFile(
-    //     __dirname + "/server-img-src/titles/" + req.params.num + ".jpg"
-    //   );
-    // });
 
     const port = process.env.PORT || 8080;
     http.listen(port, () => {

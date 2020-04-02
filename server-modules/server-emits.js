@@ -1,13 +1,14 @@
-module.exports = (io, cb) => {
+module.exports = io => {
   io.on("connection", socket => {
-    cb(socket); //will use this soon
     console.log(
       "User " +
         socket.request.user.username +
         " connected with ID: " +
         socket.id
     );
-
+    socket.on("logout", () => {
+      socket.disconnect();
+    });
     socket.on("disconnect", () => {
       console.log("User " + socket.request.user.username + " disconnected.");
     });

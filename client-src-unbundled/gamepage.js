@@ -38,10 +38,7 @@ module.exports = () => {
 
         //Bg Animation Object
         bgAnimate: new BgAnimate(),
-        bgIsOn: true,
-
-        //users count
-        usersCount: 0
+        bgIsOn: true
       };
 
       this._updateInput = this._updateInput.bind(this);
@@ -124,7 +121,6 @@ module.exports = () => {
               input={this.state.input}
               info={this.state.info}
               bgIsOn={this.state.bgIsOn}
-              // bgAnimate={this.state.bgAnimate}
             />
           )}
 
@@ -143,7 +139,6 @@ module.exports = () => {
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
               info={this.state.info}
-              usersCount={this.state.usersCount}
             />
           )}
           {this.state.show == "SelectCharacter" && (

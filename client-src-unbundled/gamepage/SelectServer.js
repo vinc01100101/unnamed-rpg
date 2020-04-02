@@ -21,7 +21,7 @@ module.exports = function SelectServer(props) {
       <InfoMessage info={props.info} />
       <ul>
         <li className="serverList" id="odin" onClick={serverListActive}>
-          Odin ({props.usersCount})
+          Odin
         </li>
         <li className="serverList" id="loki" onClick={serverListActive}>
           Loki (Closed)

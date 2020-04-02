@@ -28,9 +28,6 @@ module.exports = function Login(props) {
           });
         } else if (json.type == "success") {
           props._toggleVisibility("SelectServer");
-          props._setStateCallback({
-            usersCount: json.message
-          });
         }
         return;
       } else if (req.status != 200) {

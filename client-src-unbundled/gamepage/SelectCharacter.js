@@ -1,7 +1,6 @@
 const React = require("react");
 
 module.exports = function SelectCharacter(props) {
-  const socket = io();
   return (
     <div className="formContainer">
       <h3>Select Character</h3>

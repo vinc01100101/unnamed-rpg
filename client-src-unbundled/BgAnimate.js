@@ -132,7 +132,6 @@ module.exports = function bgAnimate() {
       set = Math.floor(Math.random() * methProps.length);
       this.bgObject[bgNum].reset();
       setTimeout(() => {
-        console.log(methProps[set]);
         this.bgObject[bgNum][methProps[set]]();
       }, 1000);
     };
@@ -141,7 +140,6 @@ module.exports = function bgAnimate() {
       const methArr = methods[methProps[set]];
       const move = Math.floor(Math.random() * methArr.length);
       //wtf logic
-      console.log(methArr[move]);
       this.bgObject[bgNum][methArr[move]]();
       this.bgObject[1 - bgNum].fadeOut();
     };
@@ -153,7 +151,6 @@ module.exports = function bgAnimate() {
     bgTimer = null;
   this.startTransition = () => {
     //TIMER
-    console.log("startTransition called");
     if (!bgTimer) {
       bgTimer = setInterval(() => {
         //set
