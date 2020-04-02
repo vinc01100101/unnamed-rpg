@@ -6,18 +6,23 @@ module.exports = function Register(props) {
   //thus it will not recognize socket until it is authenticated.
 
   const __register = () => {
-    if (props.input.regPassword != props.input.regConfirmPassword) {
+    if (
+      props.registerInput.regPassword != props.registerInput.regConfirmPassword
+    ) {
       props._setStateCallback({
         info: {
           type: "error",
           message: "Passwords don't match"
         }
       });
-    } else if (props.input.regUsername == "" || props.input.regPassword == "") {
+    } else if (
+      props.registerInput.regUsername == "" ||
+      props.registerInput.regPassword == ""
+    ) {
       props._setStateCallback({
         info: {
           type: "error",
-          message: "No blank entries allowed."
+          message: "Missing credentials."
         }
       });
     } else {
@@ -26,15 +31,17 @@ module.exports = function Register(props) {
           loading: true
         }
       });
-      const req = new XMLHttpRequest();
-      req.open("POST", "/register", true);
-      req.setRequestHeader("Content-Type", "application/json");
-      req.onreadystatechange = () => {
-        if (req.readyState == 4 && req.status == 200) {
-          const json = JSON.parse(req.responseText);
+
+      props.socket.emit(
+        "register",
+        {
+          username: props.registerInput.regUsername,
+          password: props.registerInput.regPassword
+        },
+        info => {
           props._setStateCallback({
-            info: json,
-            input: {
+            info,
+            registerInput: {
               regUsername: "",
               regPassword: "",
               regConfirmPassword: ""
@@ -43,15 +50,7 @@ module.exports = function Register(props) {
               loading: false
             }
           });
-        } else {
-          console.log(req.response);
         }
-      };
-      req.send(
-        JSON.stringify({
-          username: props.input.regUsername,
-          password: props.input.regPassword
-        })
       );
     }
   };
@@ -71,21 +70,21 @@ module.exports = function Register(props) {
         type="text"
         placeholder="username"
         onChange={props._updateInput}
-        value={props.input.regUsername}
+        value={props.registerInput.regUsername}
       />
       <input
         id="regPassword"
         type="password"
         placeholder="password"
         onChange={props._updateInput}
-        value={props.input.regPassword}
+        value={props.registerInput.regPassword}
       />
       <input
         id="regConfirmPassword"
         type="password"
         placeholder="confirm password"
         onChange={props._updateInput}
-        value={props.input.regConfirmPassword}
+        value={props.registerInput.regConfirmPassword}
       />
       <button onClick={__register}>Submit</button>
       <button

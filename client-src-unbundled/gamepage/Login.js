@@ -6,53 +6,42 @@ module.exports = function Login(props) {
   //thus it will not recognize socket until it is authenticated.
 
   const __login = () => {
+    if (!props.loginInput.username || !props.loginInput.password) {
+      return props._setStateCallback({
+        info: {
+          type: "error",
+          message: "Missing credentials."
+        }
+      });
+    }
     props._setStateCallback({
       popup: {
         loading: true
       }
     });
-
-    const req = new XMLHttpRequest();
-    req.open("POST", "/login", true);
-    req.setRequestHeader("Content-Type", "application/json");
-
-    req.onreadystatechange = () => {
-      if (req.readyState == 4 && req.status == 200) {
-        const json = JSON.parse(req.responseText);
-        if (json.type == "error") {
+    props.socket.emit(
+      "login",
+      {
+        username: props.loginInput.username,
+        password: props.loginInput.password
+      },
+      info => {
+        if (info.type == "error") {
           props._setStateCallback({
-            info: json,
+            info,
             popup: {
               loading: false
             }
           });
-        } else if (json.type == "success") {
+        } else if (info.type == "success") {
           props._toggleVisibility("SelectServer");
+          props._setStateCallback({
+            popup: {
+              loading: false
+            }
+          });
         }
-        return;
-      } else if (req.status != 200) {
-        props._setStateCallback({
-          popup: {
-            loading: false,
-            modal: false
-          },
-          info: {
-            type: "error",
-            message:
-              req.status == 0
-                ? "Please check your network connection"
-                : "Connection failed"
-          }
-        });
-        return;
       }
-    };
-
-    req.send(
-      JSON.stringify({
-        username: props.input.username,
-        password: props.input.password
-      })
     );
   };
 
@@ -66,14 +55,14 @@ module.exports = function Login(props) {
         type="text"
         placeholder="username"
         onChange={props._updateInput}
-        value={props.input.username}
+        value={props.loginInput.username}
       />
       <input
         id="password"
         type="password"
         placeholder="password"
         onChange={props._updateInput}
-        value={props.input.password}
+        value={props.loginInput.password}
       />
       <button onClick={__login}>Login</button>
       <button

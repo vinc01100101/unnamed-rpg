@@ -1,5 +1,5 @@
 const filesToCache = ["/", "style.css", "gate-bundle.js"];
-const staticCacheName = "inGameAssets-v2";
+const staticCacheName = "inGameAssets-v0";
 for (let i = 0; i < 19; i++) {
   filesToCache.push("/images/titles/" + i + ".jpg");
 }

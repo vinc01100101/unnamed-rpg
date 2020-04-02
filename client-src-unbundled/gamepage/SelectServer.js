@@ -64,15 +64,9 @@ module.exports = function SelectServer(props) {
             }
           });
 
-          const req = new XMLHttpRequest();
-          req.open("GET", "/logout", true);
-
-          req.onreadystatechange = () => {
-            if (req.readyState == 4 && req.status == 200) {
-              props._toggleVisibility("Login");
-            }
-          };
-          req.send();
+          props.socket.emit("logout", () => {
+            props._toggleVisibility("Login");
+          });
         }}
       >
         Back

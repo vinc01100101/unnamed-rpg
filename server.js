@@ -21,7 +21,6 @@ const bcrypt = require("bcryptjs");
 
 //server middlewares
 const logger = require("./server-middlewares/logger");
-const ROUTER_register = require("./server-middlewares/ROUTE_register");
 app.use("/", logger);
 app.use(express.static(__dirname + "/dist", { index: false }));
 app.use(express.urlencoded({ extended: false }));
@@ -33,10 +32,9 @@ app.set("view engine", "pug");
 //server modules
 require("./server-modules/db-listeners")(mongoose, colors);
 const emits = require("./server-modules/server-emits");
-const auth = require("./server-modules/auth");
 
 //SET SCHEMA
-const adventurerSchema = new mongoose.Schema({
+const account = new mongoose.Schema({
   set: String,
   usernames: [],
   username: {
@@ -48,11 +46,11 @@ const adventurerSchema = new mongoose.Schema({
   characters: {},
   sharedStash: {}
 });
-adventurerSchema.pre("save", () => console.log("Hello from pre save"));
-adventurerSchema.post("save", () => console.log("Hello from post save"));
+account.pre("save", () => console.log("Hello from pre save"));
+account.post("save", () => console.log("Hello from post save"));
 
-adventurerSchema.plugin(uniqueValidator);
-const dbModel = mongoose.model("adventurer", adventurerSchema);
+account.plugin(uniqueValidator);
+const AccountModel = mongoose.model("adventurer", account);
 
 /*sample character object format:
   characters: {
@@ -76,14 +74,6 @@ const dbModel = mongoose.model("adventurer", adventurerSchema);
     },
     quickSlots:[0201,0401,1124,1032]
 }*/
-app.use(
-  "/register",
-  (req, res, next) => {
-    req._dbModel = dbModel;
-    next();
-  },
-  ROUTER_register
-);
 
 //database
 const dbUri = process.env.DB;
@@ -94,10 +84,10 @@ mongoose.connect(
     if (err) return console.log("Error connecting to DB: " + err);
 
     //create sets of usernames reference if not existing yet
-    dbModel.findOne({ set: "usernames" }, (err, doc) => {
+    AccountModel.findOne({ set: "usernames" }, (err, doc) => {
       if (err) return console.log("Error creating usernames ref. " + err);
       if (!doc) {
-        const newDoc = new dbModel({
+        const newDoc = new AccountModel({
           set: "usernames",
           usernames: { "": "" }
         });
@@ -114,45 +104,9 @@ mongoose.connect(
     });
 
     //routes
-    auth(app, passport, dbModel, io);
-    emits(io);
+    emits(io, AccountModel);
     app.get("/", (req, res) => {
       res.render(__dirname + "/dist/index.pug", { page: "GamePage" });
-    });
-
-    app.post("/login", (req, res, next) => {
-      passport.authenticate("local", (err, user, info) => {
-        if (err)
-          return res.json({
-            type: "error",
-            message: "Error while logging in. :" + err
-          });
-        if (!user) {
-          return res.json({
-            type: "error",
-            message: info.message
-          });
-        } else {
-          req.login(user, err => {
-            if (err)
-              return res.json({
-                type: "error",
-                message: "failed to login req.login :" + err
-              });
-            return res.json({
-              type: "success",
-              message: ""
-            });
-          });
-        }
-      })(req, res, next);
-    });
-
-    app.get("/logout", (req, res) => {
-      console.log("User " + req.user.username + " logged out.");
-
-      req.logout();
-      res.json({ type: "success", message: "" });
     });
 
     const port = process.env.PORT || 8080;

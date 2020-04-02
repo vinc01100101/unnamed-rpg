@@ -8,6 +8,9 @@ const SelectCharacter = require("./gamepage/SelectCharacter");
 const CreateCharacter = require("./gamepage/CreateCharacter");
 const BgAnimate = require("./BgAnimate");
 
+//from passport to TOTAL SOCKET IO!!!!!
+const socket = io();
+
 module.exports = () => {
   return class extends React.Component {
     constructor(props) {
@@ -22,9 +25,11 @@ module.exports = () => {
         },
 
         //live input values
-        input: {
+        loginInput: {
           username: "",
-          password: "",
+          password: ""
+        },
+        registerInput: {
           regUsername: "",
           regPassword: "",
           regConfirmPassword: ""
@@ -73,15 +78,17 @@ module.exports = () => {
 
         fader.style.opacity = opaq;
         if (counter == 10) {
-          //clear inputs
-          const newInput = this.state.input;
-          for (const prop in newInput) {
-            newInput[prop] = "";
-          }
-
           this.setState({
             show: component,
-            newInput,
+            loginInput: {
+              username: "",
+              password: ""
+            },
+            registerInput: {
+              regUsername: "",
+              regPassword: "",
+              regConfirmPassword: ""
+            },
             info: {
               type: "",
               message: ""
@@ -103,7 +110,10 @@ module.exports = () => {
         const reg = /^(\w?)+$/;
         if (!reg.test(elem.value)) return null;
       }
-      const newInput = this.state.input;
+      let newInput =
+        elem.id.indexOf("reg") == 0
+          ? this.state.registerInput
+          : this.state.loginInput;
       newInput[elem.id] = elem.value;
       this.setState(newInput);
     }
@@ -118,9 +128,10 @@ module.exports = () => {
               _updateInput={this._updateInput}
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
-              input={this.state.input}
+              loginInput={this.state.loginInput}
               info={this.state.info}
               bgIsOn={this.state.bgIsOn}
+              socket={socket}
             />
           )}
 
@@ -129,8 +140,9 @@ module.exports = () => {
               _updateInput={this._updateInput}
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
-              input={this.state.input}
+              registerInput={this.state.registerInput}
               info={this.state.info}
+              socket={socket}
             />
           )}
 
@@ -139,6 +151,7 @@ module.exports = () => {
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
               info={this.state.info}
+              socket={socket}
             />
           )}
           {this.state.show == "SelectCharacter" && (
