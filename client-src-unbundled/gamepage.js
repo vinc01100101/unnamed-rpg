@@ -54,9 +54,7 @@ module.exports = () => {
       this.state.bgAnimate.startTransition();
     }
     componentDidUpdate(prevProps, prevState) {
-      console.log("DID UPDATE");
       if (prevState.bgIsOn != this.state.bgIsOn) {
-        console.log("SWITCHING.....");
         this.state.bgIsOn
           ? this.state.bgAnimate.startTransition()
           : this.state.bgAnimate.endTransition();

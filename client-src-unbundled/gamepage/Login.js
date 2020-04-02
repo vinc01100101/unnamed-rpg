@@ -32,7 +32,8 @@ module.exports = function Login(props) {
             usersCount: json.message
           });
         }
-      } else {
+        return;
+      } else if (req.status != 200) {
         props._setStateCallback({
           popup: {
             loading: false,
@@ -46,6 +47,7 @@ module.exports = function Login(props) {
                 : "Connection failed"
           }
         });
+        return;
       }
     };
 

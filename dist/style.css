@@ -75,7 +75,7 @@ body {
   align-items: center;
   text-align: center;
   justify-content: center;
-  padding: 50px;
+  padding: 5px;
   border-radius: 20px;
   border: solid black 10px;
   z-index: 2;
@@ -115,6 +115,7 @@ input {
 /* Select Character Css */
 
 #gridChars {
+  display: grid;
   width: 80%;
   grid-template-columns: 120px 120px;
 }
