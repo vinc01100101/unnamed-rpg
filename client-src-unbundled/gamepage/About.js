@@ -5,7 +5,7 @@ module.exports = function About(props) {
     <div className="formContainer">
       <h3>About</h3>
       <p>
-        "Under intensive development :p"
+        :p
         <br />
         --vince-r
       </p>

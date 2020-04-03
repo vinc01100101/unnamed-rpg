@@ -51,6 +51,7 @@ module.exports = function Login(props) {
       {/* error-success message */}
       <InfoMessage info={props.info} />
       <input
+        autoComplete="off"
         id="username"
         type="text"
         placeholder="username"
@@ -58,6 +59,7 @@ module.exports = function Login(props) {
         value={props.loginInput.username}
       />
       <input
+        autoComplete="off"
         id="password"
         type="password"
         placeholder="password"
@@ -89,6 +91,13 @@ module.exports = function Login(props) {
         }}
       >
         Turn {props.bgIsOn ? "OFF" : "ON"} bg
+      </button>
+      <button
+        onClick={() => {
+          props._toggleVisibility("AnimationTESTER");
+        }}
+      >
+        Animation Tester
       </button>
     </div>
   );

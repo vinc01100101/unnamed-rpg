@@ -146,8 +146,6 @@ module.exports = (io, AccountModel) => {
       }
     });
     //disconnected
-    socket.on("disconnect", () => {
-      console.log("User " + socket.__user.username + " disconnected");
-    });
+    socket.on("disconnect", () => {});
   });
 };

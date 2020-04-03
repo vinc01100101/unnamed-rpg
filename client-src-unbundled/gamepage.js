@@ -7,6 +7,10 @@ const SelectServer = require("./gamepage/SelectServer");
 const SelectCharacter = require("./gamepage/SelectCharacter");
 const CreateCharacter = require("./gamepage/CreateCharacter");
 const BgAnimate = require("./BgAnimate");
+const SpritesListInit = require("./SpritesListInit");
+
+//for testing purpose only
+const AnimationTESTER = require("./AnimationTESTER");
 
 //from passport to TOTAL SOCKET IO!!!!!
 const socket = io();
@@ -42,24 +46,32 @@ module.exports = () => {
         },
 
         //Bg Animation Object
-        bgAnimate: new BgAnimate(),
-        bgIsOn: true
-      };
+        bgIsOn: true,
 
+        //Asset Manager
+        assetManager: null
+      };
+      this.bgAnimate = null;
       this._updateInput = this._updateInput.bind(this);
       this._toggleVisibility = this._toggleVisibility.bind(this);
       this._setStateCallback = this._setStateCallback.bind(this);
     }
 
     componentDidMount() {
-      this.state.bgAnimate.initialize();
-      this.state.bgAnimate.startTransition();
+      this.bgAnimate = new BgAnimate();
+      this.bgAnimate.initialize();
+      this.bgAnimate.startTransition();
+
+      SpritesListInit(AssetManager => {
+        this.setState({ assetManager: AssetManager });
+        console.log("Done updating asset manager");
+      });
     }
     componentDidUpdate(prevProps, prevState) {
       if (prevState.bgIsOn != this.state.bgIsOn) {
         this.state.bgIsOn
-          ? this.state.bgAnimate.startTransition()
-          : this.state.bgAnimate.endTransition();
+          ? this.bgAnimate.startTransition()
+          : this.bgAnimate.endTransition();
       }
     }
     _setStateCallback(toChange) {
@@ -123,6 +135,17 @@ module.exports = () => {
         <div id="GamePageContainer">
           <img id="backgroundImg0" className="backgroundImg" />
           <img id="backgroundImg1" className="backgroundImg" />
+
+          {this.state.show == "AnimationTESTER" && (
+            <AnimationTESTER
+              _updateInput={this._updateInput}
+              _toggleVisibility={this._toggleVisibility}
+              _setStateCallback={this._setStateCallback}
+              info={this.state.info}
+              assetManager={this.state.assetManager}
+            />
+          )}
+
           {this.state.show == "Login" && (
             <Login
               _updateInput={this._updateInput}

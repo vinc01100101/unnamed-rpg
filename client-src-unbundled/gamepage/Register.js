@@ -66,6 +66,7 @@ module.exports = function Register(props) {
         alphanumeric characters.
       </p>
       <input
+        autoComplete="off"
         id="regUsername"
         type="text"
         placeholder="username"
@@ -73,6 +74,7 @@ module.exports = function Register(props) {
         value={props.registerInput.regUsername}
       />
       <input
+        autoComplete="off"
         id="regPassword"
         type="password"
         placeholder="password"
@@ -80,6 +82,7 @@ module.exports = function Register(props) {
         value={props.registerInput.regPassword}
       />
       <input
+        autoComplete="off"
         id="regConfirmPassword"
         type="password"
         placeholder="confirm password"

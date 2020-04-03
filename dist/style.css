@@ -85,6 +85,7 @@ input {
   width: 120px;
   margin-top: 10px;
   text-align: center;
+  background-color: rgba(255, 255, 255, 0.7);
 }
 .formContainer button {
   background-color: black;
@@ -126,4 +127,10 @@ input {
 }
 .selectCharFrame:hover {
   background-color: rgba(0, 0, 0, 0.7);
+}
+
+#tryCanvas {
+  background-color: thistle;
+  z-index: 4;
+  margin: 20px;
 }
