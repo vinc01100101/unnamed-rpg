@@ -1,87 +1,62 @@
 module.exports = class AnimationEngine {
-  constructor(canvas, assetManager, fps) {
+  constructor(canvas, spriteSheetData, fps) {
     console.log(arguments.length);
 
     const ctx = canvas.getContext("2d");
     let animationTimer = null;
-    this.renderThese = {};
 
     this.getCanvas = () => canvas;
     this.getFps = () => fps;
+    this.getSpriteSheetData = () => spriteSheetData;
 
-    const render = () => {
-      const renderKeys = Object.keys(this.renderThese);
+    this.renderThese = [];
+    this.initialize = () => {
+      const ctx = canvas.getContext("2d");
 
-      if (renderKeys.length !== 0) {
-        ctx.clearRect(0, 0, 250, 250);
-        renderKeys.map(key => {
-          const renderThis = this.renderThese[key];
-          const img = assetManager.getAsset(renderThis.src);
+      const render = () => {
+        //clear canvas first
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        this.renderThese.map((renderTHIS) => {
+          const spriteName = renderTHIS.spriteName;
+          const actName = renderTHIS.actName;
+          const actFacing = renderTHIS.actFacing;
+          //sample: f_monk.act.stand.f
+          const range = spriteSheetData[spriteName].act[actName][actFacing][0];
+          const offsets =
+            spriteSheetData[spriteName].act[actName][actFacing][1];
+          //add or increment self counter
           if (
-            renderThis.frameCounter == undefined ||
-            renderThis.frameCounter >=
-              renderThis.cellMaxWidth -
-                renderThis.cellFirstLane +
-                renderThis.frameCount
+            isNaN(renderTHIS.selfCounter) ||
+            renderTHIS.selfCounter > range[1] - range[0]
           ) {
-            renderThis.frameCounter =
-              renderThis.cellMaxWidth - renderThis.cellFirstLane;
+            renderTHIS.selfCounter = 0;
           }
-          let multX, multY, addX, addY;
 
-          multY = Math.floor(renderThis.frameCounter / renderThis.cellMaxWidth);
-          multX = renderThis.frameCounter % renderThis.cellMaxWidth;
-
-          addX = multX * renderThis.srcW;
-          addY = multY * renderThis.srcH;
+          const img = spriteSheetData[spriteName].img;
+          const FRAME = range[0] + renderTHIS.selfCounter;
+          const x = spriteSheetData[spriteName].x[FRAME];
+          const w = spriteSheetData[spriteName].w[FRAME];
+          const h = spriteSheetData[spriteName].h[FRAME];
+          //drawThisImage
           ctx.drawImage(
             img,
-            renderThis.srcX + addX,
-            renderThis.srcY + addY,
-            renderThis.srcW,
-            renderThis.srcH,
-            renderThis.rX,
-            renderThis.rY,
-            renderThis.rW,
-            renderThis.rH
+            x,
+            0,
+            w,
+            img.height,
+            20 - Math.round(w / 2) + offsets[renderTHIS.selfCounter].x,
+            100 - Math.round(h / 2) + offsets[renderTHIS.selfCounter].y,
+            w,
+            img.height
           );
-          renderThis.frameCounter++;
+          renderTHIS.selfCounter++;
         });
-      }
-    };
+      };
 
-    this.initialize = () => {
-      if (animationTimer != null) return;
       animationTimer = setInterval(() => {
         render();
       }, 1000 / fps);
     };
-    this.terminate = () => {
-      if (!animationTimer) return;
-      clearInterval(animationTimer);
-      animationTimer = null;
-    };
   }
 };
-
-/*SAMPLE ANIMATION OBJECT
-{
-  src: '/path/',
-  srcX: 0, //starting X position from the source in pixel
-  srcY: 0, //starting Y position from the source in pixel
-  srcW: 75, //width of each frame in pixel
-  srcH: 75, //height of each frame in pixel
-  speed: 1, //speed of animation relative to the constructed 'fps', the lower the speed value, the faster the animation
-  frameCount: 10, //number of frames
-  cellMaxWidth: 4, //maximum number of cells horizontally, count starts at 0, when animation reached the cellWidth value, the animation move down the Y axis by 1 cell
-  cellFirstLane: 3, //number of cells horizontally in starting lane position, not all sprites start animating at left-most cell
-  rX: 10, //render X position in the canvas
-  rY: 10, //render Y position in the canvas
-  rW: 100, //render width in the canvas
-  rH: 80, //render height in the canvas
-  
-  //and finally..
-  isAnimating: true, //if not animating, set to false. for some cases like head that is not animating (static images)
-  
-}
-*/

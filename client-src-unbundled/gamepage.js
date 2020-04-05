@@ -7,8 +7,11 @@ const SelectServer = require("./gamepage/SelectServer");
 const SelectCharacter = require("./gamepage/SelectCharacter");
 const CreateCharacter = require("./gamepage/CreateCharacter");
 const BgAnimate = require("./BgAnimate");
-const SpritesListInit = require("./SpritesListInit");
 const PortraitScreen = require("./gamepage/PortraitScreen");
+
+//animation
+const AssetDownloader = require("./AssetDownloader");
+const spriteSheetData = require("./SpriteSheetData");
 //for testing purpose only
 const AnimationTESTER = require("./AnimationTESTER");
 
@@ -48,9 +51,6 @@ module.exports = () => {
 
         //Bg Animation Object
         bgIsOn: true,
-
-        //Asset Manager
-        assetManager: null,
       };
       this.bgAnimate = null;
       this._updateInput = this._updateInput.bind(this);
@@ -62,6 +62,13 @@ module.exports = () => {
       this.bgAnimate = new BgAnimate();
       this.bgAnimate.initialize();
       this.bgAnimate.startTransition();
+
+      let assetDownloader = new AssetDownloader();
+      assetDownloader.downloadAll(spriteSheetData, (err, info) => {
+        if (err) console.log(err);
+        if (info) console.log(info);
+        console.log("IMAGE: " + spriteSheetData["f_monk"].img);
+      });
 
       if (document.querySelector("#isDesktop").textContent == "true") {
         console.log("DESKTOP");
@@ -99,10 +106,6 @@ module.exports = () => {
           // x.style.margin = gameContWidth * 0.02 + "px";
         });
       };
-
-      SpritesListInit((isDone) => {
-        console.log("Done? : " + isDone);
-      });
     }
     componentDidUpdate(prevProps, prevState) {
       if (prevState.bgIsOn != this.state.bgIsOn) {
@@ -182,11 +185,9 @@ module.exports = () => {
 
           {this.state.show == "AnimationTESTER" && (
             <AnimationTESTER
-              _updateInput={this._updateInput}
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
               info={this.state.info}
-              assetManager={this.state.assetManager}
             />
           )}
 

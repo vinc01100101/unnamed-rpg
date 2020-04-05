@@ -78,7 +78,7 @@ module.exports = function Login(props) {
       >
         About
       </button>
-      {/* <button
+       <button
         onClick={() => {
           props._setStateCallback(currState => {
             return {
@@ -95,7 +95,7 @@ module.exports = function Login(props) {
         }}
       >
         Animation Tester
-      </button> */}
+      </button> 
     </div>
   );
 };
