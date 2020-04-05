@@ -1,26 +1,48 @@
 module.exports = function AssetManager() {
   this.successCount = 0;
   this.errorCount = 0;
-  this.cache = {};
-  this.downloadQueue = [];
-
-  //que dL's
-  this.queueDownload = arr => {
-    this.downloadQueue = arr;
-  };
+  let cache = {};
 
   //dL all ques
-  this.downloadAll = cb => {
-    if (this.downloadQueue.length === 0) {
+  this.downloadAll = (setName, arrPath, cb) => {
+    if (arrPath.length === 0) {
       cb();
     }
-    for (let i = 0; i < this.downloadQueue.length; i++) {
-      const path = this.downloadQueue[i];
-      const img = new Image();
+    const img = document.createElement("img");
+    const c = document.createElement("canvas");
+    const ctx = c.getContext("2d");
+
+    let i = 0;
+    const length = arrPath.length;
+    for (i; i < length; i++) {
+      const path = arrPath[i];
+
       img.addEventListener(
         "load",
         () => {
           this.successCount++;
+          const width = img.width,
+            height = img.height;
+
+          c.width = width;
+          c.height = height;
+          ctx.drawImage(img, 0, 0);
+          let imageData = ctx.getImageData(0, 0, width, height);
+          let data = imageData.data;
+          const dataLength = data.length;
+          let j = 0;
+          for (j; j < dataLength; j += 4) {
+            if (data[j] == 178 && data[j + 1] == 172 && data[j + 2] == 152) {
+              data[j + 3] = 0;
+            }
+          }
+          imageData.data = data;
+          if (cache[setName]) {
+            cache[setName].push(imageData);
+          } else {
+            cache[setName] = [imageData];
+          }
+
           if (this.isDone()) {
             cb();
           }
@@ -38,22 +60,24 @@ module.exports = function AssetManager() {
         false
       );
       img.src = path;
-      this.cache[path] = img;
     }
+
+    //is it all done?
+    this.isDone = () => {
+      return arrPath.length == this.successCount + this.errorCount;
+    };
+
+    img.remove();
+    c.remove();
   };
 
   //get asset
-  this.getAsset = path => {
-    if (path in this.cache) {
+  this.getAsset = (setName) => {
+    if (setName in cache) {
       // console.log("Returning image from cache: " + path);
-      return this.cache[path];
+      return cache[setName];
     } else {
       console.log("No cache found on that path");
     }
-  };
-
-  //is it all done?
-  this.isDone = () => {
-    return this.downloadQueue.length == this.successCount + this.errorCount;
   };
 };

@@ -8,7 +8,7 @@ const SelectCharacter = require("./gamepage/SelectCharacter");
 const CreateCharacter = require("./gamepage/CreateCharacter");
 const BgAnimate = require("./BgAnimate");
 const SpritesListInit = require("./SpritesListInit");
-
+const PortraitScreen = require("./gamepage/PortraitScreen");
 //for testing purpose only
 const AnimationTESTER = require("./AnimationTESTER");
 
@@ -21,35 +21,36 @@ module.exports = () => {
       super(props);
       this.state = {
         //toggles
-        show: "Login",
+        show: "PortraitScreen",
+        lastShow: "Login",
         //modal types
         popup: {
           loading: false,
-          modal: false
+          modal: false,
         },
 
         //live input values
         loginInput: {
           username: "",
-          password: ""
+          password: "",
         },
         registerInput: {
           regUsername: "",
           regPassword: "",
-          regConfirmPassword: ""
+          regConfirmPassword: "",
         },
 
         //error-success message
         info: {
           type: "",
-          message: ""
+          message: "",
         },
 
         //Bg Animation Object
         bgIsOn: true,
 
         //Asset Manager
-        assetManager: null
+        assetManager: null,
       };
       this.bgAnimate = null;
       this._updateInput = this._updateInput.bind(this);
@@ -62,9 +63,45 @@ module.exports = () => {
       this.bgAnimate.initialize();
       this.bgAnimate.startTransition();
 
-      SpritesListInit(AssetManager => {
-        this.setState({ assetManager: AssetManager });
-        console.log("Done updating asset manager");
+      if (document.querySelector("#isDesktop").textContent == "true") {
+        console.log("DESKTOP");
+        this.setState({
+          show: "Login",
+        });
+      } else {
+        document.onfullscreenchange = () => {
+          // alert("CHANGE");
+          if (
+            !document.fullscreenElement &&
+            !document.webkitFullscreenElement &&
+            !document.mozFullScreenElement &&
+            !document.msFullscreenElement
+          ) {
+            this.setState({
+              lastShow: this.state.show,
+              show: "PortraitScreen",
+            });
+          }
+        };
+      }
+
+      window.onresize = function (event) {
+        const gameContWidth = document.querySelector("#GamePageContainer")
+          .offsetWidth;
+        const inputs = document.querySelectorAll("input");
+        const buttons = document.querySelectorAll("button");
+        inputs.forEach((x) => {
+          x.style.fontSize = gameContWidth * 0.02 + "px";
+          // x.style.margin = gameContWidth * 0.02 + "px";
+        });
+        buttons.forEach((x) => {
+          x.style.fontSize = gameContWidth * 0.02 + "px";
+          // x.style.margin = gameContWidth * 0.02 + "px";
+        });
+      };
+
+      SpritesListInit((isDone) => {
+        console.log("Done? : " + isDone);
       });
     }
     componentDidUpdate(prevProps, prevState) {
@@ -94,20 +131,20 @@ module.exports = () => {
             show: component,
             loginInput: {
               username: "",
-              password: ""
+              password: "",
             },
             registerInput: {
               regUsername: "",
               regPassword: "",
-              regConfirmPassword: ""
+              regConfirmPassword: "",
             },
             info: {
               type: "",
-              message: ""
+              message: "",
             },
             popup: {
-              loading: false
-            }
+              loading: false,
+            },
           });
         }
         if (counter >= 20) {
@@ -135,6 +172,13 @@ module.exports = () => {
         <div id="GamePageContainer">
           <img id="backgroundImg0" className="backgroundImg" />
           <img id="backgroundImg1" className="backgroundImg" />
+          {this.state.show == "PortraitScreen" && (
+            <PortraitScreen
+              _setStateCallback={this._setStateCallback}
+              lastShow={this.state.lastShow}
+              info={this.state.info}
+            />
+          )}
 
           {this.state.show == "AnimationTESTER" && (
             <AnimationTESTER

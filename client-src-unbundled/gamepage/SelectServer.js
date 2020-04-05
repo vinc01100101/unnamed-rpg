@@ -3,7 +3,7 @@ const InfoMessage = require("./InfoMessage");
 
 module.exports = function SelectServer(props) {
   let serverSelected = "";
-  serverListActive = e => {
+  serverListActive = (e) => {
     const lists = document.querySelectorAll(".serverList");
     for (const item of lists) {
       item.style.backgroundColor = "rgba(0,0,0,0)";
@@ -17,7 +17,7 @@ module.exports = function SelectServer(props) {
   };
   return (
     <div className="formContainer">
-      <h3>Select Server</h3>
+      <p>Select Server</p>
       <InfoMessage info={props.info} />
       <ul>
         <li className="serverList" id="odin" onClick={serverListActive}>
@@ -35,8 +35,8 @@ module.exports = function SelectServer(props) {
               props._setStateCallback({
                 info: {
                   type: "error",
-                  message: "Loki is not yet open"
-                }
+                  message: "Loki is not yet open",
+                },
               });
               break;
 
@@ -48,8 +48,8 @@ module.exports = function SelectServer(props) {
               props._setStateCallback({
                 info: {
                   type: "error",
-                  message: "Please select a server"
-                }
+                  message: "Please select a server",
+                },
               });
           }
         }}
@@ -60,8 +60,8 @@ module.exports = function SelectServer(props) {
         onClick={() => {
           props._setStateCallback({
             popup: {
-              loading: true
-            }
+              loading: true,
+            },
           });
 
           props.socket.emit("logout", () => {

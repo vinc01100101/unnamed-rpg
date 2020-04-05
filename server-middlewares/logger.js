@@ -3,15 +3,14 @@ const router = require("express").Router();
 
 router.use("/", (req, res, next) => {
   console.log(
-    "_____________________" +
+    "__________________________________________" +
       "\nMETHOD: " +
       req.method +
       "\nPATH: " +
       req.path +
       "\nIP: " +
       (req.ip || req.connection.remoteAddress) +
-      "\nUserAgent: " +
-      req.headers["user-agent"]
+      "__________________________________________"
   );
   next();
 });

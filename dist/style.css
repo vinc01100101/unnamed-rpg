@@ -13,6 +13,17 @@ html {
 }
 body {
   height: 100%;
+  font-family: "Indie Flower", cursive;
+}
+@font-face {
+  font-family: "Indie Flower";
+  src: local("Indie Flower"), local("Indie-Flower"),
+    url("assets/fonts/IndieFlower-Regular.ttf") format("opentype");
+}
+
+button,
+input {
+  font-family: "Indie Flower", cursive;
 }
 #variables {
   display: none;
@@ -55,10 +66,22 @@ body {
   justify-content: center;
   position: relative;
   width: 100%;
-  max-width: 700px;
-  height: 100%;
-  min-height: 400px;
+  min-width: 250px;
+  max-width: 143vh;
+  height: 70vw;
+  min-height: 175px;
+  max-height: 100%;
+
   overflow: hidden;
+}
+#GamePageContainer:fullscreen {
+  width: 100%;
+  height: 100%;
+}
+
+#GamePageContainer:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
 }
 .backgroundImg {
   opacity: 0;
@@ -68,8 +91,14 @@ body {
 }
 
 .formContainer {
-  color: antiquewhite;
-  background-color: rgba(0, 0, 0, 0.7);
+  width: 270px;
+  height: 80%;
+  /* height: 300px; */
+
+  color: rgb(48, 48, 48);
+  /* background-color: rgba(184, 223, 255, 0.7); */
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -77,30 +106,51 @@ body {
   justify-content: center;
   padding: 5px;
   border-radius: 20px;
-  border: solid black 10px;
+  border: solid black 2px;
   z-index: 2;
 }
 .formContainer button,
 input {
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+
+  height: 10%;
   width: 120px;
   margin-top: 10px;
   text-align: center;
-  background-color: rgba(255, 255, 255, 0.7);
+  font-weight: bold;
+  background-color: rgba(184, 223, 255, 0.7);
+}
+.formContainer button:hover,
+input:hover {
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
 }
 .formContainer button {
-  background-color: black;
-  color: antiquewhite;
+  color: rgb(48, 48, 48);
+  background-color: rgba(184, 223, 255, 0.7);
+}
+.formContainer p {
+  margin: 0;
+  font-weight: bolder;
+}
+.formContainer .smallNote {
+  font-size: small;
+  margin: 0;
 }
 .formContainer ul {
   list-style-type: none;
   width: 120px;
-  background-color: rgba(0, 0, 0, 0);
-  color: white;
+  color: rgb(48, 48, 48);
+  background-color: rgba(184, 223, 255, 0.7);
   padding: 0;
   margin: 0;
 }
 
-@media (min-width: 700px) {
+/* @media (min-width: 700px) {
   body {
     display: flex;
     flex-direction: column;
@@ -111,7 +161,7 @@ input {
     min-width: 700px;
     min-height: 500px;
   }
-}
+} */
 
 /* Select Character Css */
 
@@ -133,4 +183,16 @@ input {
   background-color: thistle;
   z-index: 4;
   margin: 20px;
+}
+
+/* Orientation error */
+
+#orientationError {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+}
+
+#orientationError a {
+  color: rgba(184, 223, 255, 0.7);
 }

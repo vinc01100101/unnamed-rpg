@@ -2,15 +2,28 @@
 html(lang="en")
     head
         meta(charset="UTF-8")
-        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale = 1.0, user-scalable=no")
         title unnamedRPG
         link(rel='stylesheet', href='./style.css', type='text/css')
         //- link(rel='manifest', href='/manifest.json')
 
+        //- fb
+        link(rel='canonical', href="https://vince-r-unnamed-rpg.glitch.me")
+        meta(property='og:title', content='unnamed | Online RPG')
+        meta(property='og:site_name', content="UnnamedRPG")
+        meta(property='og:url', content="https://vince-r-unnamed-rpg.glitch.me")
+        meta(property='og:description', content='Les go!')
+        meta(property='og:image', content='https://cdn.glitch.com/29073cb9-628f-4341-a431-4eaa806d4a66%2Fthumbnails%2Fblupes-grad.jpg?1584681950638', type='image/jpg')
+
+
+        
     body(oncontextmenu="event.preventDefault()")
+        div(id="fb-root")
+        script(async='', defer='', crossorigin='anonymous', src='https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v6.0')
+
         div(id='variables')
             div(id="page") #{page}
-
+            div(id="isDesktop") #{isDesktop}
 
     
         div(id='root')
@@ -30,3 +43,4 @@ html(lang="en")
                 })
                 
             }
+    

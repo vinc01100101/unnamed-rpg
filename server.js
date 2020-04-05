@@ -12,12 +12,15 @@ const io = require("socket.io")(http);
 //auth
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
-const passport = require("passport");
 
 //misc
 require("dotenv").config();
 const colors = require("colors");
 const bcrypt = require("bcryptjs");
+
+var useragent = require("express-useragent");
+
+app.use(useragent.express());
 
 //server middlewares
 const logger = require("./server-middlewares/logger");
@@ -40,11 +43,11 @@ const account = new mongoose.Schema({
   username: {
     type: String,
     // unique: true,
-    lowercase: true
+    lowercase: true,
   },
   password: { type: String },
   characters: {},
-  sharedStash: {}
+  sharedStash: {},
 });
 account.pre("save", () => console.log("Hello from pre save"));
 account.post("save", () => console.log("Hello from post save"));
@@ -89,7 +92,7 @@ mongoose.connect(
       if (!doc) {
         const newDoc = new AccountModel({
           set: "usernames",
-          usernames: { "": "" }
+          usernames: { "": "" },
         });
 
         newDoc.save((er, saved) => {
@@ -106,7 +109,10 @@ mongoose.connect(
     //routes
     emits(io, AccountModel);
     app.get("/", (req, res) => {
-      res.render(__dirname + "/dist/index.pug", { page: "GamePage" });
+      res.render(__dirname + "/dist/index.pug", {
+        page: "GamePage",
+        isDesktop: req.useragent.isDesktop,
+      });
     });
 
     const port = process.env.PORT || 8080;

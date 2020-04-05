@@ -1,3 +1,5 @@
+const root = document.querySelector("#root");
+
 const React = require("react");
 const ReactDOM = require("react-dom");
 
@@ -12,5 +14,5 @@ switch (page) {
     ToRender = GamePage();
     break;
 }
-const root = document.querySelector("#root");
+
 ReactDOM.render(<ToRender />, root);

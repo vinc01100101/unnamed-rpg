@@ -12,8 +12,8 @@ module.exports = function Register(props) {
       props._setStateCallback({
         info: {
           type: "error",
-          message: "Passwords don't match"
-        }
+          message: "Passwords don't match",
+        },
       });
     } else if (
       props.registerInput.regUsername == "" ||
@@ -22,33 +22,33 @@ module.exports = function Register(props) {
       props._setStateCallback({
         info: {
           type: "error",
-          message: "Missing credentials."
-        }
+          message: "Missing credentials.",
+        },
       });
     } else {
       props._setStateCallback({
         popup: {
-          loading: true
-        }
+          loading: true,
+        },
       });
 
       props.socket.emit(
         "register",
         {
           username: props.registerInput.regUsername,
-          password: props.registerInput.regPassword
+          password: props.registerInput.regPassword,
         },
-        info => {
+        (info) => {
           props._setStateCallback({
             info,
             registerInput: {
               regUsername: "",
               regPassword: "",
-              regConfirmPassword: ""
+              regConfirmPassword: "",
             },
             popup: {
-              loading: false
-            }
+              loading: false,
+            },
           });
         }
       );
@@ -57,10 +57,10 @@ module.exports = function Register(props) {
 
   return (
     <div className="formContainer">
-      <h3>Register</h3>
+      <p>Register</p>
       {/* error-success message */}
       <InfoMessage info={props.info} />
-      <p>
+      <p className="smallNote">
         Username must only contain
         <br />
         alphanumeric characters.

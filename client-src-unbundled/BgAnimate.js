@@ -4,8 +4,9 @@ module.exports = function bgAnimate() {
     const bgs = [
       document.querySelector("#backgroundImg0"),
       document.querySelector("#backgroundImg1"),
-      document.querySelector(".backgroundImg")
+      document.querySelector(".backgroundImg"),
     ];
+    //background images: 5 portrait, 15 landscapes
     class BgConstructor {
       constructor(bg) {
         this.reset = () => {
@@ -16,34 +17,34 @@ module.exports = function bgAnimate() {
           bg.style.opacity = 0;
         };
         this.setHorizontal = () => {
-          const rand = Math.floor(Math.random() * 19);
-          bg.style.top = "0px";
-          bg.style.width = "200%";
-          bg.style.height = "100%";
+          const rand = Math.floor(Math.random() * 17) + 5;
+          bg.style.top = "-25%";
+          bg.style.width = "150%";
+          bg.style.height = "150%";
           bg.style.transitionProperty = "transform, opacity";
           bg.style.transitionDuration = "10s, 1s";
           bg.style.transitionTimingFunction = "linear";
-          bg.src = `/images/titles/${rand}.jpg`;
+          bg.src = `/assets/titles/_ (${rand}).jpg`;
         };
         this.moveLeft = () => {
           bg.style.left = "0px";
-          bg.style.transform = `translateX(-50%)`;
+          bg.style.transform = `translateX(-33.33%)`;
           bg.style.opacity = 1;
         };
         this.moveRight = () => {
-          bg.style.left = "-100%";
-          bg.style.transform = `translateX(50%)`;
+          bg.style.left = "-50%";
+          bg.style.transform = `translateX(33.33%)`;
           bg.style.opacity = 1;
         };
         this.setVertical = () => {
-          const rand = Math.floor(Math.random() * 19);
+          const rand = Math.floor(Math.random() * 4) + 1;
           bg.style.left = "0px";
           bg.style.width = "100%";
           bg.style.height = "200%";
           bg.style.transitionProperty = "transform, opacity";
           bg.style.transitionDuration = "10s, 1s";
           bg.style.transitionTimingFunction = "linear";
-          bg.src = `/images/titles/${rand}.jpg`;
+          bg.src = `/assets/titles/_ (${rand}).jpg`;
         };
         this.moveUp = () => {
           bg.style.top = "0px";
@@ -56,44 +57,44 @@ module.exports = function bgAnimate() {
           bg.style.opacity = 1;
         };
         this.setDiagonal = () => {
-          const rand = Math.floor(Math.random() * 19);
-          bg.style.width = "200%";
-          bg.style.height = "200%";
+          const rand = Math.floor(Math.random() * 17) + 5;
+          bg.style.width = "150%";
+          bg.style.height = "150%";
           bg.style.transitionProperty = "transform, opacity";
           bg.style.transitionDuration = "10s, 1s";
           bg.style.transitionTimingFunction = "linear";
-          bg.src = `/images/titles/${rand}.jpg`;
+          bg.src = `/assets/titles/_ (${rand}).jpg`;
         };
         this.moveUpLeft = () => {
           bg.style.top = "0px";
           bg.style.left = "0px";
-          bg.style.transform = `translate(-50%,-50%)`;
+          bg.style.transform = `translate(-33.33%,-33.33%)`;
           bg.style.opacity = 1;
         };
         this.moveUpRight = () => {
           bg.style.top = "0px";
-          bg.style.left = "-100%";
-          bg.style.transform = `translate(50%,-50%)`;
+          bg.style.left = "-50%";
+          bg.style.transform = `translate(33.33%,-33.33%)`;
           bg.style.opacity = 1;
         };
         this.moveDownLeft = () => {
-          bg.style.top = "-100%";
+          bg.style.top = "-50%";
           bg.style.left = "0px";
-          bg.style.transform = `translate(-50%,50%)`;
+          bg.style.transform = `translate(-33.33%,33.33%)`;
           bg.style.opacity = 1;
         };
         this.moveDownRight = () => {
-          bg.style.top = "-100%";
-          bg.style.left = "-100%";
-          bg.style.transform = `translate(50%,50%)`;
+          bg.style.top = "-50%";
+          bg.style.left = "-50%";
+          bg.style.transform = `translate(33.33%,33.33%)`;
           bg.style.opacity = 1;
         };
         this.setScale = () => {
-          const rand = Math.floor(Math.random() * 19);
+          const rand = Math.floor(Math.random() * 17) + 5;
           bg.style.transitionProperty = "transform, opacity";
           bg.style.transitionDuration = "10s, 1s";
           bg.style.transitionTimingFunction = "linear";
-          bg.src = `/images/titles/${rand}.jpg`;
+          bg.src = `/assets/titles/_ (${rand}).jpg`;
         };
         this.zoomIn = () => {
           bg.style.left = "0px";
@@ -121,14 +122,14 @@ module.exports = function bgAnimate() {
         "moveUpLeft",
         "moveUpRight",
         "moveDownLeft",
-        "moveDownRight"
+        "moveDownRight",
       ],
-      setScale: ["zoomIn", "zoomOut"]
+      setScale: ["zoomIn", "zoomOut"],
     };
     const methProps = Object.keys(methods);
     let set;
     //set bg div in the background while the other bg div is playing
-    this.setBG = bgNum => {
+    this.setBG = (bgNum) => {
       set = Math.floor(Math.random() * methProps.length);
       this.bgObject[bgNum].reset();
       setTimeout(() => {
@@ -136,7 +137,7 @@ module.exports = function bgAnimate() {
       }, 1000);
     };
     //switch bg divs fade in fade out
-    this.switchBG = bgNum => {
+    this.switchBG = (bgNum) => {
       const methArr = methods[methProps[set]];
       const move = Math.floor(Math.random() * methArr.length);
       //wtf logic

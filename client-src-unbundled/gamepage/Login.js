@@ -2,43 +2,40 @@ const React = require("react");
 const InfoMessage = require("./InfoMessage");
 
 module.exports = function Login(props) {
-  //we use ajax here because io uses passport auth,
-  //thus it will not recognize socket until it is authenticated.
-
   const __login = () => {
     if (!props.loginInput.username || !props.loginInput.password) {
       return props._setStateCallback({
         info: {
           type: "error",
-          message: "Missing credentials."
-        }
+          message: "Missing credentials.",
+        },
       });
     }
     props._setStateCallback({
       popup: {
-        loading: true
-      }
+        loading: true,
+      },
     });
     props.socket.emit(
       "login",
       {
         username: props.loginInput.username,
-        password: props.loginInput.password
+        password: props.loginInput.password,
       },
-      info => {
+      (info) => {
         if (info.type == "error") {
           props._setStateCallback({
             info,
             popup: {
-              loading: false
-            }
+              loading: false,
+            },
           });
         } else if (info.type == "success") {
           props._toggleVisibility("SelectServer");
           props._setStateCallback({
             popup: {
-              loading: false
-            }
+              loading: false,
+            },
           });
         }
       }
@@ -47,7 +44,7 @@ module.exports = function Login(props) {
 
   return (
     <div className="formContainer">
-      <h3>Login</h3>
+      <p>Login</p>
       {/* error-success message */}
       <InfoMessage info={props.info} />
       <input
@@ -81,7 +78,7 @@ module.exports = function Login(props) {
       >
         About
       </button>
-      <button
+      {/* <button
         onClick={() => {
           props._setStateCallback(currState => {
             return {
@@ -98,7 +95,7 @@ module.exports = function Login(props) {
         }}
       >
         Animation Tester
-      </button>
+      </button> */}
     </div>
   );
 };

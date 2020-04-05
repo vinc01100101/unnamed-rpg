@@ -13,10 +13,11 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "colors": "^1.4.0",
+    "detect-browser": "^5.0.0",
     "express": "^4.17.1",
+    "express-useragent": "^1.0.13",
     "mongoose": "^5.9.6",
     "mongoose-unique-validator": "^2.0.3",
-    "passport": "^0.4.1",
     "pug": "^2.0.4",
     "socket.io": "^2.3.0"
   },
