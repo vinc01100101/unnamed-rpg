@@ -78,24 +78,24 @@ module.exports = function Login(props) {
       >
         About
       </button>
-       <button
+      <button
         onClick={() => {
-          props._setStateCallback(currState => {
+          props._setStateCallback((currState) => {
             return {
-              bgIsOn: !currState.bgIsOn
+              bgIsOn: !currState.bgIsOn,
             };
           });
         }}
       >
-        Turn {props.bgIsOn ? "OFF" : "ON"} bg
+        Turn {props.bgIsOn ? "OFF" : "ON"} bg (DEV)
       </button>
       <button
         onClick={() => {
           props._toggleVisibility("AnimationTESTER");
         }}
       >
-        Animation Tester
-      </button> 
+        Animation Tester (DEV)
+      </button>
     </div>
   );
 };

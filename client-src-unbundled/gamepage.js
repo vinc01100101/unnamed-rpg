@@ -67,7 +67,6 @@ module.exports = () => {
       assetDownloader.downloadAll(spriteSheetData, (err, info) => {
         if (err) console.log(err);
         if (info) console.log(info);
-        console.log("IMAGE: " + spriteSheetData["f_monk"].img);
       });
 
       if (document.querySelector("#isDesktop").textContent == "true") {

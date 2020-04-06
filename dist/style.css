@@ -179,12 +179,25 @@ input:hover {
   background-color: rgba(0, 0, 0, 0.7);
 }
 
-#tryCanvas {
-  background-color: thistle;
-  z-index: 4;
+canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  /* background-color: thistle; */
+  z-index: 0;
   margin: 20px;
+  transition: all 2s ease-in-out;
 }
-
+#testControls {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
 /* Orientation error */
 
 #orientationError {
