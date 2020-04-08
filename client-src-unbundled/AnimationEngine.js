@@ -1,4 +1,4 @@
-const anchorIndices = require("./animation-variables/anchorIndices");
+const DATA_INDICES = require("./animation-variables/456indices");
 module.exports = class AnimationEngine {
   constructor(canvas, spriteSheetData, fps) {
     this.adjustHeadXY = {
@@ -27,7 +27,7 @@ module.exports = class AnimationEngine {
         bl: 14,
       },
     };
-    //convert facing/direction to index fir anchorIndices.js
+    //convert facing direction to index for 456indices.js
     const dirToIndex = ["f", "fl", "l", "bl", "b", "br", "r", "fr"];
     const ctx = canvas.getContext("2d");
     //we defined timer variable here so we can initiate and terminate it
@@ -46,7 +46,18 @@ module.exports = class AnimationEngine {
           this.renderThese.map((renderTHIS) => {
             //check if the character is facing on the right side
             //if mirrored, use the mirror data, those are the same
-            let isMirrored = /r/.test(renderTHIS.bodyFacing);
+            let isMirrored;
+            if (
+              renderTHIS.act == "walk" ||
+              renderTHIS.act == "sit" ||
+              renderTHIS.act == "idle"
+            ) {
+              isMirrored = /r/.test(renderTHIS.bodyFacing);
+            } else {
+              isMirrored =
+                /r/.test(renderTHIS.bodyFacing) ||
+                /^b$/.test(renderTHIS.bodyFacing);
+            }
 
             const isMirroredBodyFacing = isMirrored
               ? renderTHIS.bodyFacing.replace("r", "l")
@@ -55,7 +66,7 @@ module.exports = class AnimationEngine {
             //add or increment self counter
             if (
               isNaN(renderTHIS.selfCounter) ||
-              renderTHIS.selfCounter >= anchorIndices[renderTHIS.act].count
+              renderTHIS.selfCounter >= DATA_INDICES[renderTHIS.act].count
             ) {
               renderTHIS.selfCounter = 0;
             }
@@ -79,30 +90,29 @@ module.exports = class AnimationEngine {
             //BODY--------------------
             //necessary variables for animation
             //LET's will be reused on the head object to save memory
-            let img = sprAct[renderTHIS.act + "_" + isMirroredBodyFacing];
-            const srcW = img.width / anchorIndices[renderTHIS.act].count;
-            let srcX = srcW * renderTHIS.selfCounter,
-              renderX =
-                variableX -
-                Math.round(srcW / 2) +
-                spriteSheetData[renderTHIS.body].adjustXAxis[
-                  isMirroredBodyFacing
-                ],
-              renderY = variableY - Math.round(img.height / 2),
+            let img = sprAct.img;
+
+            let COMPUTED_456_INDEX =
+              DATA_INDICES[renderTHIS.act].start +
+              DATA_INDICES[renderTHIS.act].count *
+                dirToIndex.indexOf(renderTHIS.bodyFacing) +
+              renderTHIS.selfCounter;
+
+            let COMPUTED_SPRITE_INDEX =
+              sprAct.data.spriteIndices[COMPUTED_456_INDEX];
+
+            const srcW = sprAct.data.widths[COMPUTED_SPRITE_INDEX];
+            let srcH = sprAct.data.heights[COMPUTED_SPRITE_INDEX];
+            let srcX = sprAct.data.xPos[COMPUTED_SPRITE_INDEX];
+            let bodyOffset = sprAct.data.bodyOffsets[COMPUTED_456_INDEX];
+            let renderX = variableX - Math.round(srcW / 2) + bodyOffset[0],
+              renderY = variableY - Math.round(srcH / 2) + bodyOffset[1],
               scaleX = isMirrored ? -1 : 1,
               transX = isMirrored ? srcW + renderX * 2 : 0;
 
             //rectangle//character body outline
             ctx.beginPath();
-            ctx.rect(
-              renderX,
-              renderY +
-                spriteSheetData[renderTHIS.body].adjustYAxis[
-                  isMirroredBodyFacing
-                ],
-              srcW,
-              img.height
-            );
+            ctx.rect(renderX, renderY, srcW, srcH);
             ctx.stroke();
 
             //drawThisImage
@@ -114,30 +124,25 @@ module.exports = class AnimationEngine {
               srcX,
               0,
               srcW,
-              img.height,
+              srcH,
               renderX,
-              renderY +
-                spriteSheetData[renderTHIS.body].adjustYAxis[
-                  isMirroredBodyFacing
-                ],
+              renderY,
               srcW,
-              img.height
+              srcH
             );
             //rect for mirrored
             ctx.beginPath();
-            ctx.rect(
-              renderX,
-              renderY +
-                spriteSheetData[renderTHIS.body].adjustYAxis[
-                  isMirroredBodyFacing
-                ],
-              srcW,
-              img.height
-            );
+            ctx.rect(renderX, renderY, srcW, srcH);
             ctx.strokeStyle = "red";
             ctx.stroke();
             //
             ctx.restore();
+
+            //TESTER---------------
+            // console.log(bodyOffset);
+            renderTHIS.selfCounter++;
+            return;
+            //---------------------
 
             //HEAD----------------------
             //if the body has head, render it

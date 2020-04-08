@@ -42,12 +42,7 @@ module.exports = function AssetManager() {
         false
       );
       img.src = path;
-      const props = prop.split("|");
-      if (/head/.test(props)) {
-        spriteSheetData[props[0]].img = img;
-      } else {
-        spriteSheetData[props[0]][props[1]] = img;
-      }
+      spriteSheetData[prop].img = img;
     }
 
     //is it all done?

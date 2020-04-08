@@ -20,9 +20,9 @@ module.exports = class AnimationTESTER extends React.Component {
     this.animationEngine.renderThese = [
       {
         type: "player", // types = player,npc
-        body: "f_ninja",
+        body: "f_monk",
         bodyFacing: "f",
-        act: "walk",
+        act: "sit",
         head: "f_head0",
         headAct: "plain", // headActs = plain,pick,damage,dead
         headFacing: "f",
