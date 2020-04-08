@@ -43,16 +43,21 @@ module.exports = function AssetManager() {
       );
       img.src = path;
       const props = prop.split("|");
-      if (/_head/.test(props[0])) {
+      if (/head/.test(props)) {
         spriteSheetData[props[0]].img = img;
       } else {
-        spriteSheetData[props[0]][props[1]].img = img;
+        spriteSheetData[props[0]][props[1]] = img;
       }
     }
 
     //is it all done?
     this.isDone = () => {
-      return length == this.successCount + this.errorCount;
+      const isDone = length == this.successCount + this.errorCount;
+      if (isDone) {
+        spriteSheetData.paths = null;
+        return isDone;
+      }
+      return false;
     };
   };
 };

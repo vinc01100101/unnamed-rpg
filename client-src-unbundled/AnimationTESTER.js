@@ -23,7 +23,7 @@ module.exports = class AnimationTESTER extends React.Component {
         body: "f_ninja",
         bodyFacing: "f",
         act: "walk",
-        head: "f_head1",
+        head: "f_head0",
         headAct: "plain", // headActs = plain,pick,damage,dead
         headFacing: "f",
       },
@@ -167,11 +167,26 @@ module.exports = class AnimationTESTER extends React.Component {
           </button>
           <button
             onClick={() => {
+              this.animationEngine.terminate();
+            }}
+          >
+            PAUSE
+          </button>
+          <button
+            onClick={() => {
+              this.animationEngine.initialize();
+            }}
+          >
+            RESUME
+          </button>
+          <button
+            onClick={() => {
               alert(JSON.stringify(this.animationEngine.adjustHeadXY));
             }}
           >
             PRINT!
           </button>
+
           <button
             onClick={() => {
               this.props._toggleVisibility("Login");

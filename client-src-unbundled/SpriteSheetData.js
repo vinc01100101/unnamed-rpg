@@ -1,3 +1,6 @@
+const ninjaAnchorHead = require("./animation-variables/ninjaAnchorHead"),
+  monkAnchorHead = require("./animation-variables/monkAnchorHead");
+
 module.exports = function SpriteSheetData() {
   this.paths = {
     //f_bodies
@@ -83,71 +86,7 @@ module.exports = function SpriteSheetData() {
       bl: -20,
       b: -21,
     },
-    walk_f: {
-      count: 8,
-      anchorHead: [
-        { x: -1, y: -63 },
-        { x: -1, y: -62 },
-        { x: -1, y: -60 },
-        { x: -1, y: -61 },
-        { x: -1, y: -63 },
-        { x: -1, y: -62 },
-        { x: -1, y: -60 },
-        { x: -1, y: -61 },
-      ],
-    },
-    walk_fl: {
-      count: 8,
-      anchorHead: [
-        { x: -2, y: -63 },
-        { x: -2, y: -62 },
-        { x: -2, y: -60 },
-        { x: -2, y: -61 },
-        { x: -2, y: -63 },
-        { x: -2, y: -62 },
-        { x: -2, y: -60 },
-        { x: -2, y: -61 },
-      ],
-    },
-    walk_l: {
-      count: 8,
-      anchorHead: [
-        { x: -2, y: -64 },
-        { x: -2, y: -63 },
-        { x: -2, y: -61 },
-        { x: -2, y: -62 },
-        { x: -2, y: -64 },
-        { x: -2, y: -63 },
-        { x: -2, y: -61 },
-        { x: -2, y: -62 },
-      ],
-    },
-    walk_bl: {
-      count: 8,
-      anchorHead: [
-        { x: -1, y: -63 },
-        { x: -1, y: -62 },
-        { x: -1, y: -60 },
-        { x: -1, y: -61 },
-        { x: -1, y: -63 },
-        { x: -1, y: -62 },
-        { x: -1, y: -60 },
-        { x: -1, y: -61 },
-      ],
-    },
-    walk_b: {
-      count: 8,
-      anchorHead: [
-        { x: 0, y: -64 },
-        { x: 0, y: -63 },
-        { x: 0, y: -61 },
-        { x: 0, y: -62 },
-        { x: 0, y: -64 },
-        { x: 0, y: -63 },
-        { x: 0, y: -61 },
-        { x: 0, y: -62 },
-      ],
-    },
+    anchorHead: monkAnchorHead,
   };
   //NINJA_____________________________________
   this.f_ninja = {
@@ -168,71 +107,7 @@ module.exports = function SpriteSheetData() {
       bl: -27,
       b: -26,
     },
-    walk_f: {
-      count: 8,
-      anchorHead: [
-        { x: -1, y: -68 },
-        { x: -1, y: -67 },
-        { x: -1, y: -65 },
-        { x: -1, y: -66 },
-        { x: -1, y: -68 },
-        { x: -1, y: -67 },
-        { x: -1, y: -65 },
-        { x: -1, y: -66 },
-      ],
-    },
-    walk_fl: {
-      count: 8,
-      anchorHead: [
-        { x: -2, y: -66 },
-        { x: -2, y: -65 },
-        { x: -2, y: -63 },
-        { x: -2, y: -64 },
-        { x: -2, y: -66 },
-        { x: -2, y: -65 },
-        { x: -2, y: -63 },
-        { x: -2, y: -64 },
-      ],
-    },
-    walk_l: {
-      count: 8,
-      anchorHead: [
-        { x: -2, y: -67 },
-        { x: -2, y: -65 },
-        { x: -2, y: -63 },
-        { x: -2, y: -64 },
-        { x: -2, y: -66 },
-        { x: -2, y: -65 },
-        { x: -2, y: -63 },
-        { x: -2, y: -64 },
-      ],
-    },
-    walk_bl: {
-      count: 8,
-      anchorHead: [
-        { x: -1, y: -67 },
-        { x: -1, y: -66 },
-        { x: -1, y: -64 },
-        { x: -1, y: -65 },
-        { x: -1, y: -67 },
-        { x: -1, y: -66 },
-        { x: -1, y: -64 },
-        { x: -1, y: -65 },
-      ],
-    },
-    walk_b: {
-      count: 8,
-      anchorHead: [
-        { x: 0, y: -68 },
-        { x: 0, y: -67 },
-        { x: 0, y: -65 },
-        { x: 0, y: -66 },
-        { x: 0, y: -68 },
-        { x: 0, y: -67 },
-        { x: 0, y: -65 },
-        { x: 0, y: -66 },
-      ],
-    },
+    anchorHead: ninjaAnchorHead,
   };
   //f_head
   this.f_head0 = {
@@ -255,6 +130,10 @@ module.exports = function SpriteSheetData() {
     ],
     widths: [27, 28, 27, 26, 27, 30, 27, 30, 19, 28, 30, 28, 30, 29, 25],
     heights: [31, 33, 32, 31, 32, 30, 31, 29, 26, 27, 27, 29, 28, 23, 25],
+    anchorPoints: {
+      x: { f: -1, fl: 3, l: 2, bl: -12, b: -12 },
+      y: { f: -8, fl: -7, l: -8, bl: 8, b: 7 },
+    },
   };
   this.f_head1 = {
     xPos: [
@@ -276,6 +155,10 @@ module.exports = function SpriteSheetData() {
     ],
     widths: [29, 28, 26, 27, 29, 28, 27, 26, 19, 28, 29, 29, 31, 24, 25],
     heights: [27, 27, 29, 31, 32, 27, 27, 27, 27, 27, 27, 31, 31, 22, 25],
+    anchorPoints: {
+      x: { f: 0, fl: 3, l: 3, bl: -12, b: -11 },
+      y: { f: -9, fl: -7, l: -7, bl: 8, b: 7 },
+    },
   };
 
   //f_weapon
