@@ -1,6 +1,6 @@
 module.exports = class AnimationEngine {
   constructor(canvas, spriteSheetData, fps) {
-    this.systemAdjustHeadSprY = 8;
+    //offset when head and body has different facing
     this.notEqualDir = {
       x: {
         f: {
@@ -23,32 +23,40 @@ module.exports = class AnimationEngine {
         },
       },
     };
+    // this.adjustHeadXY = {
+    //   x: { f: 0, fl: 0, l: 0, bl: 0, b: 0 },
+    //   y: { f: 0, fl: 0, l: 0, bl: 0, b: 0 },
+    // };
+    this.adjustHeadXY = {
+      x: { f: 0, fl: 0, l: 0, bl: 0, b: 0 },
+      y: { f: 0, fl: 0, l: 0, bl: 0, b: 0 },
+    };
     const ctx = canvas.getContext("2d");
+    //we defined timer variable here so we can initiate and terminate it
     let animationTimer = null;
 
-    this.getCanvas = () => canvas;
-    this.getFps = () => fps;
-    this.getSpriteSheetData = () => spriteSheetData;
-
+    //variable for array of objects to be rendered
     this.renderThese = [];
-    this.initialize = () => {
-      const ctx = canvas.getContext("2d");
 
+    //initialize the timer
+    this.initialize = () => {
       const render = () => {
         //clear canvas first
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        //map on array of objects to render
         this.renderThese.map((renderTHIS) => {
-          //add or increment self counter
+          //check if the character is facing on the right side
+          //if mirrored, use the mirror data, those are the same
           let isMirrored = /r/.test(renderTHIS.bodyFacing);
+
+          const isMirroredBodyFacing = isMirrored
+            ? renderTHIS.bodyFacing.replace("r", "l")
+            : renderTHIS.bodyFacing;
           const sprAct =
             spriteSheetData[renderTHIS.body][
-              renderTHIS.act +
-                "_" +
-                (isMirrored
-                  ? renderTHIS.bodyFacing.replace("r", "l")
-                  : renderTHIS.bodyFacing)
+              renderTHIS.act + "_" + isMirroredBodyFacing
             ];
+          //add or increment self counter
           if (
             isNaN(renderTHIS.selfCounter) ||
             renderTHIS.selfCounter >= sprAct.count
@@ -56,16 +64,34 @@ module.exports = class AnimationEngine {
             renderTHIS.selfCounter = 0;
           }
 
-          const variableX = 400,
-            variableY = 100;
+          //(TEST)VARIABLES OF OBJECT'S POSITION ON THE MAP
+          const variableX = 125,
+            variableY = 125;
+          //horizontal
 
+          ctx.strokeStyle = "green";
+          ctx.beginPath();
+          ctx.lineWidth = 5;
+          ctx.moveTo(0, 125);
+          ctx.lineTo(250, 125);
+          ctx.stroke();
+          //vertical
+          ctx.beginPath();
+          ctx.lineWidth = 5;
+          ctx.moveTo(125, 0);
+          ctx.lineTo(125, 250);
+          ctx.stroke();
+
+          //necessary variables for animation
+          //LET's will be reused on the head object to save memory
           let img = sprAct.img;
-          let srcW = img.width / sprAct.count;
-          let srcX = srcW * renderTHIS.selfCounter;
-          let renderX = variableX - Math.round(srcW / 2);
-          let renderY = variableY - img.height;
-          let scaleX = isMirrored ? -1 : 1;
-          let transX = isMirrored ? srcW + renderX * 2 : 0;
+          const srcW = img.width / sprAct.count;
+          let srcX = srcW * renderTHIS.selfCounter,
+            renderX = variableX - Math.round(srcW / 2),
+            renderY = variableY - Math.round(img.height / 2), //12pixelfooter
+            scaleX = isMirrored ? -1 : 1,
+            transX = isMirrored ? srcW + renderX * 2 : 0;
+
           //drawThisImage
           ctx.save();
           ctx.translate(transX, 0);
@@ -76,14 +102,23 @@ module.exports = class AnimationEngine {
             0,
             srcW,
             img.height,
-            renderX,
-            renderY,
+            renderX +
+              spriteSheetData[renderTHIS.body].adjustXAxis[
+                isMirroredBodyFacing
+              ],
+            renderY +
+              spriteSheetData[renderTHIS.body].adjustYAxis[
+                isMirroredBodyFacing
+              ],
             srcW,
             img.height
           );
           ctx.restore();
 
+          //if the body has head, render it
+          //some sprites has head already attached
           if (renderTHIS.head) {
+            //index of the head on our spritesheedata
             const frameHead = {
               plain: {
                 f: 0,
@@ -105,51 +140,41 @@ module.exports = class AnimationEngine {
                 bl: 14,
               },
             };
+            //reuse variables to save memory
             isMirrored = /r/.test(renderTHIS.headFacing);
+            //determine if the head is animating or not
             const isHeadStatic =
               renderTHIS.headAct == "plain" || renderTHIS.headAct == "dead";
+
+            //translate facing if mirrored
+            this.isMirroredHeadFacing = isMirrored
+              ? renderTHIS.headFacing.replace("r", "l")
+              : renderTHIS.headFacing;
+            //determine the current frame index to render
             const frameNum = isHeadStatic
-              ? frameHead[renderTHIS.headAct][
-                  isMirrored
-                    ? renderTHIS.headFacing.replace("r", "l")
-                    : renderTHIS.headFacing
-                ]
-              : frameHead[renderTHIS.headAct][
-                  isMirrored
-                    ? renderTHIS.headFacing.replace("r", "l")
-                    : renderTHIS.headFacing
-                ] + renderTHIS.selfCounter;
+              ? //if static, do not associate with the counter to prevent animation
+                frameHead[renderTHIS.headAct][this.isMirroredHeadFacing]
+              : //if not static, associate with the counter
+                frameHead[renderTHIS.headAct][this.isMirroredHeadFacing] +
+                renderTHIS.selfCounter;
 
             const sprActHead = spriteSheetData[renderTHIS.head];
             img = sprActHead.img;
             const bodyAnchorHead = sprAct.anchorHead;
             srcX = sprActHead.xPos[frameNum];
 
-            renderX =
-              variableX -
-              Math.round(
-                (sprActHead.widths[frameNum] +
-                  bodyAnchorHead[renderTHIS.selfCounter].x) /
-                  2
-              );
+            //center it by formula: x position - (computed width / 2)
+            renderX = variableX - Math.round(sprActHead.widths[frameNum] / 2);
 
-            renderY =
-              variableY -
-              sprActHead.heights[frameNum] +
-              bodyAnchorHead[renderTHIS.selfCounter].y -
-              this.systemAdjustHeadSprY -
-              (renderTHIS.bodyFacing != renderTHIS.headFacing
-                ? this.notEqualDir.x[renderTHIS.bodyFacing][
-                    renderTHIS.headFacing
-                  ]
-                : 0);
+            renderY = variableY - Math.round(sprActHead.heights[frameNum] / 2); //-
+            // (renderTHIS.bodyFacing != renderTHIS.headFacing
+            //   ? this.notEqualDir.x[renderTHIS.bodyFacing][
+            //       renderTHIS.headFacing
+            //     ]
+            //   : 0);
 
             scaleX = isMirrored ? -1 : 1;
-            transX = isMirrored
-              ? sprActHead.widths[frameNum] +
-                bodyAnchorHead[renderTHIS.selfCounter].x +
-                renderX * 2
-              : 0;
+            transX = isMirrored ? sprActHead.widths[frameNum] + renderX * 2 : 0;
             ctx.save();
             ctx.translate(transX, 0);
             ctx.scale(scaleX, 1);
@@ -159,8 +184,12 @@ module.exports = class AnimationEngine {
               0,
               sprActHead.widths[frameNum],
               sprActHead.heights[frameNum],
-              renderX,
-              renderY,
+              renderX +
+                bodyAnchorHead[renderTHIS.selfCounter].x +
+                this.adjustHeadXY.x[this.isMirroredHeadFacing],
+              renderY +
+                bodyAnchorHead[renderTHIS.selfCounter].y +
+                this.adjustHeadXY.y[this.isMirroredHeadFacing],
               sprActHead.widths[frameNum],
               sprActHead.heights[frameNum]
             );
@@ -173,6 +202,10 @@ module.exports = class AnimationEngine {
       animationTimer = setInterval(() => {
         render();
       }, 1000 / fps);
+    };
+
+    this.terminate = () => {
+      clearInterval(animationTimer);
     };
   }
 };

@@ -1,7 +1,10 @@
 const React = require("react");
 const AnimationEngine = require("./AnimationEngine");
-const spriteSheetData = require("./SpriteSheetData");
 
+const directions = ["f", "fl", "l", "bl", "b", "br", "r", "fr"];
+let headIndex = 0;
+let bodyIndex = 0;
+let allIndex = 0;
 module.exports = class AnimationTESTER extends React.Component {
   constructor(props) {
     super(props);
@@ -9,16 +12,20 @@ module.exports = class AnimationTESTER extends React.Component {
   }
   componentDidMount() {
     const c = document.querySelector("#testerCanvas");
-    this.animationEngine = new AnimationEngine(c, spriteSheetData, 10);
+    this.animationEngine = new AnimationEngine(
+      c,
+      this.props.spriteSheetData,
+      10
+    );
     this.animationEngine.renderThese = [
       {
         type: "player", // types = player,npc
-        body: "f_monk",
-        bodyFacing: "fr",
+        body: "f_ninja",
+        bodyFacing: "f",
         act: "walk",
-        head: "f_head0",
+        head: "f_head1",
         headAct: "plain", // headActs = plain,pick,damage,dead
-        headFacing: "fr",
+        headFacing: "f",
       },
     ];
 
@@ -27,122 +34,143 @@ module.exports = class AnimationTESTER extends React.Component {
   render() {
     return (
       <div className="formContainer">
-        <canvas id="testerCanvas" width="500" height="250"></canvas>
+        <canvas id="testerCanvas" width="250" height="250"></canvas>
         <div id="testControls">
           <button
             onClick={() => {
-              this.animationEngine.notEqualDir.x.f.fl--;
-              console.log(this.animationEngine.notEqualDir.x.f.fl);
+              if (headIndex >= directions.length - 1) {
+                headIndex = 0;
+              } else {
+                headIndex++;
+              }
+              this.animationEngine.renderThese[0].headFacing =
+                directions[headIndex];
             }}
           >
-            Adjust F FL
+            Rotate head
           </button>
           <button
             onClick={() => {
-              this.animationEngine.renderThese = [
-                {
-                  type: "player", // types = player,npc
-                  body: "f_ninja",
-                  bodyFacing: "fl",
-                  act: "walk",
-                  head: "f_head0",
-                  headAct: "plain", // headActs = plain,pick,damage,dead
-                  headFacing: "fl",
-                },
-              ];
+              if (bodyIndex >= directions.length - 1) {
+                bodyIndex = 0;
+              } else {
+                bodyIndex++;
+              }
+
+              this.animationEngine.renderThese[0].bodyFacing =
+                directions[bodyIndex];
             }}
           >
-            Change Class
+            Rotate body
           </button>
-          <div>
-            <button
-              onClick={() => {
-                this.animationEngine.renderThese[0].headFacing =
-                  this.animationEngine.renderThese[0].headFacing == "fl"
-                    ? "l"
-                    : "fl";
-              }}
-            >
-              Face Left
-            </button>
-            <button
-              onClick={() => {
-                this.animationEngine.renderThese[0].headFacing =
-                  this.animationEngine.renderThese[0].headFacing == "fr"
-                    ? "r"
-                    : "fr";
-              }}
-            >
-              Face Right
-            </button>
-            <button
-              onClick={() => {
-                this.animationEngine.renderThese = [
-                  {
-                    type: "player", // types = player,npc
-                    body: "f_monk",
-                    bodyFacing: "fl",
-                    act: "walk",
-                    head: "f_head0",
-                    headAct: "plain", // headActs = plain,pick,damage,dead
-                    headFacing: "fl",
-                  },
-                ];
-              }}
-            >
-              Body Left
-            </button>
-            <button
-              onClick={() => {
-                this.animationEngine.renderThese = [
-                  {
-                    type: "player", // types = player,npc
-                    body: "f_monk",
-                    bodyFacing: "fr",
-                    act: "walk",
-                    head: "f_head0",
-                    headAct: "plain", // headActs = plain,pick,damage,dead
-                    headFacing: "fr",
-                  },
-                ];
-              }}
-            >
-              Body Right
-            </button>
+          <button
+            onClick={() => {
+              if (allIndex >= directions.length - 1) {
+                allIndex = 0;
+              } else {
+                allIndex++;
+              }
 
+              this.animationEngine.renderThese[0].bodyFacing =
+                directions[allIndex];
+              this.animationEngine.renderThese[0].headFacing =
+                directions[allIndex];
+            }}
+          >
+            ROTATE ALL
+          </button>
+          <button
+            onClick={() => {
+              if (allIndex <= 0) {
+                allIndex = 7;
+              } else {
+                allIndex--;
+              }
+
+              this.animationEngine.renderThese[0].bodyFacing =
+                directions[allIndex];
+              this.animationEngine.renderThese[0].headFacing =
+                directions[allIndex];
+            }}
+          >
+            ROTATE BACK
+          </button>
+
+          <button
+            onClick={() => {
+              this.animationEngine.adjustHeadXY.y[
+                this.animationEngine.isMirroredHeadFacing
+              ]--;
+
+              console.log(
+                this.animationEngine.adjustHeadXY.y[
+                  this.animationEngine.isMirroredHeadFacing
+                ]
+              );
+            }}
+          >
+            Head Up
+          </button>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              width: "300px",
+              height: "50px",
+            }}
+          >
             <button
               onClick={() => {
-                this.animationEngine.renderThese = [
-                  {
-                    type: "player", // types = player,npc
-                    body: "f_monk",
-                    bodyFacing: "f",
-                    act: "walk",
-                    head: "f_head0",
-                    headAct: "plain", // headActs = plain,pick,damage,dead
-                    headFacing: "f",
-                  },
-                ];
+                this.animationEngine.adjustHeadXY.x[
+                  this.animationEngine.isMirroredHeadFacing
+                ]--;
+
+                console.log(
+                  this.animationEngine.adjustHeadXY.x[
+                    this.animationEngine.isMirroredHeadFacing
+                  ]
+                );
               }}
             >
-              Body Front
+              Head Left
+            </button>
+            <button
+              onClick={() => {
+                this.animationEngine.adjustHeadXY.x[
+                  this.animationEngine.isMirroredHeadFacing
+                ]++;
+
+                console.log(
+                  this.animationEngine.adjustHeadXY.x[
+                    this.animationEngine.isMirroredHeadFacing
+                  ]
+                );
+              }}
+            >
+              Head Right
             </button>
           </div>
           <button
             onClick={() => {
-              this.animationEngine.systemAdjustHeadSprY--;
-              console.log(this.animationEngine.systemAdjustHeadSprY);
+              this.animationEngine.adjustHeadXY.y[
+                this.animationEngine.isMirroredHeadFacing
+              ]++;
+
+              console.log(
+                this.animationEngine.adjustHeadXY.y[
+                  this.animationEngine.isMirroredHeadFacing
+                ]
+              );
             }}
           >
-            Adjust Y Head Down
+            Head Down
           </button>
           <button
             onClick={() => {
-              this.animationEngine.systemAdjustHeadSprY++;
-              console.log(this.animationEngine.systemAdjustHeadSprY);
+              alert(JSON.stringify(this.animationEngine.adjustHeadXY));
             }}
           >
-            Adjust Y Head Up
+            PRINT!
           </button>
           <button
             onClick={() => {

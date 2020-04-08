@@ -2,5 +2,5 @@ node_modules
 .env
 dist/gate-bundle.js
 .vscode
-dist/images/Resources_mv
 ws.code-workspace
+my-tools

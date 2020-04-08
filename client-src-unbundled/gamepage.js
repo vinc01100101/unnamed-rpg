@@ -11,7 +11,7 @@ const PortraitScreen = require("./gamepage/PortraitScreen");
 
 //animation
 const AssetDownloader = require("./AssetDownloader");
-const spriteSheetData = require("./SpriteSheetData");
+const SpriteSheetData = require("./SpriteSheetData");
 //for testing purpose only
 const AnimationTESTER = require("./AnimationTESTER");
 
@@ -64,7 +64,8 @@ module.exports = () => {
       this.bgAnimate.startTransition();
 
       let assetDownloader = new AssetDownloader();
-      assetDownloader.downloadAll(spriteSheetData, (err, info) => {
+      this.spriteSheetData = new SpriteSheetData();
+      assetDownloader.downloadAll(this.spriteSheetData, (err, info) => {
         if (err) console.log(err);
         if (info) console.log(info);
       });
@@ -187,6 +188,7 @@ module.exports = () => {
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
               info={this.state.info}
+              spriteSheetData={this.spriteSheetData}
             />
           )}
 

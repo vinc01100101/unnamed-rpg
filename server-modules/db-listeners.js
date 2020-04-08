@@ -18,8 +18,8 @@ module.exports = (mongoose, colors) => {
     console.log("DB reconnected.");
   });
 
-  process.on("SIGINT", function() {
-    mongoose.connection.close(function() {
+  process.on("SIGINT", function () {
+    mongoose.connection.close(function () {
       console.log(
         "Mongoose default connection disconnected through app termination"
       );

@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 
 module.exports = (io, AccountModel) => {
-  io.on("connection", socket => {
+  io.on("connection", (socket) => {
     //LOGIN
     socket.on("login", (attempt, done) => {
       console.log("SOCKET STRATEGY OYEA!!");
@@ -24,7 +24,7 @@ module.exports = (io, AccountModel) => {
     });
 
     //LOGOUT
-    socket.on("logout", cb => {
+    socket.on("logout", (cb) => {
       console.log("User " + socket.__user.username + " logged out");
       delete socket.__user;
       cb();
@@ -43,7 +43,7 @@ module.exports = (io, AccountModel) => {
         );
         done({
           type: "error",
-          message: "Invalid username."
+          message: "Invalid username.",
         });
       } else {
         callThisToAttemptSave();
@@ -54,7 +54,7 @@ module.exports = (io, AccountModel) => {
                 username: attempt.username,
                 password: bcrypt.hashSync(attempt.password, 12),
                 characters: { "": "" },
-                sharedStash: { "": "" }
+                sharedStash: { "": "" },
               });
               //usernames only used for set reference entry
               newDoc.usernames = undefined;
@@ -64,22 +64,22 @@ module.exports = (io, AccountModel) => {
                     type: "error",
                     message:
                       "Error during saving data USER LEVEL, please try again. Error message: " +
-                      e
+                      e,
                   });
                 } else if (!save) {
                   done({
                     type: "error",
-                    message: "Failed to save data, please try again."
+                    message: "Failed to save data, please try again.",
                   });
                 } else {
                   done({
                     type: "success",
-                    message: "Registration successful. Retries: " + retries
+                    message: "Registration successful. Retries: " + retries,
                   });
                 }
               });
             })
-            .catch(data => {
+            .catch((data) => {
               console.log(data.message);
               const reg = /VersionError/g;
               if (reg.test(data.message)) {
@@ -90,7 +90,7 @@ module.exports = (io, AccountModel) => {
                   done({
                     type: "error",
                     message:
-                      "Server busy, please try again. Retries: " + retries
+                      "Server busy, please try again. Retries: " + retries,
                   });
                 }
               } else {
@@ -105,19 +105,19 @@ module.exports = (io, AccountModel) => {
             if (err) {
               return reject({
                 type: "error",
-                message: "DOC level: error finding data: " + err
+                message: "DOC level: error finding data: " + err,
               });
             } else if (!doc) {
               return reject({
                 type: "error",
-                message: "DOC level: set: username ref. not yet created"
+                message: "DOC level: set: username ref. not yet created",
               });
             } else {
               for (const prop of doc.usernames) {
                 if (prop == attempt.username) {
                   return reject({
                     type: "error",
-                    message: `Username ${attempt.username} already exist. Retries: ${retries}`
+                    message: `Username ${attempt.username} already exist. Retries: ${retries}`,
                   });
                   break;
                 }
@@ -129,12 +129,12 @@ module.exports = (io, AccountModel) => {
                   //possible Version Control error here
                   return reject({
                     type: "error",
-                    message: "DOC level: error saving data: " + er
+                    message: "DOC level: error saving data: " + er,
                   });
                 } else if (!saved) {
                   return reject({
                     type: "error",
-                    message: "DOC level: no returned saved data"
+                    message: "DOC level: no returned saved data",
                   });
                 } else {
                   resolved();

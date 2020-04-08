@@ -1,10 +1,10 @@
 module.exports = {
   entry: {
-    gate: "./client-src-unbundled/gate.js"
+    gate: "./client-src-unbundled/gate.js",
   },
   output: {
     path: __dirname + "/dist",
-    filename: "[name]-bundle.js"
+    filename: "[name]-bundle.js",
   },
   module: {
     rules: [
@@ -14,11 +14,11 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["@babel/preset-env"]
-          }
-        }
-      }
-    ]
+            presets: ["@babel/preset-env"],
+          },
+        },
+      },
+    ],
   },
-  mode: "development"
+  mode: "development",
 };
