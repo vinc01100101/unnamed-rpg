@@ -2,6 +2,7 @@ const fMonk = require("./animation-variables/fMonk");
 module.exports = function SpriteSheetData() {
   this.paths = {
     f_monk: "./assets/characters/body/fMonk.png",
+    f_head0: "./assets/characters/head/f_head0.png",
   };
   //MONK_____________________________________
   this.f_monk = {
@@ -32,8 +33,26 @@ module.exports = function SpriteSheetData() {
     widths: [27, 28, 27, 26, 27, 30, 27, 30, 19, 28, 30, 28, 30, 29, 25],
     heights: [31, 33, 32, 31, 32, 30, 31, 29, 26, 27, 27, 29, 28, 23, 25],
     anchorPoints: {
-      x: { f: -1, fl: 3, l: 2, bl: -12, b: -12 },
-      y: { f: -8, fl: -7, l: -8, bl: 8, b: 7 },
+      normal: {
+        x: { f: 0, fl: 4, l: 4, bl: -13, b: -11, br: 11, r: -4, fr: -5 },
+        y: { f: -10, fl: -8, l: -9, bl: 7, b: 6, br: 7, r: -9, fr: -8 },
+      },
+      pick: {
+        x: { fl: -2, bl: -2, br: 1, fr: 2 },
+        y: { fl: 15, bl: 14, br: 14, fr: 14 },
+      },
+      damaged: {
+        x: { fl: -13, bl: -7, br: 5, fr: 12 },
+        y: { fl: 6, bl: 14, br: 13, fr: 6 },
+      },
+      freeze1: {
+        x: { fl: -8, bl: -6, br: 5, fr: 7 },
+        y: { fl: 5, bl: 12, br: 12, fr: 5 },
+      },
+      dead: {
+        x: { fl: -13, bl: -10, br: 11, fr: 13 },
+        y: { fl: -2, bl: -3, br: -3, fr: -2 },
+      },
     },
   };
   this.f_head1 = {

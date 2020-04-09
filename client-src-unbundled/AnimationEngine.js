@@ -2,8 +2,8 @@ const DATA_INDICES = require("./animation-variables/456indices");
 module.exports = class AnimationEngine {
   constructor(canvas, spriteSheetData, fps) {
     this.adjustHeadXY = {
-      x: { f: 0, fl: 0, l: 0, bl: 0, b: 0 },
-      y: { f: 0, fl: 0, l: 0, bl: 0, b: 0 },
+      x: { f: 0, fl: 0, l: 0, bl: 0, b: 0, br: 0, r: 0, fr: 0 },
+      y: { f: 0, fl: 0, l: 0, bl: 0, b: 0, br: 0, r: 0, fr: 0 },
     };
     //index of head frames per action
     const frameHead = {
@@ -46,17 +46,30 @@ module.exports = class AnimationEngine {
           this.renderThese.map((renderTHIS) => {
             //check if the character is facing on the right side
             //if mirrored, use the mirror data, those are the same
-            let isMirrored;
+            let isMirrored, fourDir;
             if (
+              //TO BE REFACTORIZE
               renderTHIS.act == "walk" ||
               renderTHIS.act == "sit" ||
               renderTHIS.act == "idle"
             ) {
+              fourDir = false;
               isMirrored = /r/.test(renderTHIS.bodyFacing);
+            } else if (renderTHIS.act == "freeze2") {
+              renderTHIS.bodyFacing = "fl";
             } else {
+              fourDir = true;
               isMirrored =
                 /r/.test(renderTHIS.bodyFacing) ||
                 /^b$/.test(renderTHIS.bodyFacing);
+
+              //pick animation has different order
+              if (
+                renderTHIS.act == "pick" &&
+                /f|^r$/.test(renderTHIS.bodyFacing)
+              ) {
+                isMirrored = !isMirrored;
+              }
             }
 
             const isMirroredBodyFacing = isMirrored
@@ -76,7 +89,6 @@ module.exports = class AnimationEngine {
               variableY = 125;
             //horizontal
             ctx.strokeStyle = "green";
-            ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(0, 125);
             ctx.lineTo(250, 125);
@@ -111,9 +123,9 @@ module.exports = class AnimationEngine {
               transX = isMirrored ? srcW + renderX * 2 : 0;
 
             //rectangle//character body outline
-            ctx.beginPath();
-            ctx.rect(renderX, renderY, srcW, srcH);
-            ctx.stroke();
+            // ctx.beginPath();
+            // ctx.rect(renderX, renderY, srcW, srcH);
+            // ctx.stroke();
 
             //drawThisImage
             ctx.save();
@@ -131,71 +143,99 @@ module.exports = class AnimationEngine {
               srcH
             );
             //rect for mirrored
-            ctx.beginPath();
-            ctx.rect(renderX, renderY, srcW, srcH);
-            ctx.strokeStyle = "red";
-            ctx.stroke();
-            //
+            // ctx.beginPath();
+            // ctx.rect(renderX, renderY, srcW, srcH);
+            // ctx.strokeStyle = "red";
+            // ctx.stroke();
+            // //
             ctx.restore();
 
             //TESTER---------------
             // console.log(bodyOffset);
-            renderTHIS.selfCounter++;
-            return;
+            // renderTHIS.selfCounter++;
+            // return;
             //---------------------
 
             //HEAD----------------------
             //if the body has head, render it
             //some sprites has head already attached
+
+            //check if head is rotatable
+            const rotatable =
+              renderTHIS.act == "sit" || renderTHIS.act == "idle";
+
             if (renderTHIS.head) {
-              //index of the head on our spritesheedata
+              //check if head is animating
+              //headActs = plain,pick,damaged,dead
+              let headIsAnimating =
+                renderTHIS.act == "pick" || renderTHIS.act == "damaged";
 
               //reuse variables to save memory
-              isMirrored = /r/.test(renderTHIS.headFacing);
-              //determine if the head is animating or not
-              const isHeadStatic =
-                renderTHIS.headAct == "plain" || renderTHIS.headAct == "dead";
 
-              //translate facing if mirrored
-              this.isMirroredHeadFacing = isMirrored
-                ? renderTHIS.headFacing.replace("r", "l")
-                : renderTHIS.headFacing;
+              //compute headfacing including rotations
+              const computed_dirToIndex_rotatable =
+                renderTHIS.selfCounter >= 2
+                  ? dirToIndex.indexOf(renderTHIS.bodyFacing) - 1
+                  : dirToIndex.indexOf(renderTHIS.bodyFacing) +
+                    renderTHIS.selfCounter;
+
+              const dirToIndexFourDir =
+                ((fourDir &&
+                  renderTHIS.bodyFacing.length == 1 &&
+                  dirToIndex.indexOf(renderTHIS.bodyFacing) + 1) ||
+                  dirToIndex.indexOf(renderTHIS.bodyFacing)) % 8;
+
+              //if index is a negative value, switch to last index
+              const dirToIndexRotatable =
+                computed_dirToIndex_rotatable < 0
+                  ? 7
+                  : computed_dirToIndex_rotatable % 8;
+              //this.headFacing = f,fl,l,bl, etc..
+              this.headFacing = rotatable
+                ? dirToIndex[dirToIndexRotatable]
+                : dirToIndex[dirToIndexFourDir];
+              //check if it is mirrored
+              isMirrored = /r/.test(this.headFacing);
+              //translate facing
+              const isMirroredHeadFacing = isMirrored
+                ? this.headFacing.replace("r", "l")
+                : this.headFacing;
+              //get headAct to use for frameHead value
+              const headAct =
+                !headIsAnimating && renderTHIS.act != "dead"
+                  ? "plain"
+                  : renderTHIS.act;
               //determine the current frame index to render
-              const frameNum = isHeadStatic
-                ? //if static, do not associate with the counter to prevent animation
-                  frameHead[renderTHIS.headAct][this.isMirroredHeadFacing]
-                : //if not static, associate with the counter
-                  frameHead[renderTHIS.headAct][this.isMirroredHeadFacing] +
-                  renderTHIS.selfCounter;
+              const frameNum = !headIsAnimating
+                ? //if head is not animating, do not associate with the counter to prevent animation
+                  frameHead[headAct][isMirroredHeadFacing]
+                : //if head is animating, associate with the counter
+                  frameHead[headAct][isMirroredHeadFacing] +
+                  (renderTHIS.selfCounter % 2);
 
               const sprActHead = spriteSheetData[renderTHIS.head];
               img = sprActHead.img;
               srcX = sprActHead.xPos[frameNum];
 
+              const anchorAct = !/pick|damaged|freeze1|dead/.test(
+                renderTHIS.act
+              )
+                ? "normal"
+                : renderTHIS.act;
               //center it by formula: x position - (computed width / 2)
               renderX =
                 variableX -
                 Math.round(sprActHead.widths[frameNum] / 2) +
-                sprAct.anchorHead[
-                  anchorIndices[renderTHIS.act].start +
-                    dirToIndex.indexOf(renderTHIS.headFacing) *
-                      anchorIndices[renderTHIS.act].count +
-                    renderTHIS.selfCounter
-                ][0] +
-                sprActHead.anchorPoints.x[renderTHIS.headFacing] +
-                this.adjustHeadXY.x[this.isMirroredHeadFacing];
+                sprAct.data.anchorHead[COMPUTED_456_INDEX][0] +
+                sprActHead.anchorPoints[anchorAct].x[this.headFacing] +
+                this.adjustHeadXY.x[this.headFacing];
 
               renderY =
                 variableY -
                 Math.round(sprActHead.heights[frameNum] / 2) +
-                sprAct.anchorHead[
-                  anchorIndices[renderTHIS.act].start +
-                    dirToIndex.indexOf(renderTHIS.headFacing) *
-                      anchorIndices[renderTHIS.act].count +
-                    renderTHIS.selfCounter
-                ][1] +
-                sprActHead.anchorPoints.y[renderTHIS.headFacing] +
-                this.adjustHeadXY.y[this.isMirroredHeadFacing]; //-
+                sprAct.data.anchorHead[COMPUTED_456_INDEX][1] +
+                sprActHead.anchorPoints[anchorAct].y[this.headFacing] +
+                this.adjustHeadXY.y[this.headFacing];
 
               scaleX = isMirrored ? -1 : 1;
               transX = isMirrored
@@ -203,14 +243,14 @@ module.exports = class AnimationEngine {
                 : 0;
 
               //rectangle//character head outline
-              ctx.beginPath();
-              ctx.rect(
-                renderX,
-                renderY,
-                sprActHead.widths[frameNum],
-                sprActHead.heights[frameNum]
-              );
-              ctx.stroke();
+              // ctx.beginPath();
+              // ctx.rect(
+              //   renderX,
+              //   renderY,
+              //   sprActHead.widths[frameNum],
+              //   sprActHead.heights[frameNum]
+              // );
+              // ctx.stroke();
 
               //
               ctx.save();
@@ -228,19 +268,21 @@ module.exports = class AnimationEngine {
                 sprActHead.heights[frameNum]
               );
               //rect for mirrored
-              ctx.beginPath();
-              ctx.rect(
-                renderX,
-                renderY,
-                sprActHead.widths[frameNum],
-                sprActHead.heights[frameNum]
-              );
-              ctx.strokeStyle = "red";
-              ctx.stroke();
+              // ctx.beginPath();
+              // ctx.rect(
+              //   renderX,
+              //   renderY,
+              //   sprActHead.widths[frameNum],
+              //   sprActHead.heights[frameNum]
+              // );
+              // ctx.strokeStyle = "red";
+              // ctx.stroke();
               //
               ctx.restore();
             }
-            renderTHIS.selfCounter++;
+            if (!rotatable) {
+              renderTHIS.selfCounter++;
+            }
           });
         };
 

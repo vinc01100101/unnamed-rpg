@@ -198,6 +198,9 @@ canvas {
   align-items: flex-start;
   justify-content: flex-end;
 }
+#testWindow{
+  width: 100%;
+}
 /* Orientation error */
 
 #orientationError {

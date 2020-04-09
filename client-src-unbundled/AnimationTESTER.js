@@ -8,7 +8,9 @@ let allIndex = 0;
 module.exports = class AnimationTESTER extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      action: "",
+    };
   }
   componentDidMount() {
     const c = document.querySelector("#testerCanvas");
@@ -22,10 +24,8 @@ module.exports = class AnimationTESTER extends React.Component {
         type: "player", // types = player,npc
         body: "f_monk",
         bodyFacing: "f",
-        act: "sit",
+        act: "attack1",
         head: "f_head0",
-        headAct: "plain", // headActs = plain,pick,damage,dead
-        headFacing: "f",
       },
     ];
 
@@ -33,36 +33,29 @@ module.exports = class AnimationTESTER extends React.Component {
   }
   render() {
     return (
-      <div className="formContainer">
+      <div id="testWindow">
         <canvas id="testerCanvas" width="250" height="250"></canvas>
         <div id="testControls">
-          <button
-            onClick={() => {
-              if (headIndex >= directions.length - 1) {
-                headIndex = 0;
-              } else {
-                headIndex++;
-              }
-              this.animationEngine.renderThese[0].headFacing =
-                directions[headIndex];
+          <select
+            onChange={(e) => {
+              this.animationEngine.renderThese[0].act = e.target.value;
             }}
           >
-            Rotate head
-          </button>
-          <button
-            onClick={() => {
-              if (bodyIndex >= directions.length - 1) {
-                bodyIndex = 0;
-              } else {
-                bodyIndex++;
-              }
+            <option value="idle">IDLE</option>
+            <option value="walk">WALK</option>
+            <option value="sit">SIT</option>
+            <option value="pick">PICK</option>
+            <option value="standby">STANDBY</option>
+            <option value="attack1">ATTACK1</option>
+            <option value="damaged">DAMAGED</option>
+            <option value="freeze1">FREEZE1</option>
+            <option value="dead">DEAD</option>
+            <option value="freeze2">FREEZE2</option>
+            <option value="attack2">ATTACK2(no weapon)</option>
+            <option value="attack3">ATTACK3</option>
+            <option value="cast">CAST</option>
+          </select>
 
-              this.animationEngine.renderThese[0].bodyFacing =
-                directions[bodyIndex];
-            }}
-          >
-            Rotate body
-          </button>
           <button
             onClick={() => {
               if (allIndex >= directions.length - 1) {
@@ -77,7 +70,7 @@ module.exports = class AnimationTESTER extends React.Component {
                 directions[allIndex];
             }}
           >
-            ROTATE ALL
+            ROTATE
           </button>
           <button
             onClick={() => {
@@ -99,12 +92,12 @@ module.exports = class AnimationTESTER extends React.Component {
           <button
             onClick={() => {
               this.animationEngine.adjustHeadXY.y[
-                this.animationEngine.isMirroredHeadFacing
+                this.animationEngine.headFacing
               ]--;
 
               console.log(
                 this.animationEngine.adjustHeadXY.y[
-                  this.animationEngine.isMirroredHeadFacing
+                  this.animationEngine.headFacing
                 ]
               );
             }}
@@ -122,12 +115,12 @@ module.exports = class AnimationTESTER extends React.Component {
             <button
               onClick={() => {
                 this.animationEngine.adjustHeadXY.x[
-                  this.animationEngine.isMirroredHeadFacing
+                  this.animationEngine.headFacing
                 ]--;
 
                 console.log(
                   this.animationEngine.adjustHeadXY.x[
-                    this.animationEngine.isMirroredHeadFacing
+                    this.animationEngine.headFacing
                   ]
                 );
               }}
@@ -137,12 +130,12 @@ module.exports = class AnimationTESTER extends React.Component {
             <button
               onClick={() => {
                 this.animationEngine.adjustHeadXY.x[
-                  this.animationEngine.isMirroredHeadFacing
+                  this.animationEngine.headFacing
                 ]++;
 
                 console.log(
                   this.animationEngine.adjustHeadXY.x[
-                    this.animationEngine.isMirroredHeadFacing
+                    this.animationEngine.headFacing
                   ]
                 );
               }}
@@ -153,12 +146,12 @@ module.exports = class AnimationTESTER extends React.Component {
           <button
             onClick={() => {
               this.animationEngine.adjustHeadXY.y[
-                this.animationEngine.isMirroredHeadFacing
+                this.animationEngine.headFacing
               ]++;
 
               console.log(
                 this.animationEngine.adjustHeadXY.y[
-                  this.animationEngine.isMirroredHeadFacing
+                  this.animationEngine.headFacing
                 ]
               );
             }}
