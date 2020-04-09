@@ -1,17 +1,26 @@
 const fMonk = require("./animation-variables/fMonk");
+const fNinja = require("./animation-variables/fNinja");
 module.exports = function SpriteSheetData() {
   this.paths = {
     f_monk: "./assets/characters/body/fMonk.png",
+    f_ninja: "./assets/characters/body/fNinja.png",
+
     f_head0: "./assets/characters/head/f_head0.png",
+    f_head1: "./assets/characters/head/f_head1.png",
   };
-  //MONK_____________________________________
+  //Body_____________________________________
   this.f_monk = {
     img: null,
     data: fMonk,
+    reversedPick: true,
   };
-  //NINJA_____________________________________
-  this.f_ninja = {};
-  //f_head
+  this.f_ninja = {
+    img: null,
+    data: fNinja,
+    reversedPick: false,
+  };
+
+  //Head_____________________________________
   this.f_head0 = {
     xPos: [
       0,
@@ -45,10 +54,6 @@ module.exports = function SpriteSheetData() {
         x: { fl: -13, bl: -7, br: 5, fr: 12 },
         y: { fl: 6, bl: 14, br: 13, fr: 6 },
       },
-      freeze1: {
-        x: { fl: -8, bl: -6, br: 5, fr: 7 },
-        y: { fl: 5, bl: 12, br: 12, fr: 5 },
-      },
       dead: {
         x: { fl: -13, bl: -10, br: 11, fr: 13 },
         y: { fl: -2, bl: -3, br: -3, fr: -2 },
@@ -76,8 +81,22 @@ module.exports = function SpriteSheetData() {
     widths: [29, 28, 26, 27, 29, 28, 27, 26, 19, 28, 29, 29, 31, 24, 25],
     heights: [27, 27, 29, 31, 32, 27, 27, 27, 27, 27, 27, 31, 31, 22, 25],
     anchorPoints: {
-      x: { f: 0, fl: 3, l: 3, bl: -12, b: -11 },
-      y: { f: -9, fl: -7, l: -7, bl: 8, b: 7 },
+      normal: {
+        x: { f: 0, fl: 4, l: 4, bl: -13, b: -11, br: 11, r: -4, fr: -5 },
+        y: { f: -10, fl: -8, l: -9, bl: 7, b: 6, br: 7, r: -9, fr: -8 },
+      },
+      pick: {
+        x: { fl: -2, bl: -2, br: 1, fr: 2 },
+        y: { fl: 15, bl: 14, br: 14, fr: 14 },
+      },
+      damaged: {
+        x: { fl: -13, bl: -7, br: 5, fr: 12 },
+        y: { fl: 6, bl: 14, br: 13, fr: 6 },
+      },
+      dead: {
+        x: { fl: -13, bl: -10, br: 11, fr: 13 },
+        y: { fl: -2, bl: -3, br: -3, fr: -2 },
+      },
     },
   };
 

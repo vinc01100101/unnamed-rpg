@@ -44,6 +44,7 @@ module.exports = class AnimationEngine {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           //map on array of objects to render
           this.renderThese.map((renderTHIS) => {
+            const sprAct = spriteSheetData[renderTHIS.body];
             //check if the character is facing on the right side
             //if mirrored, use the mirror data, those are the same
             let isMirrored, fourDir;
@@ -55,8 +56,6 @@ module.exports = class AnimationEngine {
             ) {
               fourDir = false;
               isMirrored = /r/.test(renderTHIS.bodyFacing);
-            } else if (renderTHIS.act == "freeze2") {
-              renderTHIS.bodyFacing = "fl";
             } else {
               fourDir = true;
               isMirrored =
@@ -68,14 +67,13 @@ module.exports = class AnimationEngine {
                 renderTHIS.act == "pick" &&
                 /f|^r$/.test(renderTHIS.bodyFacing)
               ) {
-                isMirrored = !isMirrored;
+                isMirrored = sprAct.reversedPick ? !isMirrored : isMirrored;
               }
             }
 
             const isMirroredBodyFacing = isMirrored
               ? renderTHIS.bodyFacing.replace("r", "l")
               : renderTHIS.bodyFacing;
-            const sprAct = spriteSheetData[renderTHIS.body];
             //add or increment self counter
             if (
               isNaN(renderTHIS.selfCounter) ||
@@ -202,7 +200,7 @@ module.exports = class AnimationEngine {
                 : this.headFacing;
               //get headAct to use for frameHead value
               const headAct =
-                !headIsAnimating && renderTHIS.act != "dead"
+                !headIsAnimating && !/dead/.test(renderTHIS.act)
                   ? "plain"
                   : renderTHIS.act;
               //determine the current frame index to render
@@ -217,9 +215,8 @@ module.exports = class AnimationEngine {
               img = sprActHead.img;
               srcX = sprActHead.xPos[frameNum];
 
-              const anchorAct = !/pick|damaged|freeze1|dead/.test(
-                renderTHIS.act
-              )
+              //these has different anchor
+              const anchorAct = !/pick|damaged|dead/.test(renderTHIS.act)
                 ? "normal"
                 : renderTHIS.act;
               //center it by formula: x position - (computed width / 2)

@@ -8,9 +8,6 @@ let allIndex = 0;
 module.exports = class AnimationTESTER extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      action: "",
-    };
   }
   componentDidMount() {
     const c = document.querySelector("#testerCanvas");
@@ -25,7 +22,7 @@ module.exports = class AnimationTESTER extends React.Component {
         body: "f_monk",
         bodyFacing: "f",
         act: "attack1",
-        head: "f_head0",
+        head: "f_head1",
       },
     ];
 
@@ -48,9 +45,7 @@ module.exports = class AnimationTESTER extends React.Component {
             <option value="standby">STANDBY</option>
             <option value="attack1">ATTACK1</option>
             <option value="damaged">DAMAGED</option>
-            <option value="freeze1">FREEZE1</option>
             <option value="dead">DEAD</option>
-            <option value="freeze2">FREEZE2</option>
             <option value="attack2">ATTACK2(no weapon)</option>
             <option value="attack3">ATTACK3</option>
             <option value="cast">CAST</option>

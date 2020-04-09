@@ -27,28 +27,20 @@ module.exports = {
 		start: 224,
 		count: 3,
 	},
-	freeze1: {
+	dead: {
 		start: 248,
 		count: 1,
 	},
-	dead: {
-		start: 256,
-		count: 1,
-	},
-	freeze2: {
-		start: 264,
-		count: 1,
-	},
 	attack2: {
-		start: 272,
+		start: 256,
 		count: 9,
 	},
 	attack3: {
-		start: 344,
+		start: 328,
 		count: 8,
 	},
 	cast: {
-		start: 408,
+		start: 392,
 		count: 6,
 	},
 };
