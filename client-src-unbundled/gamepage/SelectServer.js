@@ -6,12 +6,10 @@ module.exports = function SelectServer(props) {
   serverListActive = (e) => {
     const lists = document.querySelectorAll(".serverList");
     for (const item of lists) {
-      item.style.backgroundColor = "rgba(0,0,0,0)";
-      item.style.color = "white";
+      item.style.backgroundColor = "rgba(0, 0, 0, 0)";
     }
     const elem = e.target;
     elem.style.backgroundColor = "white";
-    elem.style.color = "black";
 
     serverSelected = elem.id;
   };

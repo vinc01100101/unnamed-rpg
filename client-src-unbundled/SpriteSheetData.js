@@ -1,23 +1,32 @@
 const fMonk = require("./animation-variables/fMonk");
 const fNinja = require("./animation-variables/fNinja");
+const fAlchemist = require("./animation-variables/fAlchemist");
 module.exports = function SpriteSheetData() {
   this.paths = {
     f_monk: "./assets/characters/body/fMonk.png",
     f_ninja: "./assets/characters/body/fNinja.png",
+    f_alchemist: "./assets/characters/body/fAlchemist.png",
 
     f_head0: "./assets/characters/head/f_head0.png",
     f_head1: "./assets/characters/head/f_head1.png",
   };
   //Body_____________________________________
   this.f_monk = {
-    img: null,
     data: fMonk,
-    reversedPick: true,
+    reversed: {
+      acts: ["pick"],
+      dirs: ["f"],
+    },
   };
   this.f_ninja = {
-    img: null,
     data: fNinja,
-    reversedPick: false,
+  };
+  this.f_alchemist = {
+    data: fAlchemist,
+    reversed: {
+      acts: ["attack1", "attack3"],
+      dirs: ["b", "b"],
+    },
   };
 
   //Head_____________________________________

@@ -63,12 +63,27 @@ module.exports = class AnimationEngine {
                 /^b$/.test(renderTHIS.bodyFacing);
 
               //pick animation has different order
-              if (
-                renderTHIS.act == "pick" &&
-                /f|^r$/.test(renderTHIS.bodyFacing)
-              ) {
-                isMirrored = sprAct.reversedPick ? !isMirrored : isMirrored;
+
+              const regs = { f: /f|^r$/, b: /b|^l$/ };
+              if (sprAct.reversed) {
+                const revIndex = sprAct.reversed.acts.indexOf(renderTHIS.act);
+                if (revIndex != -1) {
+                  if (
+                    regs[sprAct.reversed.dirs[revIndex]].test(
+                      renderTHIS.bodyFacing
+                    )
+                  ) {
+                    isMirrored = !isMirrored;
+                  }
+                }
               }
+
+              // if (
+              //   renderTHIS.act == "pick" &&
+              //   /f|^r$/.test(renderTHIS.bodyFacing)
+              // ) {
+              //   isMirrored = sprAct.reversedPick ? !isMirrored : isMirrored;
+              // }
             }
 
             const isMirroredBodyFacing = isMirrored

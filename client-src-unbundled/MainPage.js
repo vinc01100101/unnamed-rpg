@@ -6,6 +6,7 @@ const About = require("./gamepage/About");
 const SelectServer = require("./gamepage/SelectServer");
 const SelectCharacter = require("./gamepage/SelectCharacter");
 const CreateCharacter = require("./gamepage/CreateCharacter");
+const OG = require("./gamepage/OG");
 const BgAnimate = require("./BgAnimate");
 const PortraitScreen = require("./gamepage/PortraitScreen");
 
@@ -236,7 +237,7 @@ module.exports = () => {
             />
           )}
 
-          {this.state.show == "InGame" && <InGame />}
+          {this.state.show == "OG" && <OG />}
 
           {this.state.show == "About" && (
             <About _toggleVisibility={this._toggleVisibility} />

@@ -1,0 +1,118 @@
+html {
+	height: 95%;
+	width: 100%;
+
+	/*for removing text highlighting*/
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Old versions of Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Opera and Firefox */
+}
+
+body {
+	background-color: #393939;
+	height: 100%;
+	min-height: 100%;
+	width: 100%;
+}
+button {
+	margin: 5px;
+}
+#root {
+	height: 100%;
+	width: 100%;
+}
+#group1 {
+	display: flex;
+	max-width: 100%;
+	height: 100%;
+	flex-direction: row;
+}
+#mainCont {
+	height: 100%;
+	min-width: 1200px;
+}
+#mapCont {
+	position: relative;
+	width: 1000px;
+	height: 100%;
+	overflow: scroll;
+	margin: 5px;
+	background-color: gray;
+}
+#mapBase,
+#mapMid,
+#mapTop {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+#mapBase {
+	z-index: 0;
+}
+#mapMid {
+	z-index: 1;
+}
+#mapTop {
+	z-index: 2;
+}
+#mapGrid {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 3;
+}
+#mapClickCatcher {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 4;
+}
+#tilesCont {
+	position: relative;
+	width: 320px;
+	height: 80%;
+	overflow: scroll;
+	margin: 5px;
+}
+#frame,
+#frameSelect {
+	/* background-color: red; */
+	position: absolute;
+	left: 0;
+	top: 0;
+	opacity: 0.4;
+}
+#frameSelect {
+	opacity: 1;
+}
+#popupBG {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.7);
+	left: 0;
+	top: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	z-index: 1;
+}
+.popupCont {
+	background-color: white;
+	opacity: 1;
+	width: 250px;
+	height: 250px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+.popupCont button {
+	width: 80px;
+	margin: 5px;
+}

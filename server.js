@@ -110,11 +110,14 @@ mongoose.connect(
     emits(io, AccountModel);
     app.get("/", (req, res) => {
       res.render(__dirname + "/dist/index.pug", {
-        page: "GamePage",
+        page: "MainPage",
         isDesktop: req.useragent.isDesktop,
       });
     });
 
+    app.get("/mapmaker", (req, res) => {
+      res.sendFile(__dirname + "/dist/mapMaker.html");
+    });
     const port = process.env.PORT || 8080;
     http.listen(port, () => {
       console.log("Listening to port: " + port);

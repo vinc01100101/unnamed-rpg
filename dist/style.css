@@ -1,4 +1,7 @@
+
 html {
+ font-family: 'Baloo Tammudu 2';
+ /* font-weight: bold; */
   height: 100%;
   width: 100%;
   background-color: rgb(0, 0, 0);
@@ -13,17 +16,14 @@ html {
 }
 body {
   height: 100%;
-  font-family: "Indie Flower", cursive;
 }
-@font-face {
-  font-family: "Indie Flower";
-  src: local("Indie Flower"), local("Indie-Flower"),
-    url("assets/fonts/IndieFlower-Regular.ttf") format("opentype");
-}
+
 
 button,
 input {
-  font-family: "Indie Flower", cursive;
+  font-family: 'Baloo Tammudu 2';
+  font-weight: bold;
+  /*font-family: "Indie Flower", cursive;*/
 }
 #variables {
   display: none;
@@ -113,24 +113,23 @@ input {
 input {
   border: none;
   border-radius: 5px;
-  cursor: pointer;
   -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
-
   height: 10%;
   width: 120px;
   margin-top: 10px;
   text-align: center;
-  font-weight: bold;
-  background-color: rgba(184, 223, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.5);
 }
 .formContainer button:hover,
 input:hover {
   box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
     0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  background-color: rgba(255, 255, 255,1)
 }
 .formContainer button {
   color: rgb(48, 48, 48);
+  cursor: pointer;
   background-color: rgba(184, 223, 255, 0.7);
 }
 .formContainer p {
@@ -145,11 +144,19 @@ input:hover {
   list-style-type: none;
   width: 120px;
   color: rgb(48, 48, 48);
+  border: 2px solid rgb(48, 48, 48);
+  border-radius: 5px;
   background-color: rgba(184, 223, 255, 0.7);
   padding: 0;
   margin: 0;
+  
 }
+.formContainer ul li{
+  margin: 5px;
+  padding: 5px;
 
+  border-radius: 5px;
+}
 /* @media (min-width: 700px) {
   body {
     display: flex;
@@ -179,14 +186,20 @@ input:hover {
   background-color: rgba(0, 0, 0, 0.7);
 }
 
-canvas {
-  position: absolute;
+#testWindow{
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+}
+
+#testCanvas {
+  /* position: absolute; */
+  margin: 20px;
   left: 0;
   top: 0;
-  /* background-color: thistle; */
-  z-index: 0;
-  margin: 20px;
-  transition: all 2s ease-in-out;
 }
 #testControls {
   position: relative;
@@ -194,9 +207,10 @@ canvas {
   height: 100%;
   z-index: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  flex-wrap: wrap;
 }
 #testWindow{
   width: 100%;
@@ -211,4 +225,24 @@ canvas {
 
 #orientationError a {
   color: rgba(184, 223, 255, 0.7);
+}
+
+
+/* On Game Page */
+
+#OGPage{
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+#OGCanvas{
+  background-color: blue;
+  width: 100%;
+}
+#OGPage h1{
+  color:  white;
 }

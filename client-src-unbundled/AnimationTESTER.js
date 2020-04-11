@@ -14,12 +14,12 @@ module.exports = class AnimationTESTER extends React.Component {
     this.animationEngine = new AnimationEngine(
       c,
       this.props.spriteSheetData,
-      10
+      40
     );
     this.animationEngine.renderThese = [
       {
         type: "player", // types = player,npc
-        body: "f_monk",
+        body: "f_alchemist",
         bodyFacing: "f",
         act: "attack1",
         head: "f_head1",
@@ -99,45 +99,36 @@ module.exports = class AnimationTESTER extends React.Component {
           >
             Head Up
           </button>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              width: "300px",
-              height: "50px",
+          <button
+            onClick={() => {
+              this.animationEngine.adjustHeadXY.x[
+                this.animationEngine.headFacing
+              ]--;
+
+              console.log(
+                this.animationEngine.adjustHeadXY.x[
+                  this.animationEngine.headFacing
+                ]
+              );
             }}
           >
-            <button
-              onClick={() => {
+            Head Left
+          </button>
+          <button
+            onClick={() => {
+              this.animationEngine.adjustHeadXY.x[
+                this.animationEngine.headFacing
+              ]++;
+
+              console.log(
                 this.animationEngine.adjustHeadXY.x[
                   this.animationEngine.headFacing
-                ]--;
-
-                console.log(
-                  this.animationEngine.adjustHeadXY.x[
-                    this.animationEngine.headFacing
-                  ]
-                );
-              }}
-            >
-              Head Left
-            </button>
-            <button
-              onClick={() => {
-                this.animationEngine.adjustHeadXY.x[
-                  this.animationEngine.headFacing
-                ]++;
-
-                console.log(
-                  this.animationEngine.adjustHeadXY.x[
-                    this.animationEngine.headFacing
-                  ]
-                );
-              }}
-            >
-              Head Right
-            </button>
-          </div>
+                ]
+              );
+            }}
+          >
+            Head Right
+          </button>
           <button
             onClick={() => {
               this.animationEngine.adjustHeadXY.y[
