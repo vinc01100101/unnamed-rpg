@@ -116,8 +116,13 @@ mongoose.connect(
     });
 
     app.get("/mapmaker", (req, res) => {
-      res.sendFile(__dirname + "/dist/mapMaker.html");
+      res.sendFile(__dirname + "/dist/mapMaker/mapMaker.html");
     });
+
+    app.get("/spr", (req, res) => {
+      res.sendFile(__dirname + "/dist/sprGenerator/index.html");
+    });
+
     const port = process.env.PORT || 8080;
     http.listen(port, () => {
       console.log("Listening to port: " + port);

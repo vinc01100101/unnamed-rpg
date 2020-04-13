@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="/sprGenerator/dropzone.css" type="text/css" />
+    <style>
+      #canvContainer {
+        width: 80%;
+        overflow-y: scroll;
+        border: solid black 5px;
+      }
+      #hackerCanvas {
+      }
+    </style>
+  </head>
+  <body>
+    <p id="num">Xpos:</p>
+    <p id="wid">Widths:</p>
+    <p id="hyt">Heights:</p>
+    <br />
+    <br />
+    <br />
+    <br />
+    <p id="count">Count:</p>
+    <div id="canvContainer">
+      <canvas id="hackerCanvas"></canvas>
+    </div>
+    <button onclick="getEm()">Get em!</button>
+    <form
+      action="/file-upload"
+      class="dropzone"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <div class="fallback">
+        <input name="file" type="file" multiple />
+      </div>
+    </form>
+
+    <script src="/sprGenerator/dropzone.js" type="text/javascript"></script>
+    <script src="/sprGenerator/index.js"></script>
+  </body>
+</html>
