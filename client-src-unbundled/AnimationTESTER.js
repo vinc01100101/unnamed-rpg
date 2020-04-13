@@ -1,5 +1,6 @@
 const React = require("react");
 const AnimationEngine = require("./AnimationEngine");
+const DATA_INDICES = require("./animation-variables/456indices");
 
 const directions = ["f", "fl", "l", "bl", "b", "br", "r", "fr"];
 let headIndex = 0;
@@ -11,22 +12,43 @@ module.exports = class AnimationTESTER extends React.Component {
   }
   componentDidMount() {
     const c = document.querySelector("#testerCanvas");
-    this.animationEngine = new AnimationEngine(
-      c,
-      this.props.spriteSheetData,
-      40
-    );
-    this.animationEngine.renderThese = [
-      {
-        type: "player", // types = player,npc
-        body: "f_alchemist",
-        bodyFacing: "f",
-        act: "attack1",
-        head: "f_head1",
-      },
-    ];
 
-    this.animationEngine.initialize();
+    if (!this.props.worker) {
+      console.log(
+        "Worker not found, rendering will be processed on the main thread"
+      );
+      this.animationEngine = new AnimationEngine(
+        c,
+        this.props.spriteSheetData,
+        40
+      );
+      this.animationEngine.renderThese = [
+        {
+          type: "player", // types = player,npc
+          body: "f_alchemist",
+          bodyFacing: "f",
+          act: "attack1",
+          head: "f_head1",
+        },
+      ];
+      this.animationEngine.initialize();
+      //else if no worker found
+    } else {
+      console.log("Worker found, rendering on the worker thread");
+      const offscreen = c.transferControlToOffscreen();
+      this.props.worker.postMessage(
+        {
+          type: "animationInit",
+          args: [
+            offscreen,
+            JSON.stringify(this.props.spriteSheetData),
+            10,
+            DATA_INDICES,
+          ],
+        },
+        [offscreen]
+      );
+    }
   }
   render() {
     return (

@@ -44,7 +44,9 @@ button {
 	background-color: gray;
 }
 #mapBase,
+#mapShadowMid,
 #mapMid,
+#mapShadowTop,
 #mapTop {
 	position: absolute;
 	left: 0;
@@ -53,27 +55,38 @@ button {
 #mapBase {
 	z-index: 0;
 }
-#mapMid {
+#mapShadowMid {
 	z-index: 1;
 }
-#mapTop {
+#mapMid {
 	z-index: 2;
+}
+#mapShadowTop {
+	z-index: 3;
+}
+#mapTop {
+	z-index: 4;
 }
 #mapGrid {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 3;
+	z-index: 5;
 }
 #mapClickCatcher {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 4;
+	z-index: 6;
+}
+#mapScaler{
+	position: relative;
+	transition: all 0.7s;
+	background-color: #202020;
 }
 #tilesCont {
 	position: relative;
-	width: 320px;
+	width: 480px;
 	height: 80%;
 	overflow: scroll;
 	margin: 5px;
@@ -89,6 +102,23 @@ button {
 #frameSelect {
 	opacity: 1;
 }
+#controls{
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+
+}
+.mainControls{
+	display: flex;
+	flex-direction: row;
+	flex-wrap:  wrap;
+	align-items: flex-start;
+}
+.mCChild{
+	border:  solid black 1px;
+	display: flex;
+	flex-direction: column;
+}
 #popupBG {
 	position: fixed;
 	width: 100%;
@@ -100,7 +130,7 @@ button {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	z-index: 1;
+	z-index: 7;
 }
 .popupCont {
 	background-color: white;

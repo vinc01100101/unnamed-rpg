@@ -1,76 +1,20 @@
-//map dragger
-
 let cellWidth = 32,
 	cellHeight = 32,
+	cols,
+	rows,
 	selX,
 	selY,
 	selW,
 	selH,
+	//DOMS
 	ref,
 	mapBase,
+	mapShadowMid,
 	mapMid,
+	mapShadowTop,
 	mapTop,
-	layerSelect,
-	erase = false;
-
-$.fn.attachDragger = function () {
-	var attachment = false,
-		lastPosition,
-		position,
-		difference;
-
-	const frameSelect = document.querySelector("#frameSelect"),
-		ctx = frameSelect.getContext("2d");
-
-	let offX, offY;
-
-	$(this).on("mousedown mouseup mousemove", function (e) {
-		if (e.buttons == 2) {
-			if (e.type == "mousedown")
-				(attachment = true), (lastPosition = [e.clientX, e.clientY]);
-			if (e.type == "mouseup") attachment = false;
-			if (e.type == "mousemove" && attachment == true) {
-				position = [e.clientX, e.clientY];
-				difference = [
-					position[0] - lastPosition[0],
-					position[1] - lastPosition[1],
-				];
-				$(this).scrollLeft($(this).scrollLeft() - difference[0]);
-				$(this).scrollTop($(this).scrollTop() - difference[1]);
-				lastPosition = [e.clientX, e.clientY];
-			}
-		} else if (e.buttons == 1 && e.target.id == "frameSelect") {
-			erase = false;
-			(offX = e.offsetX), (offY = e.offsetY);
-			if (e.type == "mousedown") {
-				selX = offX - (offX % cellWidth);
-				selY = offY - (offY % cellHeight);
-				selW = cellWidth;
-				selH = cellHeight;
-			}
-			if (e.type == "mousemove") {
-				const tempX = offX - selX,
-					tempY = offY - selY;
-				selW = tempX - (tempX % cellWidth) + cellWidth;
-				selH = tempY - (tempY % cellHeight) + cellHeight;
-			}
-			ctx.clearRect(0, 0, frameSelect.width, frameSelect.height);
-			ctx.beginPath();
-			ctx.rect(selX, selY, selW, selH);
-			ctx.strokeStyle = "red";
-			ctx.lineWidth = 5;
-			ctx.stroke();
-		}
-	});
-	$(window).on("mouseup", function () {
-		attachment = false;
-	});
-};
-
-$(document).ready(function () {
-	$("#tilesCont").attachDragger();
-	$("#mapCont").attachDragger();
-});
+	layerSelect;
+let saveX, saveY;
 
 class MapMaker extends React.Component {
 	constructor(props) {
@@ -79,6 +23,7 @@ class MapMaker extends React.Component {
 			showFileOptions: false,
 			showOpsChildren: "main",
 			toggleMapGrid: true,
+			erase: false,
 		};
 
 		this._showFileOptions = this._showFileOptions.bind(this);
@@ -90,7 +35,9 @@ class MapMaker extends React.Component {
 	componentDidMount() {
 		ref = document.querySelector("#tileset");
 		mapBase = document.querySelector("#mapBase");
+		mapShadowMid = document.querySelector("#mapShadowMid");
 		mapMid = document.querySelector("#mapMid");
+		mapShadowTop = document.querySelector("#mapShadowTop");
 		mapTop = document.querySelector("#mapTop");
 		layerSelect = document.querySelector("#layerSelect");
 
@@ -98,12 +45,154 @@ class MapMaker extends React.Component {
 			document
 				.querySelector("#mapClickCatcher")
 				.addEventListener(x, (e) => {
-					if (!erase) e.target.style.cursor = "grabbing";
+					if (!this.state.erase) e.target.style.cursor = "grabbing";
 					if (e.buttons == 1) {
-						if (!erase) e.target.style.cursor = "grab";
+						if (!this.state.erase) e.target.style.cursor = "grab";
 						this._drawTile(e);
 					}
 				});
+		});
+
+		//ZOOM FUNCTION
+		let scX = 0.1,
+			scY = 0.1;
+		document
+			.querySelector("#mapClickCatcher")
+			.addEventListener("wheel", (e) => {
+				console.log(scX + "_" + scY);
+				e.preventDefault();
+				[scX, scY] =
+					e.deltaY < 0
+						? [scX + 0.1, scY + 0.1]
+						: [scX - 0.1, scY - 0.1];
+
+				if (scX < -0.3) {
+					[scX, scY] = [-0.3, -0.3];
+				}
+				if (scX > 1.9) {
+					[scX, scY] = [1.9, 1.9];
+				}
+				const x = cols * cellWidth * scX,
+					y = rows * cellHeight * scY;
+				document.querySelector(
+					"#mapScaler"
+				).style.transform = `translate(${x}px,${y}px) scale(${
+					1 + scX * 2
+				},${1 + scY * 2})`;
+			});
+		window.addEventListener("keypress", (e) => {
+			switch (e.keyCode) {
+				case 101:
+					this.setState((currState) => {
+						return { erase: !currState.erase };
+					});
+			}
+		});
+
+		const that = this;
+		//===============
+		$.fn.attachDragger = function () {
+			var attachment = false,
+				lastPosition,
+				position,
+				difference;
+
+			const frameSelect = document.querySelector("#frameSelect"),
+				mapClickCatcher = document.querySelector("#mapClickCatcher"),
+				ctx = frameSelect.getContext("2d"),
+				ctx2 = mapClickCatcher.getContext("2d");
+
+			$(this).on("mousedown mouseup mousemove", function (e) {
+				let offX = e.offsetX,
+					offY = e.offsetY;
+
+				if (e.buttons == 2) {
+					if (e.type == "mousedown")
+						(attachment = true),
+							(lastPosition = [e.clientX, e.clientY]);
+					if (e.type == "mouseup") attachment = false;
+					if (e.type == "mousemove" && attachment == true) {
+						position = [e.clientX, e.clientY];
+						difference = [
+							position[0] - lastPosition[0],
+							position[1] - lastPosition[1],
+						];
+						$(this).scrollLeft(
+							$(this).scrollLeft() - difference[0]
+						);
+						$(this).scrollTop($(this).scrollTop() - difference[1]);
+						lastPosition = [e.clientX, e.clientY];
+					}
+				} else if (e.buttons == 1 && e.target.id == "frameSelect") {
+					that.state.erase = false;
+
+					if (e.type == "mousedown") {
+						selX = offX - (offX % cellWidth);
+						selY = offY - (offY % cellHeight);
+						[saveX, saveY] = [selX, selY];
+						selW = cellWidth;
+						selH = cellHeight;
+						that.setState({
+							erase: false,
+						});
+					}
+					if (e.type == "mousemove") {
+						const tempX = offX - selX,
+							tempY = offY - selY;
+						const operatorX = tempX >= 0 ? 1 : -1,
+							operatorY = tempY >= 0 ? 1 : -1;
+
+						//enable selecting square back and fort
+						if (operatorX == -1) {
+							selX = saveX + cellWidth;
+						} else selX = saveX;
+						if (operatorY == -1) {
+							selY = saveY + cellHeight;
+						} else selY = saveY;
+						selW =
+							tempX - (tempX % cellWidth) + cellWidth * operatorX;
+						selH =
+							tempY -
+							(tempY % cellHeight) +
+							cellHeight * operatorY;
+					}
+					ctx.clearRect(0, 0, frameSelect.width, frameSelect.height);
+					ctx.beginPath();
+					ctx.rect(selX, selY, selW, selH);
+					ctx.strokeStyle = "red";
+					ctx.lineWidth = 5;
+					ctx.stroke();
+				} else if (
+					e.target.id == "mapClickCatcher" &&
+					e.type == "mousemove"
+				) {
+					const oX = e.offsetX,
+						oY = e.offsetY;
+
+					const x = Math.floor(oX / cellWidth) * cellWidth,
+						y = Math.floor(oY / cellHeight) * cellHeight;
+
+					ctx2.clearRect(
+						0,
+						0,
+						mapClickCatcher.width,
+						mapClickCatcher.height
+					);
+					ctx2.beginPath();
+					ctx2.rect(x, y, selW, selH);
+					ctx2.strokeStyle = "red";
+					ctx2.lineWidth = 5;
+					ctx2.stroke();
+				}
+			});
+			$(window).on("mouseup", function () {
+				attachment = false;
+			});
+		};
+
+		$(document).ready(function () {
+			$("#tilesCont").attachDragger();
+			$("#mapCont").attachDragger();
 		});
 	}
 	_showFileOptions() {
@@ -133,11 +222,10 @@ class MapMaker extends React.Component {
 			cc = document.querySelector("#mapClickCatcher"),
 			u = document.querySelector("#px"),
 			w = document.querySelector("#newWidth"),
-			h = document.querySelector("#newHeight");
+			h = document.querySelector("#newHeight"),
+			mapScaler = document.querySelector("#mapScaler");
 
 		let mapW, mapH;
-
-		let cols, rows;
 
 		if (u.checked) {
 			cols = Math.floor(w.value / cellWidth);
@@ -150,22 +238,18 @@ class MapMaker extends React.Component {
 				(mapH = h.value * 32);
 		}
 
-		mapBase.width = mapW;
-		mapBase.height = mapH;
-		mapMid.width = mapW;
-		mapMid.height = mapH;
-		mapTop.width = mapW;
-		mapTop.height = mapH;
-		g.width = mapW;
-		g.height = mapH;
-		cc.style.width = mapW + "px";
-		cc.style.height = mapH + "px";
+		[mapBase, mapShadowMid, mapMid, mapShadowTop, mapTop, g, cc].map(
+			(x) => {
+				(x.width = mapW), (x.height = mapH), (x.style.opacity = 1);
+			}
+		);
+		mapScaler.style.width = mapW + "px";
+		mapScaler.style.height = mapH + "px";
 
 		const ctx = g.getContext("2d");
 		let i = 0;
 		for (i; i <= cols; i++) {
 			const x = i * cellWidth;
-			console.log(x);
 			ctx.beginPath();
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, mapH);
@@ -175,7 +259,6 @@ class MapMaker extends React.Component {
 		i = 0;
 		for (i; i <= rows; i++) {
 			const y = i * cellHeight;
-			console.log(y);
 			ctx.beginPath();
 			ctx.moveTo(0, y);
 			ctx.lineTo(mapW, y);
@@ -194,15 +277,14 @@ class MapMaker extends React.Component {
 		const x = Math.floor(oX / cellWidth) * cellWidth,
 			y = Math.floor(oY / cellHeight) * cellHeight;
 
-		const layers = {
-			Base: mapBase,
-			Mid: mapMid,
-			Top: mapTop,
-		};
-		const ctx = layers[layerSelect.value].getContext("2d");
+		const ctx = document
+			.querySelector("#" + layerSelect.value)
+			.getContext("2d");
 
-		ctx.clearRect(x, y, selW, selH);
-		if (erase) return;
+		if (this.state.erase) {
+			ctx.clearRect(x, y, selW, selH);
+			return;
+		}
 		ctx.drawImage(ref, selX, selY, selW, selH, x, y, selW, selH);
 	}
 	_toggleVisibility(e) {
@@ -214,6 +296,7 @@ class MapMaker extends React.Component {
 	render() {
 		return (
 			<div id="mainCont">
+				{/*FILES OPTION*/}
 				{this.state.showFileOptions && (
 					<div id="popupBG">
 						{this.state.showOpsChildren == "main" && (
@@ -307,17 +390,8 @@ class MapMaker extends React.Component {
 				{/*CANVASES--------------------------------------------*/}
 				<div id="group1">
 					<div id="controls">
-						<button onClick={this._showFileOptions}>File</button>
-						<button onClick={this._toggleMapGrid}>
-							Toggle Map Grid
-						</button>
-
-						<div
-							id="tilesCont"
-							onClick={(e) => {
-								console.log("CLICKED");
-							}}
-						>
+						{/*TILESET*/}
+						<div id="tilesCont" onClick={(e) => {}}>
 							<img
 								id="tileset"
 								src="/assets/maps/maptiles1.png"
@@ -363,72 +437,158 @@ class MapMaker extends React.Component {
 							<canvas id="frame"></canvas>
 							<canvas id="frameSelect"></canvas>
 						</div>
-						<select id="layerSelect">
-							<option value="Base">Base</option>
-							<option value="Mid">Mid</option>
-							<option value="Top">Top</option>
-						</select>
-						<select
-							onChange={(e) => {
-								document.querySelector(
-									"#mapTop"
-								).style.opacity = e.target.value;
-							}}
-						>
-							<option value="1">100%</option>
-							<option value="0.7">70%</option>
-							<option value="0.3">30%</option>
-						</select>
-						<button
-							onClick={() => {
-								erase = true;
-								document.querySelector(
-									"#mapClickCatcher"
-								).style.cursor = "cell";
-							}}
-						>
-							Erase
-						</button>
-						<label htmlFor="b">Base</label>
-						<input
-							onChange={this._toggleVisibility}
-							type="checkbox"
-							defaultChecked
-							id="b"
-							value="mapBase"
-						/>
-						<label htmlFor="m">Mid</label>
-						<input
-							onChange={this._toggleVisibility}
-							type="checkbox"
-							defaultChecked
-							id="m"
-							value="mapMid"
-						/>
-						<label htmlFor="t">Top</label>
-						<input
-							onChange={this._toggleVisibility}
-							type="checkbox"
-							defaultChecked
-							id="t"
-							value="mapTop"
-						/>
+
+						{/*CONTROLS*/}
+						<div className="mainControls">
+							<div className="mCChild" style={{ color: "white" }}>
+								Layer Visibility
+								<div>
+									<input
+										onChange={this._toggleVisibility}
+										type="checkbox"
+										defaultChecked
+										id="b"
+										value="mapBase"
+									/>
+									<label htmlFor="b">Base</label>
+								</div>
+								<div>
+									<input
+										onChange={this._toggleVisibility}
+										type="checkbox"
+										defaultChecked
+										id="sm"
+										value="mapShadowMid"
+									/>
+									<label htmlFor="sm">Shadow Mid</label>
+								</div>
+								<div>
+									<input
+										onChange={this._toggleVisibility}
+										type="checkbox"
+										defaultChecked
+										id="m"
+										value="mapMid"
+									/>
+									<label htmlFor="m">Mid</label>
+								</div>
+								<div>
+									<input
+										onChange={this._toggleVisibility}
+										type="checkbox"
+										defaultChecked
+										id="st"
+										value="mapShadowTop"
+									/>
+									<label htmlFor="st">Shadow Top</label>
+								</div>
+								<div>
+									<input
+										onChange={this._toggleVisibility}
+										type="checkbox"
+										defaultChecked
+										id="t"
+										value="mapTop"
+									/>
+									<label htmlFor="t">Top</label>
+								</div>
+							</div>
+							<div className="mCChild">
+								<button onClick={this._showFileOptions}>
+									File
+								</button>
+								<button onClick={this._toggleMapGrid}>
+									Toggle Map Grid
+								</button>
+								Layer:
+								<select
+									id="layerSelect"
+									onChange={(e) => {
+										document.querySelector(
+											"#opacitySelect"
+										).value = document.querySelector(
+											"#" + e.target.value
+										).style.opacity;
+									}}
+								>
+									<option value="mapBase">Base</option>
+									<option value="mapShadowMid">
+										Mid Shadow
+									</option>
+									<option value="mapMid">Mid</option>
+									<option value="mapShadowTop">
+										Top Shadow
+									</option>
+									<option value="mapTop">Top</option>
+								</select>
+								<select
+									id="opacitySelect"
+									defaultValue="label"
+									onChange={(e) => {
+										const elem = document.querySelector(
+											"#layerSelect"
+										).value;
+										document.querySelector(
+											"#" + elem
+										).style.opacity = e.target.value;
+									}}
+								>
+									<option disabled value="label">
+										Opacity
+									</option>
+									<option value="1">100%</option>
+									<option value="0.7">70%</option>
+									<option value="0.3">30%</option>
+								</select>
+								<button
+									id="eraser"
+									style={{
+										backgroundColor: this.state.erase
+											? "white"
+											: "black",
+									}}
+									onClick={(e) => {
+										this.setState({
+											erase: true,
+										});
+									}}
+								>
+									Eraser ("E" toggle)
+								</button>
+							</div>
+						</div>
 					</div>
 					<div id="mapCont">
-						<canvas id="mapBase" width="0" height="0"></canvas>
-						<canvas id="mapMid" width="0" height="0"></canvas>
-						<canvas id="mapTop" width="0" height="0"></canvas>
-						<canvas
-							id="mapGrid"
-							width="0"
-							height="0"
-							style={{
-								display: this.state.toggleMapGrid
-									? "block"
-									: "none",
-							}}
-						></canvas>
-						<div id="mapClickCatcher"></div>
+						<div id="mapScaler">
+							<canvas id="mapBase" width="0" height="0"></canvas>
+							<canvas
+								id="mapShadowMid"
+								width="0"
+								height="0"
+							></canvas>
+							<canvas id="mapMid" width="0" height="0"></canvas>
+							<canvas
+								id="mapShadowTop"
+								width="0"
+								height="0"
+							></canvas>
+							<canvas id="mapTop" width="0" height="0"></canvas>
+							<canvas
+								id="mapGrid"
+								width="0"
+								height="0"
+								style={{
+									display: this.state.toggleMapGrid
+										? "block"
+										: "none",
+								}}
+							></canvas>
+							<canvas
+								id="mapClickCatcher"
+								width="0"
+								height="0"
+							></canvas>
+						</div>
 					</div>
 				</div>
 			</div>

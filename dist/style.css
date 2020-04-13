@@ -195,11 +195,9 @@ input:hover {
 
 }
 
-#testCanvas {
+#testerCanvas {
   /* position: absolute; */
   margin: 20px;
-  left: 0;
-  top: 0;
 }
 #testControls {
   position: relative;

@@ -60,16 +60,27 @@ module.exports = () => {
     }
 
     componentDidMount() {
+      if (window.Worker) {
+        console.log("Worker API supported");
+        this.worker = new Worker("./animation-worker.js");
+      } else {
+        console.log("Worker API not supported");
+      }
+
       this.bgAnimate = new BgAnimate();
       this.bgAnimate.initialize();
       this.bgAnimate.startTransition();
 
       let assetDownloader = new AssetDownloader();
       this.spriteSheetData = new SpriteSheetData();
-      assetDownloader.downloadAll(this.spriteSheetData, (err, info) => {
-        if (err) console.log(err);
-        if (info) console.log(info);
-      });
+      assetDownloader.downloadAll(
+        this.spriteSheetData,
+        this.worker,
+        (err, info) => {
+          if (err) console.log(err);
+          if (info) console.log(info);
+        }
+      );
 
       if (document.querySelector("#isDesktop").textContent == "true") {
         console.log("DESKTOP");
@@ -190,6 +201,7 @@ module.exports = () => {
               _setStateCallback={this._setStateCallback}
               info={this.state.info}
               spriteSheetData={this.spriteSheetData}
+              worker={this.worker}
             />
           )}
 
