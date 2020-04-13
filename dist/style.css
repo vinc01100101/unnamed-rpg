@@ -1,7 +1,6 @@
-
 html {
- font-family: 'Baloo Tammudu 2';
- /* font-weight: bold; */
+  font-family: "Baloo Tammudu 2";
+  /* font-weight: bold; */
   height: 100%;
   width: 100%;
   background-color: rgb(0, 0, 0);
@@ -18,10 +17,9 @@ body {
   height: 100%;
 }
 
-
 button,
 input {
-  font-family: 'Baloo Tammudu 2';
+  font-family: "Baloo Tammudu 2";
   font-weight: bold;
   /*font-family: "Indie Flower", cursive;*/
 }
@@ -125,7 +123,7 @@ input {
 input:hover {
   box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
     0 17px 50px 0 rgba(0, 0, 0, 0.19);
-  background-color: rgba(255, 255, 255,1)
+  background-color: rgba(255, 255, 255, 1);
 }
 .formContainer button {
   color: rgb(48, 48, 48);
@@ -149,9 +147,8 @@ input:hover {
   background-color: rgba(184, 223, 255, 0.7);
   padding: 0;
   margin: 0;
-  
 }
-.formContainer ul li{
+.formContainer ul li {
   margin: 5px;
   padding: 5px;
 
@@ -186,13 +183,12 @@ input:hover {
   background-color: rgba(0, 0, 0, 0.7);
 }
 
-#testWindow{
+#testWindow {
   z-index: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
 }
 
 #testerCanvas {
@@ -210,7 +206,16 @@ input:hover {
   justify-content: flex-start;
   flex-wrap: wrap;
 }
-#testWindow{
+#testControls button,
+#testControls select {
+  margin: 1px;
+  background-color: white;
+  color:  black;
+  height: 20px;
+  padding:  0px;
+
+}
+#testWindow {
   width: 100%;
 }
 /* Orientation error */
@@ -225,10 +230,9 @@ input:hover {
   color: rgba(184, 223, 255, 0.7);
 }
 
-
 /* On Game Page */
 
-#OGPage{
+#OGPage {
   z-index: 0;
   display: flex;
   flex-direction: column;
@@ -237,10 +241,10 @@ input:hover {
   width: 100%;
   height: 100%;
 }
-#OGCanvas{
+#OGCanvas {
   background-color: blue;
   width: 100%;
 }
-#OGPage h1{
-  color:  white;
+#OGPage h1 {
+  color: white;
 }

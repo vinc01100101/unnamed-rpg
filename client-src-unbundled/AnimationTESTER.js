@@ -3,9 +3,8 @@ const AnimationEngine = require("./AnimationEngine");
 const DATA_INDICES = require("./animation-variables/456indices");
 
 const directions = ["f", "fl", "l", "bl", "b", "br", "r", "fr"];
-let headIndex = 0;
-let bodyIndex = 0;
 let allIndex = 0;
+
 module.exports = class AnimationTESTER extends React.Component {
   constructor(props) {
     super(props);
@@ -14,24 +13,9 @@ module.exports = class AnimationTESTER extends React.Component {
     const c = document.querySelector("#testerCanvas");
 
     if (!this.props.worker) {
-      console.log(
-        "Worker not found, rendering will be processed on the main thread"
+      alert(
+        "Worker API not supported on this browser. Unable to render animation."
       );
-      this.animationEngine = new AnimationEngine(
-        c,
-        this.props.spriteSheetData,
-        40
-      );
-      this.animationEngine.renderThese = [
-        {
-          type: "player", // types = player,npc
-          body: "f_alchemist",
-          bodyFacing: "f",
-          act: "attack1",
-          head: "f_head1",
-        },
-      ];
-      this.animationEngine.initialize();
       //else if no worker found
     } else {
       console.log("Worker found, rendering on the worker thread");
@@ -74,6 +58,31 @@ module.exports = class AnimationTESTER extends React.Component {
             <option value="attack2">ATTACK2(no weapon)</option>
             <option value="attack3">ATTACK3</option>
             <option value="cast">CAST</option>
+          </select>
+
+          <select
+            onChange={(e) => {
+              this.props.worker.postMessage({
+                type: "test_class",
+                jobclass: e.target.value,
+              });
+            }}
+          >
+            <option value="f_monk">Monk (F)</option>
+            <option value="f_ninja">Ninja (F)</option>
+            <option value="f_alchemist">Alchemist (F)</option>
+          </select>
+
+          <select
+            onChange={(e) => {
+              this.props.worker.postMessage({
+                type: "test_head",
+                head: e.target.value,
+              });
+            }}
+          >
+            <option value="f_head0">Head_0 (F)</option>
+            <option value="f_head1">Head_1 (F)</option>
           </select>
 
           <button

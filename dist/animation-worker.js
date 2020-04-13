@@ -27,7 +27,8 @@ onmessage = (e) => {
 					body: "f_monk",
 					bodyFacing: "f",
 					act: "walk",
-					head: "f_head1",
+					head: "f_head0",
+					speed: 80,
 				},
 			];
 			animationEngine.initialize();
@@ -44,6 +45,14 @@ onmessage = (e) => {
 
 		case "test_act":
 			animationEngine.renderThese[0].act = e.data.act;
+			break;
+
+		case "test_class":
+			animationEngine.renderThese[0].body = e.data.jobclass;
+			break;
+
+		case "test_head":
+			animationEngine.renderThese[0].head = e.data.head;
 			break;
 
 		case "test_head_up":
@@ -118,12 +127,15 @@ class AnimationEngine {
 		this.renderThese = [];
 
 		//store request id's
-		let reqID;
+		let reqID, start, progress;
 
 		//initialize the timer
 		this.initialize = () => {
-			const render = () => {
-				console.log("rendering");
+			const render = (timestamp) => {
+				if (!start) {
+					start = timestamp;
+				}
+				progress = timestamp - start;
 				//clear canvas first
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				//map on array of objects to render
@@ -386,7 +398,10 @@ class AnimationEngine {
 						ctx.restore();
 					}
 					if (!rotatable) {
-						renderTHIS.selfCounter++;
+						if (progress >= renderTHIS.speed) {
+							renderTHIS.selfCounter++;
+							start = timestamp;
+						}
 					}
 				});
 				reqID = requestAnimationFrame(render);
