@@ -57,7 +57,10 @@ module.exports = class AnimationTESTER extends React.Component {
         <div id="testControls">
           <select
             onChange={(e) => {
-              this.animationEngine.renderThese[0].act = e.target.value;
+              this.props.worker.postMessage({
+                type: "test_act",
+                act: e.target.value,
+              });
             }}
           >
             <option value="idle">IDLE</option>
@@ -80,11 +83,10 @@ module.exports = class AnimationTESTER extends React.Component {
               } else {
                 allIndex++;
               }
-
-              this.animationEngine.renderThese[0].bodyFacing =
-                directions[allIndex];
-              this.animationEngine.renderThese[0].headFacing =
-                directions[allIndex];
+              this.props.worker.postMessage({
+                type: "test_rotate",
+                dir: directions[allIndex],
+              });
             }}
           >
             ROTATE
@@ -96,11 +98,10 @@ module.exports = class AnimationTESTER extends React.Component {
               } else {
                 allIndex--;
               }
-
-              this.animationEngine.renderThese[0].bodyFacing =
-                directions[allIndex];
-              this.animationEngine.renderThese[0].headFacing =
-                directions[allIndex];
+              this.props.worker.postMessage({
+                type: "test_rotate_back",
+                dir: directions[allIndex],
+              });
             }}
           >
             ROTATE BACK
@@ -108,81 +109,63 @@ module.exports = class AnimationTESTER extends React.Component {
 
           <button
             onClick={() => {
-              this.animationEngine.adjustHeadXY.y[
-                this.animationEngine.headFacing
-              ]--;
-
-              console.log(
-                this.animationEngine.adjustHeadXY.y[
-                  this.animationEngine.headFacing
-                ]
-              );
+              this.props.worker.postMessage({
+                type: "test_head_up",
+              });
             }}
           >
             Head Up
           </button>
           <button
             onClick={() => {
-              this.animationEngine.adjustHeadXY.x[
-                this.animationEngine.headFacing
-              ]--;
-
-              console.log(
-                this.animationEngine.adjustHeadXY.x[
-                  this.animationEngine.headFacing
-                ]
-              );
+              this.props.worker.postMessage({
+                type: "test_head_left",
+              });
             }}
           >
             Head Left
           </button>
           <button
             onClick={() => {
-              this.animationEngine.adjustHeadXY.x[
-                this.animationEngine.headFacing
-              ]++;
-
-              console.log(
-                this.animationEngine.adjustHeadXY.x[
-                  this.animationEngine.headFacing
-                ]
-              );
+              this.props.worker.postMessage({
+                type: "test_head_right",
+              });
             }}
           >
             Head Right
           </button>
           <button
             onClick={() => {
-              this.animationEngine.adjustHeadXY.y[
-                this.animationEngine.headFacing
-              ]++;
-
-              console.log(
-                this.animationEngine.adjustHeadXY.y[
-                  this.animationEngine.headFacing
-                ]
-              );
+              this.props.worker.postMessage({
+                type: "test_head_down",
+              });
             }}
           >
             Head Down
           </button>
           <button
             onClick={() => {
-              this.animationEngine.terminate();
+              {
+                /*this.animationEngine.terminate();*/
+              }
             }}
           >
             PAUSE
           </button>
           <button
             onClick={() => {
-              this.animationEngine.initialize();
+              {
+                /*this.animationEngine.initialize();*/
+              }
             }}
           >
             RESUME
           </button>
           <button
             onClick={() => {
-              alert(JSON.stringify(this.animationEngine.adjustHeadXY));
+              this.props.worker.postMessage({
+                type: "test_print",
+              });
             }}
           >
             PRINT!
@@ -190,6 +173,9 @@ module.exports = class AnimationTESTER extends React.Component {
 
           <button
             onClick={() => {
+              this.props.worker.postMessage({
+                type: "terminate",
+              });
               this.props._toggleVisibility("Login");
             }}
           >

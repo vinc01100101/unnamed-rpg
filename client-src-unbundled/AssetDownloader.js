@@ -32,11 +32,12 @@ module.exports = function AssetManager() {
           ctx.drawImage(img, 0, 0);
           const imgData = ctx.getImageData(0, 0, img.width, img.height);
 
-          worker.postMessage({
-            type: "imgData",
-            name: prop,
-            imgData: imgData,
-          });
+          // not ideal because opacity is not preserved
+          // worker.postMessage({
+          //   type: "imgData",
+          //   name: prop,
+          //   imgData: imgData,
+          // });
 
           if (this.isDone()) {
             cb(null, {
