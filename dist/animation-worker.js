@@ -28,7 +28,7 @@ onmessage = (e) => {
 					bodyFacing: "f",
 					act: "walk",
 					head: "f_head0",
-					speed: 80,
+					fps: 10,
 				},
 			];
 			animationEngine.initialize();
@@ -127,15 +127,12 @@ class AnimationEngine {
 		this.renderThese = [];
 
 		//store request id's
-		let reqID, start, progress;
+		let reqID,
+			frameCounter = 0;
 
 		//initialize the timer
 		this.initialize = () => {
 			const render = (timestamp) => {
-				if (!start) {
-					start = timestamp;
-				}
-				progress = timestamp - start;
 				//clear canvas first
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				//map on array of objects to render
@@ -397,10 +394,11 @@ class AnimationEngine {
 						//
 						ctx.restore();
 					}
+					frameCounter++;
 					if (!rotatable) {
-						if (progress >= renderTHIS.speed) {
+						if (frameCounter >= 60 / renderTHIS.fps) {
 							renderTHIS.selfCounter++;
-							start = timestamp;
+							frameCounter = 0;
 						}
 					}
 				});

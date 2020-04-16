@@ -1,0 +1,51 @@
+string[] offsets = new string[456];
+string[] anchors = new string[456];
+string[] indices = new string[456];
+int i = 0;
+
+foreach (var action in act) {
+	foreach (var frame in action) {
+		foreach (var layer in frame) {
+			
+			if(i<248 || i>=256 && i<264 || i>=272){
+				
+				//FOR OFFSETS
+				offsets[i] = "["+ layer.OffsetX + "," + layer.OffsetY + "]";
+		
+				//FOR ANCHORS
+				anchors[i] = String.Join(",", frame.Anchors.Select(p=>p.ToString()).ToArray());
+			
+				//FOR SPRITE INDICES
+				indices[i] = layer.SpriteIndex.ToString();
+				
+			}else{
+				
+				offsets[i] = "aw";
+				anchors[i] = "aw";
+				indices[i] = "aw";
+			}
+			
+			i++;
+			
+		}
+	}
+}
+//offsets
+string offs = String.Join(",", offsets.Select(p=>p.ToString()).ToArray());
+string offs2 = offs.Replace("aw,","");
+
+string anch = String.Join(",", anchors.Select(p=>p.ToString()).ToArray());
+string anch1 = anch.Replace("aw,","");
+string anch2 = anch1.ToString().Replace("Offsets (","[");
+string anch3 = anch2.Replace(")","]");
+
+string ind = String.Join(",", indices.Select(p=>p.ToString()).ToArray());
+string ind1 = ind.Replace("aw,","");
+
+string totalstr = "bodyOffsets: [" + offs2 + "],anchorHead: [" + anch3 + "],spriteIndices: [" + ind1 + "]";
+
+
+WindowProvider.ShowDialog(totalstr);
+
+
+

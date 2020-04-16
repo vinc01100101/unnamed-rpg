@@ -50,12 +50,48 @@ module.exports = (io, AccountModel) => {
         function callThisToAttemptSave() {
           attemptSave()
             .then(() => {
+              // const newDoc = new AccountModel({
+              //   username: attempt.username,
+              //   password: bcrypt.hashSync(attempt.password, 12),
+              //   characters: { "": "" },
+              //   sharedStash: { "": "" },
+              // });
+
+              //TEST
               const newDoc = new AccountModel({
                 username: attempt.username,
                 password: bcrypt.hashSync(attempt.password, 12),
-                characters: { "": "" },
-                sharedStash: { "": "" },
+                characters: {
+                  "Character Name": {
+                    class: "f_ninja",
+                    head: "f_head0",
+                    map: "Starting Zone",
+                    x: 32,
+                    y: 20,
+                    z: 5,
+                    zeny: 1240107,
+                    currHp: 800,
+                    currMp: 450,
+                    stats: {
+                      str: 20,
+                      agi: 10,
+                      int: 9,
+                    },
+                    //for items and skills we use ID//
+                    skills: ["1124", "1032"],
+                    inventory: ["0201", "1031", "0401", "1209"],
+                    equipment: {
+                      head: "0001",
+                      armor: "0002",
+                      weapon: "0003",
+                      accessory: "1214",
+                    },
+                    quickSlots: ["0201", "0401", "1124", "1032"],
+                  },
+                  sharedStash: { zeny: "100000", items: ["0201", "0201"] },
+                },
               });
+
               //usernames only used for set reference entry
               newDoc.usernames = undefined;
               newDoc.save((e, save) => {
@@ -99,6 +135,8 @@ module.exports = (io, AccountModel) => {
             });
         }
       }
+      //we use one array of usernames on the same collection
+      //to make use of version control system to prevent duplicate usernames
       function attemptSave() {
         return new Promise((resolved, reject) => {
           AccountModel.findOne({ set: "usernames" }, (err, doc) => {
@@ -149,3 +187,31 @@ module.exports = (io, AccountModel) => {
     socket.on("disconnect", () => {});
   });
 };
+
+/*sample character object format:
+  characters: {
+    "Character Name":{
+      map: "Starting Zone",
+      x: 32,
+      y: 20,
+      z: 5,
+      zeny: 1240107,  
+      currHp: 800,
+      currMp: 450,
+      stats: {
+        str: 20,
+        agi: 10,
+        int: 9
+      }
+    },
+    //for items and skills we use ID//
+    skills:['1124','1032'],
+    inventory:['0201','1031','0401','1209'],
+    equipment:{
+      head: '0001',
+      armor: '0002',
+      weapon: '0003'
+    },
+    quickSlots:['0201','0401','1124','1032']
+}
+*/

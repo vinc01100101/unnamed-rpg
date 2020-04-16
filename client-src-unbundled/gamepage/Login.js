@@ -31,8 +31,7 @@ module.exports = function Login(props) {
             },
           });
         } else if (info.type == "success") {
-          // props._toggleVisibility("SelectServer");
-          props._toggleVisibility("OG");
+          props._toggleVisibility("SelectServer");
           props._setStateCallback({
             popup: {
               loading: false,

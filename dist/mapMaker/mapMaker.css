@@ -43,7 +43,14 @@ button {
 	margin: 5px;
 	background-color: gray;
 }
-#mapBase,
+#mapCont p{
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: white;
+}
+#mapBase1,
+#mapBase2,
 #mapShadowMid,
 #mapMid,
 #mapShadowTop,
@@ -52,32 +59,35 @@ button {
 	left: 0;
 	top: 0;
 }
-#mapBase {
+#mapBase1 {
 	z-index: 0;
 }
-#mapShadowMid {
+#mapBase2 {
 	z-index: 1;
 }
-#mapMid {
+#mapShadowMid {
 	z-index: 2;
 }
-#mapShadowTop {
+#mapMid {
 	z-index: 3;
 }
-#mapTop {
+#mapShadowTop {
 	z-index: 4;
 }
-#mapGrid {
+#mapTop {
+	z-index: 5;
+}
+#mapGrid, #charGrid {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 5;
+	z-index: 6;
 }
 #mapClickCatcher {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 6;
+	z-index: 7;
 }
 #mapScaler{
 	position: relative;

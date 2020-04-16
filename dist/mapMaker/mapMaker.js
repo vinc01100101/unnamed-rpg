@@ -8,13 +8,24 @@ let cellWidth = 32,
 	selH,
 	//DOMS
 	ref,
-	mapBase,
+	mapBase1,
+	mapBase2,
+	mapBase3,
 	mapShadowMid,
 	mapMid,
 	mapShadowTop,
 	mapTop,
 	layerSelect;
 let saveX, saveY;
+let mapCellArr = {
+	mapBase1: {},
+	mapBase2: {},
+	mapBase3: {},
+	mapShadowMid: {},
+	mapMid: {},
+	mapShadowTop: {},
+	mapTop: {},
+};
 
 class MapMaker extends React.Component {
 	constructor(props) {
@@ -34,7 +45,9 @@ class MapMaker extends React.Component {
 
 	componentDidMount() {
 		ref = document.querySelector("#tileset");
-		mapBase = document.querySelector("#mapBase");
+		mapBase1 = document.querySelector("#mapBase1");
+		mapBase2 = document.querySelector("#mapBase2");
+		mapBase3 = document.querySelector("#mapBase3");
 		mapShadowMid = document.querySelector("#mapShadowMid");
 		mapMid = document.querySelector("#mapMid");
 		mapShadowTop = document.querySelector("#mapShadowTop");
@@ -59,7 +72,6 @@ class MapMaker extends React.Component {
 		document
 			.querySelector("#mapClickCatcher")
 			.addEventListener("wheel", (e) => {
-				console.log(scX + "_" + scY);
 				e.preventDefault();
 				[scX, scY] =
 					e.deltaY < 0
@@ -179,7 +191,12 @@ class MapMaker extends React.Component {
 						mapClickCatcher.height
 					);
 					ctx2.beginPath();
-					ctx2.rect(x, y, selW, selH);
+					if (that.state.erase) {
+						ctx2.rect(x, y, cellWidth, cellHeight);
+					} else {
+						ctx2.rect(x, y, selW, selH);
+					}
+
 					ctx2.strokeStyle = "red";
 					ctx2.lineWidth = 5;
 					ctx2.stroke();
@@ -219,6 +236,7 @@ class MapMaker extends React.Component {
 	}
 	_newMap() {
 		const g = document.querySelector("#mapGrid"),
+			cg = document.querySelector("#charGrid"),
 			cc = document.querySelector("#mapClickCatcher"),
 			u = document.querySelector("#px"),
 			w = document.querySelector("#newWidth"),
@@ -238,22 +256,54 @@ class MapMaker extends React.Component {
 				(mapH = h.value * 32);
 		}
 
-		[mapBase, mapShadowMid, mapMid, mapShadowTop, mapTop, g, cc].map(
-			(x) => {
-				(x.width = mapW), (x.height = mapH), (x.style.opacity = 1);
-			}
-		);
+		[
+			mapBase1,
+			mapBase2,
+			mapBase3,
+			mapShadowMid,
+			mapMid,
+			mapShadowTop,
+			mapTop,
+			g,
+			cg,
+			cc,
+		].map((x) => {
+			(x.width = mapW), (x.height = mapH), (x.style.opacity = 1);
+		});
 		mapScaler.style.width = mapW + "px";
 		mapScaler.style.height = mapH + "px";
 
+		let i, j;
+
+		//for map cell data
+		// mapCellArr = [];
+		// j = 0;
+		// for (j; j < rows; j++) {
+		// 	mapCellArr[j] = [];
+		// 	i = 0;
+		// 	for (i; i < cols; i++) {
+		// 		mapCellArr[j][i] = { x: null, y: null };
+		// 	}
+		// }
 		const ctx = g.getContext("2d");
-		let i = 0;
+		const ctx2 = cg.getContext("2d");
+		ctx2.strokeStyle = "#538EF0";
+		i = 0;
 		for (i; i <= cols; i++) {
 			const x = i * cellWidth;
 			ctx.beginPath();
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, mapH);
 			ctx.stroke();
+
+			j = 0;
+			for (j; j < 3; j++) {
+				const x2 = x + j * (cellWidth / 3);
+				ctx2.beginPath();
+				ctx2.moveTo(x2, 0);
+				ctx2.lineTo(x2, mapH);
+				ctx2.stroke();
+			}
 		}
 
 		i = 0;
@@ -263,6 +313,15 @@ class MapMaker extends React.Component {
 			ctx.moveTo(0, y);
 			ctx.lineTo(mapW, y);
 			ctx.stroke();
+
+			j = 0;
+			for (j; j < 3; j++) {
+				const y2 = y + j * (cellHeight / 3);
+				ctx2.beginPath();
+				ctx2.moveTo(0, y2);
+				ctx2.lineTo(mapW, y2);
+				ctx2.stroke();
+			}
 		}
 
 		this.setState({
@@ -282,10 +341,49 @@ class MapMaker extends React.Component {
 			.getContext("2d");
 
 		if (this.state.erase) {
-			ctx.clearRect(x, y, selW, selH);
+			ctx.clearRect(x, y, cellWidth, cellHeight);
+			delete mapCellArr[layerSelect.value][
+				Math.floor(oX / cellWidth) + "_" + Math.floor(oY / cellHeight)
+			];
+			console.log(mapCellArr);
 			return;
 		}
+		const forJ =
+			selH > 0
+				? { validate: (a, b) => a < b, incDec: 1, adj: 0 }
+				: { validate: (a, b) => a > b, incDec: -1, adj: -1 };
+		const forI =
+			selW > 0
+				? { validate: (a, b) => a < b, incDec: 1, adj: 0 }
+				: { validate: (a, b) => a > b, incDec: -1, adj: -1 };
+
+		for (let j = 0; forJ.validate(j, selH / cellHeight); j += forJ.incDec) {
+			for (
+				let i = 0;
+				forI.validate(i, selW / cellWidth);
+				i += forI.incDec
+			) {
+				try {
+					const xIndex = Math.floor(oX / cellWidth) + i + forI.adj,
+						yIndex = Math.floor(oY / cellHeight) + j + forJ.adj;
+					if (
+						xIndex >= 0 &&
+						yIndex >= 0 &&
+						xIndex < cols &&
+						yIndex < rows
+					)
+						mapCellArr[layerSelect.value][xIndex + "_" + yIndex] = [
+							selX + (i + forI.adj) * cellWidth,
+							selY + (j + forJ.adj) * cellHeight,
+						];
+				} catch (e) {
+					console.log(e);
+				}
+			}
+		}
+		ctx.clearRect(x, y, selW, selH);
 		ctx.drawImage(ref, selX, selY, selW, selH, x, y, selW, selH);
+		console.log(mapCellArr);
 	}
 	_toggleVisibility(e) {
 		document.querySelector("#" + e.target.value).style.display = e.target
@@ -447,10 +545,30 @@ class MapMaker extends React.Component {
 										onChange={this._toggleVisibility}
 										type="checkbox"
 										defaultChecked
-										id="b"
-										value="mapBase"
+										id="b1"
+										value="mapBase1"
 									/>
-									<label htmlFor="b">Base</label>
+									<label htmlFor="b1">Base1</label>
+								</div>
+								<div>
+									<input
+										onChange={this._toggleVisibility}
+										type="checkbox"
+										defaultChecked
+										id="b2"
+										value="mapBase2"
+									/>
+									<label htmlFor="b2">Base2</label>
+								</div>
+								<div>
+									<input
+										onChange={this._toggleVisibility}
+										type="checkbox"
+										defaultChecked
+										id="b3"
+										value="mapBase3"
+									/>
+									<label htmlFor="b3">Base3</label>
 								</div>
 								<div>
 									<input
@@ -511,7 +629,9 @@ class MapMaker extends React.Component {
 										).style.opacity;
 									}}
 								>
-									<option value="mapBase">Base</option>
+									<option value="mapBase1">Base1</option>
+									<option value="mapBase2">Base2</option>
+									<option value="mapBase3">Base3</option>
 									<option value="mapShadowMid">
 										Mid Shadow
 									</option>
@@ -544,8 +664,11 @@ class MapMaker extends React.Component {
 									id="eraser"
 									style={{
 										backgroundColor: this.state.erase
-											? "white"
+											? "green"
 											: "black",
+										color: this.state.erase
+											? "black"
+											: "white",
 									}}
 									onClick={(e) => {
 										this.setState({
@@ -559,8 +682,21 @@ class MapMaker extends React.Component {
 						</div>
 					</div>
 					<div id="mapCont">
+						<p>
+							To create new map, click File -> New <br />
+							Scroll to zoom map
+							<br />
+							Hold right-click on the map or tileset to drag and
+							navigate
+							<br />
+							Hold left-click to massive select tiles
+							<br />
+							Press E to toggle Eraser
+						</p>
 						<div id="mapScaler">
-							<canvas id="mapBase" width="0" height="0"></canvas>
+							<canvas id="mapBase1" width="0" height="0"></canvas>
+							<canvas id="mapBase2" width="0" height="0"></canvas>
+							<canvas id="mapBase3" width="0" height="0"></canvas>
 							<canvas
 								id="mapShadowMid"
 								width="0"
@@ -575,6 +711,16 @@ class MapMaker extends React.Component {
 							<canvas id="mapTop" width="0" height="0"></canvas>
 							<canvas
 								id="mapGrid"
+								width="0"
+								height="0"
+								style={{
+									display: this.state.toggleMapGrid
+										? "block"
+										: "none",
+								}}
+							></canvas>
+							<canvas
+								id="charGrid"
 								width="0"
 								height="0"
 								style={{

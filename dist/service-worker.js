@@ -1,4 +1,4 @@
-const filesToCache = ["/", "style.css", "gate-bundle.js"];
+const filesToCache = [];
 const staticCacheName = "inGameAssets-v0.3";
 let i = 1;
 for (i; i < 22; i++) {
@@ -52,7 +52,7 @@ self.addEventListener("activate", (event) => {
         cacheList.map((x) => {
           if (cacheWhiteList.indexOf(x) === -1) {
             return caches.delete(x).then(() => {
-              console.log("Unused caches successfully deleted");
+              console.log("Unused cache " + x + "successfully deleted");
             });
           }
         })

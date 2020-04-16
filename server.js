@@ -9,7 +9,7 @@ const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 
-//authp
+//auth
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
@@ -54,29 +54,6 @@ account.post("save", () => console.log("Hello from post save"));
 
 account.plugin(uniqueValidator);
 const AccountModel = mongoose.model("adventurer", account);
-
-/*sample character object format:
-  characters: {
-    name: "Character Name",
-    map: "Starting Zone",
-    zeny: 1240107,  
-    currHp: 800,
-    currMp: 450,
-    stats: {
-      str: 20,
-      agi: 10,
-      int: 9
-    },
-    //for items and skills we use ID//
-    skills:[1124,1032],
-    inventory:[0201,1031,0401,1209],
-    equipment:{
-      head: 0001,
-      armor: 0002,
-      weapon: 0003
-    },
-    quickSlots:[0201,0401,1124,1032]
-}*/
 
 //database
 const dbUri = process.env.DB;
