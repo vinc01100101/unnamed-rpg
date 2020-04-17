@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const registrationPromise = require("./registration-promise");
 
 module.exports = (io, AccountModel) => {
   io.on("connection", (socket) => {
@@ -32,11 +33,10 @@ module.exports = (io, AccountModel) => {
 
     //REGISTER
     socket.on("register", (attempt, done) => {
-      let retries = 0;
       const reg = /^\w+$/;
 
       attempt.username = attempt.username.toLowerCase();
-      console.log(attempt.username);
+
       if (!reg.test(attempt.username) || !reg.test(attempt.password)) {
         console.log(
           "Blank username or password, client might be editing the client code."
@@ -46,9 +46,15 @@ module.exports = (io, AccountModel) => {
           message: "Invalid username.",
         });
       } else {
+        let retries = 0;
+
         callThisToAttemptSave();
         function callThisToAttemptSave() {
-          attemptSave()
+          registrationPromise({
+            Model: AccountModel,
+            ref: "usernames",
+            value: attempt.username,
+          })
             .then(() => {
               // const newDoc = new AccountModel({
               //   username: attempt.username,
@@ -88,8 +94,8 @@ module.exports = (io, AccountModel) => {
                     },
                     quickSlots: ["0201", "0401", "1124", "1032"],
                   },
-                  sharedStash: { zeny: "100000", items: ["0201", "0201"] },
                 },
+                sharedStash: { zeny: "100000", items: ["0201", "0201"] },
               });
 
               //usernames only used for set reference entry
@@ -134,53 +140,6 @@ module.exports = (io, AccountModel) => {
               }
             });
         }
-      }
-      //we use one array of usernames on the same collection
-      //to make use of version control system to prevent duplicate usernames
-      function attemptSave() {
-        return new Promise((resolved, reject) => {
-          AccountModel.findOne({ set: "usernames" }, (err, doc) => {
-            if (err) {
-              return reject({
-                type: "error",
-                message: "DOC level: error finding data: " + err,
-              });
-            } else if (!doc) {
-              return reject({
-                type: "error",
-                message: "DOC level: set: username ref. not yet created",
-              });
-            } else {
-              for (const prop of doc.usernames) {
-                if (prop == attempt.username) {
-                  return reject({
-                    type: "error",
-                    message: `Username ${attempt.username} already exist. Retries: ${retries}`,
-                  });
-                  break;
-                }
-              }
-              doc.usernames.unshift(attempt.username);
-              doc.markModified("usernames");
-              doc.save((er, saved) => {
-                if (er) {
-                  //possible Version Control error here
-                  return reject({
-                    type: "error",
-                    message: "DOC level: error saving data: " + er,
-                  });
-                } else if (!saved) {
-                  return reject({
-                    type: "error",
-                    message: "DOC level: no returned saved data",
-                  });
-                } else {
-                  resolved();
-                }
-              });
-            }
-          });
-        });
       }
     });
     //disconnected

@@ -26,21 +26,31 @@ let mapCellArr = {
 	mapShadowTop: {},
 	mapTop: {},
 };
+let stash = null,
+	editingNow;
 
 class MapMaker extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			showFileOptions: false,
+			showFileOptions: true,
 			showOpsChildren: "main",
 			toggleMapGrid: true,
 			erase: false,
+			mapList: "",
+			selectedMap: "",
+			stashName: "",
+			mapName: "",
+			changes: 0,
 		};
 
 		this._showFileOptions = this._showFileOptions.bind(this);
 		this._showChild = this._showChild.bind(this);
 		this._newMap = this._newMap.bind(this);
 		this._toggleMapGrid = this._toggleMapGrid.bind(this);
+		this._createNewStash = this._createNewStash.bind(this);
+		this._saveAs = this._saveAs.bind(this);
+		this._load = this._load.bind(this);
 	}
 
 	componentDidMount() {
@@ -58,6 +68,7 @@ class MapMaker extends React.Component {
 			document
 				.querySelector("#mapClickCatcher")
 				.addEventListener(x, (e) => {
+					e.preventDefault();
 					if (!this.state.erase) e.target.style.cursor = "grabbing";
 					if (e.buttons == 1) {
 						if (!this.state.erase) e.target.style.cursor = "grab";
@@ -234,26 +245,20 @@ class MapMaker extends React.Component {
 			};
 		});
 	}
-	_newMap() {
+	_newMap(w, h, u) {
 		const g = document.querySelector("#mapGrid"),
 			cg = document.querySelector("#charGrid"),
 			cc = document.querySelector("#mapClickCatcher"),
-			u = document.querySelector("#px"),
-			w = document.querySelector("#newWidth"),
-			h = document.querySelector("#newHeight"),
 			mapScaler = document.querySelector("#mapScaler");
 
 		let mapW, mapH;
 
-		if (u.checked) {
-			cols = Math.floor(w.value / cellWidth);
-			rows = Math.floor(h.value / cellHeight);
-			(mapW = w.value), (mapH = h.value);
+		if (u) {
+			cols = Math.floor(w / cellWidth);
+			rows = Math.floor(h / cellHeight);
+			(mapW = w), (mapH = h);
 		} else {
-			(cols = w.value),
-				(rows = h.value),
-				(mapW = w.value * 32),
-				(mapH = h.value * 32);
+			(cols = w), (rows = h), (mapW = w * 32), (mapH = h * 32);
 		}
 
 		[
@@ -272,19 +277,12 @@ class MapMaker extends React.Component {
 		});
 		mapScaler.style.width = mapW + "px";
 		mapScaler.style.height = mapH + "px";
+		mapScaler.style.left = 0;
+		mapScaler.style.top = 0;
+		mapScaler.style.transform = "scale(1,1)";
 
 		let i, j;
 
-		//for map cell data
-		// mapCellArr = [];
-		// j = 0;
-		// for (j; j < rows; j++) {
-		// 	mapCellArr[j] = [];
-		// 	i = 0;
-		// 	for (i; i < cols; i++) {
-		// 		mapCellArr[j][i] = { x: null, y: null };
-		// 	}
-		// }
 		const ctx = g.getContext("2d");
 		const ctx2 = cg.getContext("2d");
 		ctx2.strokeStyle = "#538EF0";
@@ -330,6 +328,10 @@ class MapMaker extends React.Component {
 		});
 	}
 	_drawTile(e) {
+		this.setState((currState) => {
+			return { changes: currState.changes + 1 };
+		});
+
 		const oX = e.offsetX,
 			oY = e.offsetY;
 
@@ -340,14 +342,16 @@ class MapMaker extends React.Component {
 			.querySelector("#" + layerSelect.value)
 			.getContext("2d");
 
+		//if erase, just erase, update and return
 		if (this.state.erase) {
 			ctx.clearRect(x, y, cellWidth, cellHeight);
 			delete mapCellArr[layerSelect.value][
 				Math.floor(oX / cellWidth) + "_" + Math.floor(oY / cellHeight)
 			];
-			console.log(mapCellArr);
 			return;
 		}
+
+		//else if not erase
 		const forJ =
 			selH > 0
 				? { validate: (a, b) => a < b, incDec: 1, adj: 0 }
@@ -363,27 +367,23 @@ class MapMaker extends React.Component {
 				forI.validate(i, selW / cellWidth);
 				i += forI.incDec
 			) {
-				try {
-					const xIndex = Math.floor(oX / cellWidth) + i + forI.adj,
-						yIndex = Math.floor(oY / cellHeight) + j + forJ.adj;
-					if (
-						xIndex >= 0 &&
-						yIndex >= 0 &&
-						xIndex < cols &&
-						yIndex < rows
-					)
-						mapCellArr[layerSelect.value][xIndex + "_" + yIndex] = [
-							selX + (i + forI.adj) * cellWidth,
-							selY + (j + forJ.adj) * cellHeight,
-						];
-				} catch (e) {
-					console.log(e);
-				}
+				const xIndex = Math.floor(oX / cellWidth) + i + forI.adj,
+					yIndex = Math.floor(oY / cellHeight) + j + forJ.adj;
+				if (
+					xIndex >= 0 &&
+					yIndex >= 0 &&
+					xIndex < cols &&
+					yIndex < rows
+				)
+					mapCellArr[layerSelect.value][xIndex + "_" + yIndex] = [
+						selX + (i + forI.adj) * cellWidth,
+						selY + (j + forJ.adj) * cellHeight,
+					];
 			}
 		}
+		console.log(mapCellArr);
 		ctx.clearRect(x, y, selW, selH);
 		ctx.drawImage(ref, selX, selY, selW, selH, x, y, selW, selH);
-		console.log(mapCellArr);
 	}
 	_toggleVisibility(e) {
 		document.querySelector("#" + e.target.value).style.display = e.target
@@ -391,18 +391,306 @@ class MapMaker extends React.Component {
 			? "block"
 			: "none";
 	}
+	_createNewStash() {
+		const cStashName = document.querySelector("#cStashName").value;
+
+		this._showChild("loading");
+		const req = new XMLHttpRequest();
+		req.open("POST", "/mapmaker/createstash", true);
+		req.setRequestHeader("Content-Type", "text/plain");
+		req.onreadystatechange = () => {
+			if (req.readyState == 4 && req.status == 200) {
+				this._showChild("createnewstash");
+				const json = JSON.parse(req.responseText);
+				console.log(json);
+				const errDom = document.querySelector("#cStashErr");
+				const valDom = document.querySelector("#cStashVal");
+				this._showErrMsg(errDom, json, valDom);
+			}
+		};
+
+		req.send(cStashName);
+	}
+	_openStash(stashName, stashKey) {
+		this._showChild("loading");
+		const req = new XMLHttpRequest();
+		req.open("POST", "/mapmaker/openstash", true);
+		req.setRequestHeader("Content-Type", "application/json");
+
+		req.onreadystatechange = () => {
+			if (req.readyState == 4 && req.status == 200) {
+				const json = JSON.parse(req.responseText);
+				if (json.type == "error") {
+					this._showChild("main");
+					const errDom = document.querySelector("#oStashErr");
+					this._showErrMsg(errDom, json);
+				} else {
+					stash = json.message;
+					this._showChild("openstash");
+					this.setState({
+						stashName: stash.mapStashName,
+					});
+
+					let jsx = (
+						<select
+							size="7"
+							onChange={(e) => {
+								if (this.state.showOpsChildren == "saveas") {
+									document.querySelector(
+										"#saveAsName"
+									).value = e.target.value;
+								}
+								this.setState({
+									selectedMap: e.target.value,
+								});
+							}}
+						>
+							{Object.keys(stash.maps).map((x, i) => {
+								if (x)
+									return (
+										<option key={i} value={x}>
+											{x}
+										</option>
+									);
+							})}
+						</select>
+					);
+
+					this.setState({
+						mapList: jsx,
+					});
+				}
+
+				console.log(json);
+			}
+		};
+		req.send(JSON.stringify({ stashName, stashKey }));
+	}
+	_showErrMsg(dom, msgObj, val) {
+		dom.style.color = msgObj.type == "error" ? "red" : "green";
+		dom.textContent = msgObj.message;
+		if (val) {
+			val.textContent = msgObj.val;
+		}
+	}
+	_saveAs(directSave) {
+		this._showChild("loading");
+		const saveasname = directSave
+			? this.state.mapName
+			: document.querySelector("#saveAsName").value;
+
+		if (!saveasname && !directSave) {
+			this._showChild("saveas");
+			const errDom = document.querySelector("#saveErr");
+			this._showErrMsg(errDom, {
+				type: "error",
+				message: "Invalid map name",
+			});
+			return;
+		} else if (!saveasname && directSave) {
+			this._showChild("saveas");
+			return;
+		} else if (saveasname in stash.maps) {
+			const conf = confirm(`Replace this file? "${saveasname}"`);
+			if (!conf) {
+				this._showChild("saveas");
+				return;
+			}
+		}
+		stash.maps[saveasname] = {
+			mapWidth: mapBase1.width,
+			mapHeight: mapBase1.height,
+			render: mapCellArr,
+			pathData: [],
+		};
+		const req = new XMLHttpRequest();
+		req.open("POST", "/mapmaker/savestash", true);
+		req.setRequestHeader("Content-Type", "application/json");
+
+		req.onreadystatechange = () => {
+			if (req.readyState == 4 && req.status == 200) {
+				const json = JSON.parse(req.responseText);
+				if (json.type == "error") {
+					this._showChild("saveas");
+					const errDom = document.querySelector("#saveErr");
+					this._showErrMsg(errDom, json);
+				} else {
+					stash = json.message;
+					editingNow = stash.maps[saveasname];
+
+					let jsx = (
+						<select
+							size="7"
+							onChange={(e) => {
+								if (this.state.showOpsChildren == "saveas") {
+									document.querySelector(
+										"#saveAsName"
+									).value = e.target.value;
+								}
+
+								this.setState({
+									selectedMap: e.target.value,
+								});
+							}}
+						>
+							{Object.keys(stash.maps).map((x, i) => {
+								if (x)
+									return (
+										<option key={i} value={x}>
+											{x}
+										</option>
+									);
+							})}
+						</select>
+					);
+
+					this.setState({
+						mapList: jsx,
+						mapName: saveasname,
+						changes: 0,
+					});
+
+					this._showFileOptions();
+				}
+
+				console.log(json);
+			}
+		};
+		req.send(JSON.stringify(stash));
+	}
+	_load(mapName) {
+		if (this.state.mapName)
+			stash.maps[this.state.mapName].changes = this.state.changes;
+		const map = stash.maps[mapName];
+		this._newMap(map.mapWidth, map.mapHeight, true);
+
+		[
+			"mapBase1",
+			"mapBase2",
+			"mapBase3",
+			"mapShadowMid",
+			"mapMid",
+			"mapShadowTop",
+			"mapTop",
+		].map((x) => {
+			const ctx = document.querySelector(`#${x}`).getContext("2d");
+
+			for (const prop in map.render[x]) {
+				const axis = prop.split("_");
+				ctx.drawImage(
+					ref,
+					map.render[x][prop][0],
+					map.render[x][prop][1],
+					cellWidth,
+					cellHeight,
+					axis[0] * cellWidth,
+					axis[1] * cellHeight,
+					cellWidth,
+					cellHeight
+				);
+			}
+		});
+		this.setState({
+			mapName,
+			changes: map.changes || 0,
+		});
+		mapCellArr = map.render;
+	}
 	render() {
 		return (
 			<div id="mainCont">
 				{/*FILES OPTION*/}
 				{this.state.showFileOptions && (
 					<div id="popupBG">
+						{/*CHILDREN OPTIONS*/}
 						{this.state.showOpsChildren == "main" && (
 							<div className="popupCont">
-								<button onClick={() => this._showChild("open")}>
-									Open
+								<div id="oStashErr"></div>
+								<input
+									id="stashName"
+									type="text"
+									placeholder="Stash name"
+								/>
+								<input
+									id="stashKey"
+									type="text"
+									placeholder="Key"
+								/>
+								<button
+									onClick={() => {
+										const stashName = document.querySelector(
+												"#stashName"
+											).value,
+											stashKey = document.querySelector(
+												"#stashKey"
+											).value;
+										this._openStash(stashName, stashKey);
+									}}
+								>
+									Open stash
 								</button>
-								<button onClick={() => this._showChild("save")}>
+								<button
+									onClick={() =>
+										this._showChild("createnewstash")
+									}
+								>
+									Create new stash
+								</button>
+							</div>
+						)}
+
+						{this.state.showOpsChildren == "loading" && (
+							<div className="popupCont">
+								<h3>Please wait..</h3>
+							</div>
+						)}
+						{this.state.showOpsChildren == "createnewstash" && (
+							<div className="popupCont">
+								<div id="cStashErr"></div>
+								<div id="cStashVal"></div>
+								<input
+									type="text"
+									id="cStashName"
+									placeholder="Stash name"
+								/>
+								<button onClick={this._createNewStash}>
+									Submit
+								</button>
+								<button onClick={() => this._showChild("main")}>
+									Back
+								</button>
+							</div>
+						)}
+						{this.state.showOpsChildren == "openstash" && (
+							<div className="popupCont">
+								<div id="ooStashErr"></div>
+								<h1 id="ooStashName">{this.state.stashName}</h1>
+								{this.state.mapList}
+								<button
+									onClick={() => {
+										this._load(this.state.selectedMap);
+									}}
+								>
+									Select
+								</button>
+								<button onClick={() => this._showChild("new")}>
+									New
+								</button>
+								<button onClick={() => this._showChild("main")}>
+									Back
+								</button>
+							</div>
+						)}
+						{this.state.showOpsChildren == "files" && (
+							<div className="popupCont">
+								<button onClick={() => this._showChild("load")}>
+									Load
+								</button>
+								<button
+									onClick={() => {
+										this._saveAs(true);
+									}}
+								>
 									Save
 								</button>
 								<button
@@ -419,26 +707,38 @@ class MapMaker extends React.Component {
 							</div>
 						)}
 
-						{this.state.showOpsChildren == "open" && (
+						{this.state.showOpsChildren == "load" && (
 							<div className="popupCont">
-								<p>Open a map</p>
-								<button onClick={() => this._showChild("main")}>
+								<div>Open a map</div>
+								{this.state.mapList}
+								<button
+									onClick={() => {
+										this._load(this.state.selectedMap);
+									}}
+								>
+									Load
+								</button>
+								<button
+									onClick={() => this._showChild("files")}
+								>
 									Back
 								</button>
 							</div>
 						)}
-						{this.state.showOpsChildren == "save" && (
-							<div className="popupCont">
-								<p>Save this map?</p>
-								<button onClick={() => this._showChild("main")}>
-									Back
-								</button>
-							</div>
-						)}
+
 						{this.state.showOpsChildren == "saveas" && (
 							<div className="popupCont">
-								<p>Enter map name</p>
-								<button onClick={() => this._showChild("main")}>
+								<div id="saveErr" />
+								{this.state.mapList}
+								<input
+									id="saveAsName"
+									type="text"
+									placeholder="Map name"
+								/>
+								<button onClick={this._saveAs}>Save</button>
+								<button
+									onClick={() => this._showChild("files")}
+								>
 									Back
 								</button>
 							</div>
@@ -476,9 +776,28 @@ class MapMaker extends React.Component {
 									id="newHeight"
 									placeholder="height"
 								/>
-								<button onClick={this._newMap}>Start</button>
+								<button
+									onClick={() =>
+										this._newMap(
+											document.querySelector("#newWidth")
+												.value,
+											document.querySelector("#newHeight")
+												.value,
+											document.querySelector("#px")
+												.checked
+										)
+									}
+								>
+									Start
+								</button>
 
-								<button onClick={() => this._showChild("main")}>
+								<button
+									onClick={() =>
+										cols == undefined
+											? this._showChild("openstash")
+											: this._showChild("files")
+									}
+								>
 									Back
 								</button>
 							</div>
@@ -612,7 +931,12 @@ class MapMaker extends React.Component {
 								</div>
 							</div>
 							<div className="mCChild">
-								<button onClick={this._showFileOptions}>
+								<button
+									onClick={() => {
+										this._showChild("files");
+										this._showFileOptions();
+									}}
+								>
 									File
 								</button>
 								<button onClick={this._toggleMapGrid}>
@@ -678,6 +1002,13 @@ class MapMaker extends React.Component {
 								>
 									Eraser ("E" toggle)
 								</button>
+							</div>
+							<div className="mCChild">
+								{/*changes since*/}
+								<div>
+									Changes since last save:{" "}
+									{this.state.changes}
+								</div>
 							</div>
 						</div>
 					</div>
