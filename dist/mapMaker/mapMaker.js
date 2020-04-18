@@ -413,6 +413,8 @@ class MapMaker extends React.Component {
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, mapH);
 			ctx.stroke();
+			ctx.font = "16px";
+			ctx.fillText(i, x, cellHeight / 2);
 
 			j = 0;
 			for (j; j < 3; j++) {
@@ -432,6 +434,8 @@ class MapMaker extends React.Component {
 			ctx.lineTo(mapW, y);
 			ctx.stroke();
 
+			ctx.font = "16px";
+			ctx.fillText(i, 0, y + cellHeight / 2);
 			j = 0;
 			for (j; j < 3; j++) {
 				const y2 = y + j * (cellHeight / 3);
