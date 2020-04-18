@@ -16,32 +16,32 @@ self.addEventListener("install", (event) => {
   );
 });
 
-self.addEventListener("fetch", (event) => {
-  // check if request is made by chrome extensions or web page
-  // if request is made for web page url must contains http.
-  if (!(event.request.url.indexOf("http") === 0)) return; // skip the request. if request is not made with http protocol
-  console.log("Fetching: " + event.request.url);
+// self.addEventListener("fetch", (event) => {
+//   // check if request is made by chrome extensions or web page
+//   // if request is made for web page url must contains http.
+//   if (!(event.request.url.indexOf("http") === 0)) return; // skip the request. if request is not made with http protocol
+//   console.log("Fetching: " + event.request.url);
 
-  event.respondWith(
-    caches.match(event.request).then((cachedFile) => {
-      if (cachedFile) {
-        console.log("Found: " + cachedFile.url + " in caches");
-        return cachedFile;
-      }
-      console.log(
-        "No cache found, request for " + event.request.url + " sent.."
-      );
-      return fetch(event.request).then((response) => {
-        return caches.open(staticCacheName).then((cache) => {
-          //haha
-          cache.put(event.request.url, response.clone());
-          console.log("Response from server successfully cached");
-          return response;
-        });
-      });
-    })
-  );
-});
+//   event.respondWith(
+//     caches.match(event.request).then((cachedFile) => {
+//       if (cachedFile) {
+//         console.log("Found: " + cachedFile.url + " in caches");
+//         return cachedFile;
+//       }
+//       console.log(
+//         "No cache found, request for " + event.request.url + " sent.."
+//       );
+//       return fetch(event.request).then((response) => {
+//         return caches.open(staticCacheName).then((cache) => {
+//           //haha
+//           cache.put(event.request.url, response.clone());
+//           console.log("Response from server successfully cached");
+//           return response;
+//         });
+//       });
+//     })
+//   );
+// });
 self.addEventListener("activate", (event) => {
   console.log("Activating service worker..");
   const cacheWhiteList = [staticCacheName];
