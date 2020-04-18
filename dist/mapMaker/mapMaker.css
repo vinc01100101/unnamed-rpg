@@ -33,11 +33,11 @@ button {
 }
 #mainCont {
 	height: 100%;
-	min-width: 1200px;
+	width: 100%;
 }
 #mapCont {
 	position: relative;
-	width: 1000px;
+	width: 60%;
 	height: 100%;
 	overflow: scroll;
 	margin: 5px;
@@ -51,8 +51,11 @@ button {
 }
 #mapBase1,
 #mapBase2,
-#mapShadowMid,
-#mapMid,
+#mapShadowMid1,
+#mapMid1,
+#mapShadowMid2,
+#mapMid2,
+#mapAnimate,
 #mapShadowTop,
 #mapTop {
 	position: absolute;
@@ -65,30 +68,39 @@ button {
 #mapBase2 {
 	z-index: 1;
 }
-#mapShadowMid {
+#mapShadowMid1 {
 	z-index: 2;
 }
-#mapMid {
+#mapMid1 {
 	z-index: 3;
 }
-#mapShadowTop {
+#mapAnimate {
 	z-index: 4;
 }
-#mapTop {
+#mapShadowMid2 {
 	z-index: 5;
+}
+#mapMid2 {
+	z-index: 6;
+}
+#mapShadowTop {
+	z-index: 7;
+}
+#mapTop {
+	z-index: 8;
 }
 #mapGrid,
 #charGrid {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 6;
+	z-index: 9;
 }
 #mapClickCatcher {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 7;
+	z-index: 10;
 }
 #mapScaler {
 	position: relative;
@@ -97,31 +109,44 @@ button {
 }
 #tilesCont {
 	position: relative;
-	width: 480px;
+	width: 100%;
 	height: 80%;
 	overflow: scroll;
 	margin: 5px;
 }
+.tileset {
+	z-index: 0;
+}
 #frame,
-#frameSelect {
+#frameSelect,
+#frameSelectAnimation {
 	/* background-color: red; */
 	position: absolute;
 	left: 0;
 	top: 0;
 	opacity: 0.4;
+	z-index: 1;
 }
-#frameSelect {
+#frameSelect,
+#frameSelectAnimation {
 	opacity: 1;
 }
 #controls {
+	width: 40%;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 }
+#headersControls {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+}
 .mainControls {
 	display: flex;
 	flex-direction: row;
-	flex-wrap: wrap;
+	/* flex-wrap: wrap; */
 	align-items: flex-start;
 }
 .mCChild {
@@ -140,25 +165,28 @@ button {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	z-index: 8;
+	z-index: 11;
 }
 .popupCont {
 	background-color: white;
 	opacity: 1;
 	width: 250px;
-	height: 250px;
+	height: 300px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
+	/* justify-content: center; */
+	overflow: scroll;
+	padding: 10px;
 }
 .popupCont button {
 	width: 80px;
 	margin: 5px;
 }
-#cStashVal {
-	color:  blue;
-	
+#cStashVal,
+#email {
+	color: blue;
+
 	-webkit-touch-callout: all; /* iOS Safari */
 	-webkit-user-select: all; /* Safari */
 	-khtml-user-select: all; /* Konqueror HTML */
