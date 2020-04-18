@@ -1076,7 +1076,7 @@ class MapMaker extends React.Component {
 						)}
 						{this.state.showOpsChildren == "help" && (
 							<div className="popupCont">
-								<div>
+								<div id="instructions">
 									<h4>Basic Controls</h4>
 									<ul>
 										<li>
@@ -1090,9 +1090,10 @@ class MapMaker extends React.Component {
 										<li>To load your map, File -> Load</li>
 										<li>
 											(don't worry if you forgot to save
-											current progress before loading
+											your current progress before loading
 											another map, the progress will
-											remain unless the page reloads.)
+											remain unless you reload the page.
+											It's still good to save frequently.)
 										</li>
 										<li>Scroll to zoom-in/out the map</li>
 										<li>
@@ -1106,6 +1107,17 @@ class MapMaker extends React.Component {
 										<li>Press E to toggle Eraser on/off</li>
 									</ul>
 									<h4>How To Animate?</h4>
+									<img src="/mapMaker/animationGuide.png" />
+									<div>
+										Credits to Ivan Voirol for the tilesets!
+										You can follow him{" "}
+										<a
+											href="https://opengameart.org/users/ivan-voirol"
+											target="_blank"
+										>
+											HERE
+										</a>
+									</div>
 									<div>
 										Suggestions?
 										<br />

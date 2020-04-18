@@ -51,6 +51,7 @@ button {
 }
 #mapBase1,
 #mapBase2,
+#mapBase3,
 #mapShadowMid1,
 #mapMid1,
 #mapShadowMid2,
@@ -68,39 +69,42 @@ button {
 #mapBase2 {
 	z-index: 1;
 }
-#mapShadowMid1 {
+#mapBase3 {
 	z-index: 2;
 }
-#mapMid1 {
+#mapShadowMid1 {
 	z-index: 3;
 }
-#mapAnimate {
+#mapMid1 {
 	z-index: 4;
 }
-#mapShadowMid2 {
+#mapAnimate {
 	z-index: 5;
 }
-#mapMid2 {
+#mapShadowMid2 {
 	z-index: 6;
 }
-#mapShadowTop {
+#mapMid2 {
 	z-index: 7;
 }
-#mapTop {
+#mapShadowTop {
 	z-index: 8;
+}
+#mapTop {
+	z-index: 9;
 }
 #mapGrid,
 #charGrid {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 9;
+	z-index: 10;
 }
 #mapClickCatcher {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 10;
+	z-index: 11;
 }
 #mapScaler {
 	position: relative;
@@ -165,12 +169,12 @@ button {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	z-index: 11;
+	z-index: 12;
 }
 .popupCont {
 	background-color: white;
 	opacity: 1;
-	width: 250px;
+	width: 300px;
 	height: 300px;
 	display: flex;
 	flex-direction: column;
