@@ -320,7 +320,6 @@ class MapMaker extends React.Component {
 		//================================================
 		//================================================
 
-		this._tilesetOnChange("tileset1");
 		this._mapAnimation();
 	}
 	// COMPONENTDIDMOUT ABOVE ------------------------------
@@ -451,10 +450,6 @@ class MapMaker extends React.Component {
 		});
 	}
 	_drawTile(e) {
-		this.setState((currState) => {
-			return { changes: currState.changes + 1 };
-		});
-
 		const oX = e.offsetX,
 			oY = e.offsetY;
 
@@ -475,8 +470,8 @@ class MapMaker extends React.Component {
 		}
 
 		//else if not erase
-
-		if (!this.state.isAnimationOn) {
+		console.log(selX);
+		if (!this.state.isAnimationOn & (selX != undefined)) {
 			//setting for mapCellArr
 			const forJ =
 				selH > 0
@@ -526,7 +521,11 @@ class MapMaker extends React.Component {
 					}),
 				};
 			});
-		}
+		} else return;
+
+		this.setState((currState) => {
+			return { changes: currState.changes + 1 };
+		});
 	}
 	_toggleVisibility(e) {
 		document.querySelector("#" + e.target.value).style.display = e.target
@@ -790,9 +789,8 @@ class MapMaker extends React.Component {
 		const ctxCapture = captureCanvas.getContext("2d");
 
 		const renderAnimation = () => {
+			ctx.clearRect(0, 0, mapAnimate.width, mapAnimate.height);
 			if (this.state.mapAnimationArr.length > 0) {
-				ctx.clearRect(0, 0, mapAnimate.width, mapAnimate.height);
-
 				//loop through all instances of animation objects
 				this.state.mapAnimationArr.map((instance) => {
 					//initiate self frame counter for each instance
@@ -842,6 +840,10 @@ class MapMaker extends React.Component {
 				].map((canv) => {
 					ctxCapture.drawImage(canv, 0, 0);
 				});
+
+				document.querySelector("#loadingBar").style.width =
+					((120 - this.state.captureCounter) / 120) * 100 + "%";
+
 				if (this.state.captureCounter <= 1) {
 					capturer.stop();
 					capturer.save();
@@ -904,6 +906,7 @@ class MapMaker extends React.Component {
 						{this.state.showOpsChildren == "loading" && (
 							<div className="popupCont">
 								<h3>Please wait..</h3>
+								<div id="loadingBar"></div>
 							</div>
 						)}
 						{this.state.showOpsChildren == "createnewstash" && (
@@ -1074,10 +1077,22 @@ class MapMaker extends React.Component {
 						{this.state.showOpsChildren == "help" && (
 							<div className="popupCont">
 								<div>
+									<h4>Basic Controls</h4>
 									<ul>
 										<li>
 											To create a new map, click File ->
 											New
+										</li>
+										<li>
+											To save your map, File -> Save/Save
+											as
+										</li>
+										<li>To load your map, File -> Load</li>
+										<li>
+											(don't worry if you forgot to save
+											current progress before loading
+											another map, the progress will
+											remain unless the page reloads.)
 										</li>
 										<li>Scroll to zoom-in/out the map</li>
 										<li>
@@ -1090,6 +1105,7 @@ class MapMaker extends React.Component {
 										</li>
 										<li>Press E to toggle Eraser on/off</li>
 									</ul>
+									<h4>How To Animate?</h4>
 									<div>
 										Suggestions?
 										<br />
@@ -1160,6 +1176,9 @@ class MapMaker extends React.Component {
 										this.state.showTile == "tileset1"
 											? "block"
 											: "none",
+								}}
+								onLoad={() => {
+									this._tilesetOnChange("tileset1");
 								}}
 							/>
 							<img
@@ -1400,7 +1419,9 @@ class MapMaker extends React.Component {
 													frameSelect.width,
 													frameSelect.height
 												);
-
+											selX = undefined;
+											selW = cellWidth;
+											selH = cellHeight;
 											this.setState((currState) => {
 												return {
 													animationFrames: [],
@@ -1441,6 +1462,7 @@ class MapMaker extends React.Component {
 									</label>
 								</div>
 								<select
+									id="selAnimationInstance"
 									size="7"
 									onChange={(e) => {
 										const x = this.state.mapAnimationArr[
@@ -1486,6 +1508,31 @@ class MapMaker extends React.Component {
 										}
 									)}
 								</select>
+								<button
+									onClick={() => {
+										const val = document.querySelector(
+											"#selAnimationInstance"
+										).value;
+
+										let toDel;
+										{
+											/*if none choose, select the last index*/
+										}
+										if (val == "") {
+											toDel =
+												this.state.mapAnimationArr
+													.length - 1;
+										} else toDel = val;
+
+										const arrs = this.state.mapAnimationArr;
+										arrs.splice(toDel, 1);
+										this.setState({
+											mapAnimationArr: arrs,
+										});
+									}}
+								>
+									Delete Selected Animation
+								</button>
 							</div>
 						</div>
 					</div>
