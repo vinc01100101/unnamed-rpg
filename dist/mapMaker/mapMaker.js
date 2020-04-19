@@ -116,11 +116,18 @@ class MapMaker extends React.Component {
 			},${1 + scY * 2})`;
 		});
 		window.addEventListener("keypress", (e) => {
+			console.log(e.keyCode);
 			switch (e.keyCode) {
 				case 101:
 					this.setState((currState) => {
 						return { erase: !currState.erase };
 					});
+					break;
+				case 119:
+					this.setState((currState) => {
+						return { showCONTROLS: !currState.showCONTROLS };
+					});
+					break;
 			}
 		});
 
@@ -325,7 +332,7 @@ class MapMaker extends React.Component {
 				}
 			}
 
-			if ((e.target.id = "mapClickCatcher"))
+			if (e.target.id == "mapClickCatcher")
 				e.target.style.cursor = !this.state.erase ? "grabbing" : "cell";
 		};
 
@@ -1232,8 +1239,8 @@ class MapMaker extends React.Component {
 								}}
 							>
 								{this.state.showCONTROLS
-									? "Hide tools"
-									: "Show tools"}
+									? "Hide tools[W]"
+									: "Show tools[W]"}
 							</button>
 						</div>
 						{/*TILESET*/}
@@ -1478,7 +1485,7 @@ class MapMaker extends React.Component {
 												});
 											}}
 										>
-											Eraser ("E" toggle)
+											Eraser[E]
 										</button>
 										<div style={{ color: "#13DF26" }}>
 											Change rate since
