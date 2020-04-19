@@ -38,8 +38,7 @@ let mapCellArr = {
 	mapShadowTop: {},
 	mapTop: {},
 };
-let stash = null,
-	editingNow;
+let stash = null;
 
 const capturer = new CCapture({
 	format: "webm",
@@ -54,6 +53,8 @@ class MapMaker extends React.Component {
 			showTile: "",
 			showFileOptions: true,
 			showOpsChildren: "main",
+			showCONTROLS: true,
+			showRenderControls: true,
 			toggleMapGrid: true,
 			erase: false,
 			mapList: "",
@@ -169,7 +170,7 @@ class MapMaker extends React.Component {
 		};
 		const mapClickCatcherPainter = (e) => {
 			e.preventDefault();
-			if (!this.state.erase) e.target.style.cursor = "grabbing";
+
 			if (e.buttons == 1) {
 				if (!this.state.erase) e.target.style.cursor = "grab";
 				this._drawTile(e);
@@ -215,11 +216,13 @@ class MapMaker extends React.Component {
 				let targetScroll;
 				if (e.target.id == "frameSelect") targetScroll = tilesCont;
 				if (e.target.id == "mapClickCatcher") targetScroll = mapCont;
-
-				targetScroll.scrollLeft =
-					targetScroll.scrollLeft - difference[0];
-				targetScroll.scrollTop = targetScroll.scrollTop - difference[1];
-				lastPosition = [e.clientX, e.clientY];
+				if (targetScroll) {
+					targetScroll.scrollLeft =
+						targetScroll.scrollLeft - difference[0];
+					targetScroll.scrollTop =
+						targetScroll.scrollTop - difference[1];
+					lastPosition = [e.clientX, e.clientY];
+				}
 			}
 			//square
 			if (e.buttons == 1 && e.target.id == "frameSelect") {
@@ -244,11 +247,11 @@ class MapMaker extends React.Component {
 			}
 			//mapClickCatcher square on mouse hover
 			if (e.target.id == "mapClickCatcher") {
+				e.target.style.cursor = !this.state.erase ? "grabbing" : "cell";
+
 				const oX = e.offsetX,
 					oY = e.offsetY;
-
-				const x = Math.floor(oX / cellWidth) * cellWidth,
-					y = Math.floor(oY / cellHeight) * cellHeight;
+				let x, y;
 
 				ctx2.clearRect(
 					0,
@@ -257,14 +260,28 @@ class MapMaker extends React.Component {
 					mapClickCatcher.height
 				);
 				ctx2.beginPath();
-				if (this.state.erase) {
-					ctx2.rect(x, y, cellWidth, cellHeight);
+				if (!this.state.showRenderControls) {
+					x = (Math.floor(oX / (cellWidth / 3)) * cellWidth) / 3;
+					y = (Math.floor(oY / (cellHeight / 3)) * cellHeight) / 3;
+					ctx2.rect(x, y, cellWidth / 3, cellHeight / 3);
 				} else {
-					ctx2.rect(x, y, selW, selH);
+					x = Math.floor(oX / cellWidth) * cellWidth;
+					y = Math.floor(oY / cellHeight) * cellHeight;
+					if (this.state.erase) {
+						ctx2.rect(x, y, cellWidth, cellHeight);
+					} else {
+						ctx2.rect(x, y, selW, selH);
+					}
 				}
 
-				ctx2.strokeStyle = this.state.isAnimationOn ? "blue" : "red";
-				ctx2.lineWidth = 5;
+				ctx2.strokeStyle = !this.state.showRenderControls
+					? "#7AFE70"
+					: this.state.erase
+					? "white"
+					: this.state.isAnimationOn
+					? "blue"
+					: "red";
+				ctx2.lineWidth = 2;
 				ctx2.stroke();
 
 				//PAINT TILE
@@ -307,6 +324,9 @@ class MapMaker extends React.Component {
 					});
 				}
 			}
+
+			if ((e.target.id = "mapClickCatcher"))
+				e.target.style.cursor = !this.state.erase ? "grabbing" : "cell";
 		};
 
 		//AND NOW IT'S TIME TO ATTACH THESE EVENTS!!
@@ -347,7 +367,16 @@ class MapMaker extends React.Component {
 		});
 	}
 	_newMap(w, h, u) {
-		//re declare mapCellArr
+		//if current map is not yet saved, ask
+		if (this.state.changes > 0) {
+			const conf = confirm(
+				"Changes in this file are not yet saved, proceed loading another file?"
+			);
+			if (!conf) return;
+		}
+
+		//redeclare variables
+		(scX = 0.1), (scY = 0.1);
 		mapCellArr = {
 			mapBase1: {},
 			mapBase2: {},
@@ -359,7 +388,6 @@ class MapMaker extends React.Component {
 			mapShadowTop: {},
 			mapTop: {},
 		};
-		(scX = 0.1), (scY = 0.1);
 
 		const g = document.querySelector("#mapGrid"),
 			cg = document.querySelector("#charGrid"),
@@ -464,18 +492,21 @@ class MapMaker extends React.Component {
 			.querySelector("#" + layerSelect.value)
 			.getContext("2d");
 
-		//if erase, just erase, update and return
-		if (this.state.erase) {
+		//if on PATH MODE
+		if (!this.state.showRenderControls) {
+		}
+		//else if erase, just erase, update and return
+		else if (this.state.erase) {
+			//clear a tile
 			ctx.clearRect(x, y, cellWidth, cellHeight);
+			//remove the data of that tile
 			delete mapCellArr[layerSelect.value][
 				Math.floor(oX / cellWidth) + "_" + Math.floor(oY / cellHeight)
 			];
 			return;
 		}
-
-		//else if not erase
-		console.log(selX);
-		if (!this.state.isAnimationOn & (selX != undefined)) {
+		//else,if not animating and has selected tile, draw the tile
+		else if (!this.state.isAnimationOn & (selX != undefined)) {
 			//setting for mapCellArr
 			const forJ =
 				selH > 0
@@ -514,7 +545,9 @@ class MapMaker extends React.Component {
 
 			ctx.clearRect(x, y, selW, selH);
 			ctx.drawImage(ref, selX, selY, selW, selH, x, y, selW, selH);
-		} else if (this.state.animationFrames.length > 0) {
+		}
+		//else if animating.. (length will be > 0 if animating)
+		else if (this.state.animationFrames.length > 0) {
 			this.setState((currState) => {
 				return {
 					mapAnimationArr: currState.mapAnimationArr.concat({
@@ -622,6 +655,7 @@ class MapMaker extends React.Component {
 			? this.state.mapName
 			: document.querySelector("#saveAsName").value;
 
+		//if "save as" and no name input
 		if (!saveasname && !directSave) {
 			this._showChild("saveas");
 			const errDom = document.querySelector("#saveErr");
@@ -631,15 +665,19 @@ class MapMaker extends React.Component {
 			});
 			return;
 		} else if (!saveasname && directSave) {
+			//if not yet saved previously
 			this._showChild("saveas");
 			return;
 		} else if (saveasname in stash.maps && !directSave) {
+			//if replacing a file, ask confirmation
 			const conf = confirm(`Replace this file? "${saveasname}"`);
 			if (!conf) {
 				this._showChild("saveas");
 				return;
 			}
 		}
+
+		//save the new map to local stash variable first
 		stash.maps[saveasname] = {
 			mapWidth: mapBase1.width,
 			mapHeight: mapBase1.height,
@@ -660,10 +698,6 @@ class MapMaker extends React.Component {
 					const errDom = document.querySelector("#saveErr");
 					this._showErrMsg(errDom, json);
 				} else {
-					stash = json.message;
-					mapCellArr = stash.maps[saveasname].render;
-					editingNow = stash.maps[saveasname];
-
 					let jsx = (
 						<select
 							size="7"
@@ -693,7 +727,6 @@ class MapMaker extends React.Component {
 					this.setState({
 						mapList: jsx,
 						mapName: saveasname,
-						mapAnimationArr: stash.maps[saveasname].mapAnimationArr,
 						changes: 0,
 					});
 
@@ -701,14 +734,23 @@ class MapMaker extends React.Component {
 				}
 			}
 		};
+		//send the local stash to server to save to DB
 		req.send(JSON.stringify(stash));
 	}
 	_load(mapName) {
-		if (this.state.mapName)
-			stash.maps[this.state.mapName].changes = this.state.changes;
+		//if current map is not yet saved, ask
+		if (this.state.changes > 0) {
+			const conf = confirm(
+				"Changes in this file are not yet saved, proceed loading another file?"
+			);
+			if (!conf) return;
+		}
+		//get the map to load
 		const map = stash.maps[mapName];
+		//create new map area to load the render
 		this._newMap(map.mapWidth, map.mapHeight, true);
 
+		//draw the render from all layers
 		[
 			"mapBase1",
 			"mapBase2",
@@ -737,12 +779,18 @@ class MapMaker extends React.Component {
 				);
 			}
 		});
+		//if we want to persist and carry over these states,
+		//we need to manually set this on top of this block
 		this.setState({
 			mapName,
 			mapAnimationArr: map.mapAnimationArr,
-			changes: map.changes || 0,
+			changes: 0,
 		});
-		mapCellArr = map.render;
+		//when assigning directly (mapCellArr = map.render)
+		//changing mapCellArr will also change map.render
+		//because they SHARE the same OBJECT reference
+		//so we use deep copy parse and stringify to prevent that
+		mapCellArr = JSON.parse(JSON.stringify(map.render));
 	}
 	_tilesetOnChange(tileset) {
 		const ts = document.querySelector("#" + tileset),
@@ -1092,13 +1140,6 @@ class MapMaker extends React.Component {
 											as
 										</li>
 										<li>To load your map, File -> Load</li>
-										<li>
-											(don't worry if you forgot to save
-											your current progress before loading
-											another map, the progress will
-											remain unless you reload the page.
-											It's still good to save frequently.)
-										</li>
 										<li>Scroll to zoom-in/out the map</li>
 										<li>
 											Hold right-click and drag on the map
@@ -1169,9 +1210,6 @@ class MapMaker extends React.Component {
 							>
 								File
 							</button>
-							<button onClick={this._toggleMapGrid}>
-								Toggle Map Grid
-							</button>
 							<button
 								onClick={() => {
 									this._showChild("help");
@@ -1179,6 +1217,23 @@ class MapMaker extends React.Component {
 								}}
 							>
 								HELP!
+							</button>
+							<button onClick={this._toggleMapGrid}>
+								Toggle Map Grid
+							</button>
+
+							<button
+								onClick={() => {
+									this.setState((currState) => {
+										return {
+											showCONTROLS: !currState.showCONTROLS,
+										};
+									});
+								}}
+							>
+								{this.state.showCONTROLS
+									? "Hide tools"
+									: "Show tools"}
 							</button>
 						</div>
 						{/*TILESET*/}
@@ -1213,344 +1268,429 @@ class MapMaker extends React.Component {
 							<canvas id="frameSelect"></canvas>
 						</div>
 						{/*CONTROLS*/}
-						<div className="mainControls">
-							<div className="mCChild" style={{ color: "white" }}>
-								Layer Visibility
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="b1"
-										value="mapBase1"
-									/>
-									<label htmlFor="b1">Base1</label>
-								</div>
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="b2"
-										value="mapBase2"
-									/>
-									<label htmlFor="b2">Base2</label>
-								</div>
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="b3"
-										value="mapBase3"
-									/>
-									<label htmlFor="b3">Base3</label>
-								</div>
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="sm1"
-										value="mapShadowMid1"
-									/>
-									<label htmlFor="sm1">Mid1 Shadow</label>
-								</div>
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="m1"
-										value="mapMid1"
-									/>
-									<label htmlFor="m1">Mid1</label>
-								</div>
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="a"
-										value="mapAnimate"
-									/>
-									<label htmlFor="a">Animation</label>
-								</div>
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="sm2"
-										value="mapShadowMid2"
-									/>
-									<label htmlFor="sm2">Mid2 Shadow</label>
-								</div>
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="m2"
-										value="mapMid2"
-									/>
-									<label htmlFor="m2">Mid2</label>
-								</div>
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="st"
-										value="mapShadowTop"
-									/>
-									<label htmlFor="st">Top Shadow</label>
-								</div>
-								<div>
-									<input
-										onChange={this._toggleVisibility}
-										type="checkbox"
-										defaultChecked
-										id="t"
-										value="mapTop"
-									/>
-									<label htmlFor="t">Top</label>
-								</div>
-							</div>
-							<div className="mCChild">
-								Layer:
-								<select
-									id="layerSelect"
-									onChange={(e) => {
-										document.querySelector(
-											"#opacitySelect"
-										).value = document.querySelector(
-											"#" + e.target.value
-										).style.opacity;
-									}}
-								>
-									<option value="mapBase1">Base1</option>
-									<option value="mapBase2">Base2</option>
-									<option value="mapBase3">Base3</option>
-									<option value="mapShadowMid1">
-										Mid1 Shadow
-									</option>
-									<option value="mapMid1">Mid1</option>
-									<option value="mapShadowMid2">
-										Mid2 Shadow
-									</option>
-									<option value="mapMid2">Mid2</option>
-									<option value="mapShadowTop">
-										Top Shadow
-									</option>
-									<option value="mapTop">Top</option>
-								</select>
-								<select
-									id="opacitySelect"
-									defaultValue="label"
-									onChange={(e) => {
-										const elem = document.querySelector(
-											"#layerSelect"
-										).value;
-										document.querySelector(
-											"#" + elem
-										).style.opacity = e.target.value;
-									}}
-								>
-									<option disabled value="label">
-										Opacity
-									</option>
-									<option value="1">100%</option>
-									<option value="0.7">70%</option>
-									<option value="0.3">30%</option>
-								</select>
-								<button
-									id="eraser"
-									style={{
-										backgroundColor: this.state.erase
-											? "green"
-											: "black",
-										color: this.state.erase
-											? "black"
-											: "white",
-									}}
-									onClick={(e) => {
-										this.setState({
-											erase: true,
-										});
-									}}
-								>
-									Eraser ("E" toggle)
-								</button>
-								<div style={{ color: "#13DF26" }}>
-									Change rate since
-									<br />
-									your last save: {this.state.changes}
-								</div>
-								{this.state.captureCounter <= 0 && (
-									<button
-										onClick={() => {
-											this._showChild("loading");
-											this._showFileOptions();
-											this.setState({
-												captureCounter: 120,
-											});
-											capturer.start();
-										}}
+						{this.state.showRenderControls &&
+							this.state.showCONTROLS && (
+								<div className="mainControls">
+									<div
+										className="mCChild"
+										style={{ color: "white" }}
 									>
-										Export to .webm
-									</button>
-								)}
-							</div>
-							<div className="mCChild">
-								<div>
-									<button
-										style={
-											this.state.isAnimationOn
-												? {
-														color: "white",
-														backgroundColor:
-															"#13DF26",
-												  }
-												: {
-														color: "black",
-														backgroundColor:
-															"white",
-												  }
-										}
-										onClick={() => {
-											frameSelectAnimation
-												.getContext("2d")
-												.clearRect(
-													0,
-													0,
-													frameSelectAnimation.width,
-													frameSelectAnimation.height
-												);
-											frameSelect
-												.getContext("2d")
-												.clearRect(
-													0,
-													0,
-													frameSelect.width,
-													frameSelect.height
-												);
-											selX = undefined;
-											selW = cellWidth;
-											selH = cellHeight;
-											this.setState((currState) => {
-												return {
-													animationFrames: [],
-													isAnimationOn: !currState.isAnimationOn,
-												};
-											});
-										}}
-									>
-										{this.state.isAnimationOn
-											? "Select frames"
-											: "Animate!"}
-									</button>
-
-									<label
-										style={{
-											color: "white",
-											display: this.state.isAnimationOn
-												? "block"
-												: "none",
-										}}
-										htmlFor="fps"
-									>
-										FPS:
-										<input
-											style={{ width: "50px" }}
-											min="1"
-											max="60"
-											id="fps"
-											type="number"
-											defaultValue="10"
+										Layer Visibility
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="b1"
+												value="mapBase1"
+											/>
+											<label htmlFor="b1">Base1</label>
+										</div>
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="b2"
+												value="mapBase2"
+											/>
+											<label htmlFor="b2">Base2</label>
+										</div>
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="b3"
+												value="mapBase3"
+											/>
+											<label htmlFor="b3">Base3</label>
+										</div>
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="sm1"
+												value="mapShadowMid1"
+											/>
+											<label htmlFor="sm1">
+												Mid1 Shadow
+											</label>
+										</div>
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="m1"
+												value="mapMid1"
+											/>
+											<label htmlFor="m1">Mid1</label>
+										</div>
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="a"
+												value="mapAnimate"
+											/>
+											<label htmlFor="a">Animation</label>
+										</div>
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="sm2"
+												value="mapShadowMid2"
+											/>
+											<label htmlFor="sm2">
+												Mid2 Shadow
+											</label>
+										</div>
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="m2"
+												value="mapMid2"
+											/>
+											<label htmlFor="m2">Mid2</label>
+										</div>
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="st"
+												value="mapShadowTop"
+											/>
+											<label htmlFor="st">
+												Top Shadow
+											</label>
+										</div>
+										<div>
+											<input
+												onChange={
+													this._toggleVisibility
+												}
+												type="checkbox"
+												defaultChecked
+												id="t"
+												value="mapTop"
+											/>
+											<label htmlFor="t">Top</label>
+										</div>
+									</div>
+									<div className="mCChild">
+										Layer:
+										<select
+											id="layerSelect"
 											onChange={(e) => {
-												if (e.target.value > 60)
-													e.target.value = 60;
-												if (e.target.value < 1)
-													e.target.value = 1;
+												document.querySelector(
+													"#opacitySelect"
+												).value = document.querySelector(
+													"#" + e.target.value
+												).style.opacity;
 											}}
-										/>
-									</label>
+										>
+											<option value="mapBase1">
+												Base1
+											</option>
+											<option value="mapBase2">
+												Base2
+											</option>
+											<option value="mapBase3">
+												Base3
+											</option>
+											<option value="mapShadowMid1">
+												Mid1 Shadow
+											</option>
+											<option value="mapMid1">
+												Mid1
+											</option>
+											<option value="mapShadowMid2">
+												Mid2 Shadow
+											</option>
+											<option value="mapMid2">
+												Mid2
+											</option>
+											<option value="mapShadowTop">
+												Top Shadow
+											</option>
+											<option value="mapTop">Top</option>
+										</select>
+										<select
+											id="opacitySelect"
+											defaultValue="label"
+											onChange={(e) => {
+												const elem = document.querySelector(
+													"#layerSelect"
+												).value;
+												document.querySelector(
+													"#" + elem
+												).style.opacity =
+													e.target.value;
+											}}
+										>
+											<option disabled value="label">
+												Opacity
+											</option>
+											<option value="1">100%</option>
+											<option value="0.7">70%</option>
+											<option value="0.3">30%</option>
+										</select>
+										<button
+											id="eraser"
+											style={{
+												backgroundColor: this.state
+													.erase
+													? "green"
+													: "black",
+												color: this.state.erase
+													? "black"
+													: "white",
+											}}
+											onClick={(e) => {
+												this.setState({
+													erase: true,
+												});
+											}}
+										>
+											Eraser ("E" toggle)
+										</button>
+										<div style={{ color: "#13DF26" }}>
+											Change rate since
+											<br />
+											your last save: {this.state.changes}
+										</div>
+										{this.state.captureCounter <= 0 && (
+											<button
+												onClick={() => {
+													this._showChild("loading");
+													this._showFileOptions();
+													this.setState({
+														captureCounter: 120,
+													});
+													capturer.start();
+												}}
+											>
+												Export to .webm
+											</button>
+										)}
+									</div>
+									<div className="mCChild">
+										<div>
+											<button
+												style={
+													this.state.isAnimationOn
+														? {
+																color: "white",
+																backgroundColor:
+																	"#13DF26",
+														  }
+														: {
+																color: "black",
+																backgroundColor:
+																	"white",
+														  }
+												}
+												onClick={() => {
+													frameSelectAnimation
+														.getContext("2d")
+														.clearRect(
+															0,
+															0,
+															frameSelectAnimation.width,
+															frameSelectAnimation.height
+														);
+													frameSelect
+														.getContext("2d")
+														.clearRect(
+															0,
+															0,
+															frameSelect.width,
+															frameSelect.height
+														);
+													selX = undefined;
+													selW = cellWidth;
+													selH = cellHeight;
+													this.setState(
+														(currState) => {
+															return {
+																animationFrames: [],
+																isAnimationOn: !currState.isAnimationOn,
+															};
+														}
+													);
+												}}
+											>
+												{this.state.isAnimationOn
+													? "Select frames"
+													: "Animate!"}
+											</button>
+
+											<label
+												style={{
+													color: "white",
+													display: this.state
+														.isAnimationOn
+														? "block"
+														: "none",
+												}}
+												htmlFor="fps"
+											>
+												FPS:
+												<input
+													style={{ width: "50px" }}
+													min="1"
+													max="60"
+													id="fps"
+													type="number"
+													defaultValue="10"
+													onChange={(e) => {
+														if (e.target.value > 60)
+															e.target.value = 60;
+														if (e.target.value < 1)
+															e.target.value = 1;
+													}}
+												/>
+											</label>
+										</div>
+										<select
+											id="selAnimationInstance"
+											size="7"
+											onChange={(e) => {
+												const x = this.state
+														.mapAnimationArr[
+														e.target.value
+													].rx,
+													y = this.state
+														.mapAnimationArr[
+														e.target.value
+													].ry,
+													w = this.state
+														.mapAnimationArr[
+														e.target.value
+													].src[0].w,
+													h = this.state
+														.mapAnimationArr[
+														e.target.value
+													].src[0].h;
+
+												const ctx2 = mapClickCatcher.getContext(
+													"2d"
+												);
+												ctx2.clearRect(
+													0,
+													0,
+													mapClickCatcher.width,
+													mapClickCatcher.height
+												);
+												ctx2.beginPath();
+
+												ctx2.rect(x, y, w, h);
+
+												ctx2.strokeStyle = "blue";
+												ctx2.lineWidth = 5;
+												ctx2.stroke();
+											}}
+										>
+											{this.state.mapAnimationArr.map(
+												(instance, i) => {
+													return (
+														<option
+															key={i}
+															value={i}
+														>
+															{instance.rx /
+																cellWidth +
+																"_" +
+																instance.ry /
+																	cellHeight}
+														</option>
+													);
+												}
+											)}
+										</select>
+										<button
+											onClick={() => {
+												const val = document.querySelector(
+													"#selAnimationInstance"
+												).value;
+
+												let toDel;
+												{
+													/*if none choose, select the last index*/
+												}
+												if (
+													this.state.mapAnimationArr
+														.length > 0
+												) {
+													if (val == "") {
+														toDel =
+															this.state
+																.mapAnimationArr
+																.length - 1;
+													} else toDel = val;
+
+													const arrs = this.state
+														.mapAnimationArr;
+													arrs.splice(toDel, 1);
+													this.setState(
+														(currState) => {
+															return {
+																mapAnimationArr: arrs,
+																changes:
+																	currState.changes +
+																	1,
+															};
+														}
+													);
+												}
+											}}
+										>
+											Delete Selected Animation
+										</button>
+									</div>
 								</div>
-								<select
-									id="selAnimationInstance"
-									size="7"
-									onChange={(e) => {
-										const x = this.state.mapAnimationArr[
-												e.target.value
-											].rx,
-											y = this.state.mapAnimationArr[
-												e.target.value
-											].ry,
-											w = this.state.mapAnimationArr[
-												e.target.value
-											].src[0].w,
-											h = this.state.mapAnimationArr[
-												e.target.value
-											].src[0].h;
-
-										const ctx2 = mapClickCatcher.getContext(
-											"2d"
-										);
-										ctx2.clearRect(
-											0,
-											0,
-											mapClickCatcher.width,
-											mapClickCatcher.height
-										);
-										ctx2.beginPath();
-
-										ctx2.rect(x, y, w, h);
-
-										ctx2.strokeStyle = "blue";
-										ctx2.lineWidth = 5;
-										ctx2.stroke();
-									}}
-								>
-									{this.state.mapAnimationArr.map(
-										(instance, i) => {
-											return (
-												<option key={i} value={i}>
-													{instance.rx +
-														"_" +
-														instance.ry}
-												</option>
-											);
-										}
-									)}
-								</select>
-								<button
-									onClick={() => {
-										const val = document.querySelector(
-											"#selAnimationInstance"
-										).value;
-
-										let toDel;
-										{
-											/*if none choose, select the last index*/
-										}
-										if (val == "") {
-											toDel =
-												this.state.mapAnimationArr
-													.length - 1;
-										} else toDel = val;
-
-										const arrs = this.state.mapAnimationArr;
-										arrs.splice(toDel, 1);
-										this.setState({
-											mapAnimationArr: arrs,
-										});
-									}}
-								>
-									Delete Selected Animation
-								</button>
-							</div>
-						</div>
+							)}
+						{this.state.showCONTROLS && (
+							<button
+								onClick={() => {
+									this.setState((currState) => {
+										return {
+											showRenderControls: !currState.showRenderControls,
+										};
+									});
+								}}
+							>
+								{this.state.showRenderControls
+									? "Switch to [PATH MODE]"
+									: "Back to [RENDER MODE]"}
+							</button>
+						)}
 					</div>
 					<div id="mapCont">
 						<div id="mapScaler">
