@@ -24,7 +24,8 @@ let cellWidth = 32,
 	frameSelect,
 	frameSelectAnimation,
 	mapClickCatcher,
-	captureCanvas;
+	captureCanvas,
+	captureCounter = 0;
 
 let saveX, saveY;
 let mapCellArr = {
@@ -65,7 +66,6 @@ class MapMaker extends React.Component {
 			isAnimationOn: false,
 			mapAnimationArr: [],
 			animationFrames: [],
-			captureCounter: 0,
 		};
 
 		this._showFileOptions = this._showFileOptions.bind(this);
@@ -79,6 +79,10 @@ class MapMaker extends React.Component {
 	}
 
 	componentDidMount() {
+		document.querySelector("#group1").oncontextmenu = (event) => {
+			event.preventDefault();
+		};
+
 		mapBase1 = document.querySelector("#mapBase1");
 		mapBase2 = document.querySelector("#mapBase2");
 		mapBase3 = document.querySelector("#mapBase3");
@@ -884,7 +888,7 @@ class MapMaker extends React.Component {
 				});
 			}
 
-			if (this.state.captureCounter > 0) {
+			if (captureCounter > 0) {
 				[
 					mapBase1,
 					mapBase2,
@@ -901,18 +905,14 @@ class MapMaker extends React.Component {
 				});
 
 				document.querySelector("#loadingBar").style.width =
-					((120 - this.state.captureCounter) / 120) * 100 + "%";
+					((120 - captureCounter) / 120) * 100 + "%";
 
-				if (this.state.captureCounter <= 1) {
+				if (captureCounter <= 1) {
 					capturer.stop();
 					capturer.save();
 					this._showFileOptions();
 				}
-				this.setState((currState) => {
-					return {
-						captureCounter: currState.captureCounter - 1,
-					};
-				});
+				captureCounter--;
 			}
 			capturer.capture(captureCanvas);
 			requestAnimationFrame(renderAnimation);
@@ -978,10 +978,10 @@ class MapMaker extends React.Component {
 									placeholder="Stash name"
 								/>
 								<button onClick={this._createNewStash}>
-									Submit
+									Create
 								</button>
 								<button onClick={() => this._showChild("main")}>
-									Back
+									Back to login
 								</button>
 							</div>
 						)}
@@ -1492,20 +1492,16 @@ class MapMaker extends React.Component {
 											<br />
 											your last save: {this.state.changes}
 										</div>
-										{this.state.captureCounter <= 0 && (
-											<button
-												onClick={() => {
-													this._showChild("loading");
-													this._showFileOptions();
-													this.setState({
-														captureCounter: 120,
-													});
-													capturer.start();
-												}}
-											>
-												Export to .webm
-											</button>
-										)}
+										<button
+											onClick={() => {
+												this._showChild("loading");
+												this._showFileOptions();
+												captureCounter = 120;
+												capturer.start();
+											}}
+										>
+											Export to .webm
+										</button>
 									</div>
 									<div className="mCChild">
 										<div>
