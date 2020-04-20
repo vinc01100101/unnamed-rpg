@@ -60,6 +60,10 @@ module.exports = () => {
     }
 
     componentDidMount() {
+      document.querySelector("#GamePageContainer").oncontextmenu = (event) => {
+        event.preventDefault();
+      };
+
       if (window.Worker) {
         console.log("Worker API supported");
         this.worker = new Worker("./animation-worker.js");

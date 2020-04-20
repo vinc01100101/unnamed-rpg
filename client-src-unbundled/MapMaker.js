@@ -962,7 +962,33 @@ class MapMaker extends React.Component {
 								</button>
 							</div>
 						)}
-
+						{this.state.showOpsChildren == "whatsnew" && (
+							<div className="popupCont">
+								<h3>What's new?</h3>
+								<ul>
+									<li>
+										<span style={{ fontWeight: "bold" }}>
+											v1.1.0
+										</span>{" "}
+										Added "Hide tools" button to have wider
+										tileset view.
+										<br />
+										Button hotkey: [W] (4/20/2020)
+									</li>
+									<li>
+										<span style={{ fontWeight: "bold" }}>
+											v1.0.0
+										</span>{" "}
+										Started Semantic Versioning (4/20/2020)
+									</li>
+								</ul>
+								<button
+									onClick={() => this._showChild("files")}
+								>
+									Back
+								</button>
+							</div>
+						)}
 						{this.state.showOpsChildren == "loading" && (
 							<div className="popupCont">
 								<h3>Please wait..</h3>
@@ -1009,6 +1035,12 @@ class MapMaker extends React.Component {
 						)}
 						{this.state.showOpsChildren == "files" && (
 							<div className="popupCont">
+								<div style={{ fontWeight: "bold" }}>v1.1.0</div>
+								<button
+									onClick={() => this._showChild("whatsnew")}
+								>
+									What's new?
+								</button>
 								<button onClick={() => this._showChild("load")}>
 									Load
 								</button>
