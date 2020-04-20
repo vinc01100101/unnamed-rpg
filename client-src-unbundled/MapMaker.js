@@ -18,7 +18,6 @@ let cellWidth = 32,
 	scX = 0.1,
 	scY = 0.1,
 	//DOMS
-	ref,
 	mapBase1,
 	mapBase2,
 	mapBase3,
@@ -29,7 +28,6 @@ let cellWidth = 32,
 	mapMid2,
 	mapShadowTop,
 	mapTop,
-	layerSelect,
 	frameSelect,
 	frameSelectAnimation,
 	mapClickCatcher,
@@ -70,6 +68,9 @@ class MapMaker extends React.Component {
 			isAnimationOn: false,
 			mapAnimationArr: [],
 			animationFrames: [],
+			fps: 15,
+			ref: "",
+			layer: "mapBase1",
 		};
 
 		this._showFileOptions = this._showFileOptions.bind(this);
@@ -80,6 +81,7 @@ class MapMaker extends React.Component {
 		this._saveAs = this._saveAs.bind(this);
 		this._load = this._load.bind(this);
 		this._tilesetOnChange = this._tilesetOnChange.bind(this);
+		this._toggleAnimation = this._toggleAnimation.bind(this);
 	}
 
 	componentDidMount() {
@@ -97,7 +99,6 @@ class MapMaker extends React.Component {
 		mapAnimate = document.querySelector("#mapAnimate");
 		mapShadowTop = document.querySelector("#mapShadowTop");
 		mapTop = document.querySelector("#mapTop");
-		layerSelect = document.querySelector("#layerSelect");
 		frameSelect = document.querySelector("#frameSelect");
 		frameSelectAnimation = document.querySelector("#frameSelectAnimation");
 		mapClickCatcher = document.querySelector("#mapClickCatcher");
@@ -135,6 +136,9 @@ class MapMaker extends React.Component {
 					this.setState((currState) => {
 						return { showCONTROLS: !currState.showCONTROLS };
 					});
+					break;
+				case 97:
+					this._toggleAnimation();
 					break;
 			}
 		});
@@ -505,7 +509,7 @@ class MapMaker extends React.Component {
 			y = Math.floor(oY / cellHeight) * cellHeight;
 
 		const ctx = document
-			.querySelector("#" + layerSelect.value)
+			.querySelector("#" + this.state.layer)
 			.getContext("2d");
 
 		//if on PATH MODE
@@ -516,7 +520,7 @@ class MapMaker extends React.Component {
 			//clear a tile
 			ctx.clearRect(x, y, cellWidth, cellHeight);
 			//remove the data of that tile
-			delete mapCellArr[layerSelect.value][
+			delete mapCellArr[this.state.layer][
 				Math.floor(oX / cellWidth) + "_" + Math.floor(oY / cellHeight)
 			];
 			return;
@@ -551,7 +555,7 @@ class MapMaker extends React.Component {
 						xIndex < cols &&
 						yIndex < rows
 					)
-						mapCellArr[layerSelect.value][xIndex + "_" + yIndex] = [
+						mapCellArr[this.state.layer][xIndex + "_" + yIndex] = [
 							selX + (i + forI.adj) * cellWidth,
 							selY + (j + forJ.adj) * cellHeight,
 							this.state.showTile,
@@ -560,7 +564,17 @@ class MapMaker extends React.Component {
 			}
 
 			ctx.clearRect(x, y, selW, selH);
-			ctx.drawImage(ref, selX, selY, selW, selH, x, y, selW, selH);
+			ctx.drawImage(
+				this.state.ref,
+				selX,
+				selY,
+				selW,
+				selH,
+				x,
+				y,
+				selW,
+				selH
+			);
 		}
 		//else if animating.. (length will be > 0 if animating)
 		else if (this.state.animationFrames.length > 0) {
@@ -569,7 +583,7 @@ class MapMaker extends React.Component {
 					mapAnimationArr: currState.mapAnimationArr.concat({
 						rx: x,
 						ry: y,
-						fps: document.querySelector("#fps").value,
+						fps: currState.fps,
 						src: currState.animationFrames,
 					}),
 				};
@@ -858,9 +872,30 @@ class MapMaker extends React.Component {
 		}
 		this.setState({
 			showTile: tileset,
+			ref: document.querySelector("#" + tileset),
 		});
-
-		ref = document.querySelector("#" + tileset);
+	}
+	_toggleAnimation() {
+		frameSelectAnimation
+			.getContext("2d")
+			.clearRect(
+				0,
+				0,
+				frameSelectAnimation.width,
+				frameSelectAnimation.height
+			);
+		frameSelect
+			.getContext("2d")
+			.clearRect(0, 0, frameSelect.width, frameSelect.height);
+		selX = undefined;
+		selW = cellWidth;
+		selH = cellHeight;
+		this.setState((currState) => {
+			return {
+				animationFrames: [],
+				isAnimationOn: !currState.isAnimationOn,
+			};
+		});
 	}
 	_mapAnimation() {
 		const ctx = mapAnimate.getContext("2d");
@@ -1464,7 +1499,12 @@ class MapMaker extends React.Component {
 												).value = document.querySelector(
 													"#" + e.target.value
 												).style.opacity;
+
+												this.setState({
+													layer: e.target.value,
+												});
 											}}
+											value={this.state.layer}
 										>
 											<option value="mapBase1">
 												Base1
@@ -1568,39 +1608,11 @@ class MapMaker extends React.Component {
 																	"white",
 														  }
 												}
-												onClick={() => {
-													frameSelectAnimation
-														.getContext("2d")
-														.clearRect(
-															0,
-															0,
-															frameSelectAnimation.width,
-															frameSelectAnimation.height
-														);
-													frameSelect
-														.getContext("2d")
-														.clearRect(
-															0,
-															0,
-															frameSelect.width,
-															frameSelect.height
-														);
-													selX = undefined;
-													selW = cellWidth;
-													selH = cellHeight;
-													this.setState(
-														(currState) => {
-															return {
-																animationFrames: [],
-																isAnimationOn: !currState.isAnimationOn,
-															};
-														}
-													);
-												}}
+												onClick={this._toggleAnimation}
 											>
 												{this.state.isAnimationOn
-													? "Select frames"
-													: "Animate!"}
+													? "Select frames[A]"
+													: "Animate![A]"}
 											</button>
 
 											<label
@@ -1620,12 +1632,17 @@ class MapMaker extends React.Component {
 													max="60"
 													id="fps"
 													type="number"
-													defaultValue="10"
+													value={this.state.fps}
 													onChange={(e) => {
+														let val =
+															e.target.value;
 														if (e.target.value > 60)
-															e.target.value = 60;
+															val = 60;
 														if (e.target.value < 1)
-															e.target.value = 1;
+															val = 1;
+														this.setState({
+															fps: val,
+														});
 													}}
 												/>
 											</label>
