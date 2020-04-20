@@ -1,4 +1,5 @@
 const React = require("react");
+const Versioning = require("./mapmaker/Versioning");
 
 const capturer = new CCapture({
 	format: "webm",
@@ -58,6 +59,7 @@ class MapMaker extends React.Component {
 			showOpsChildren: "main",
 			showCONTROLS: true,
 			showRenderControls: true,
+			errormessage: "",
 			toggleMapGrid: true,
 			erase: false,
 			mapList: "",
@@ -598,6 +600,12 @@ class MapMaker extends React.Component {
 				const errDom = document.querySelector("#cStashErr");
 				const valDom = document.querySelector("#cStashVal");
 				this._showErrMsg(errDom, json, valDom);
+			} else if (req.readyState == 4) {
+				this.setState({
+					showOpsChildren: "errormessage",
+					errormessage:
+						"Failed to create due to network issue, please try again.",
+				});
 			}
 		};
 
@@ -652,6 +660,12 @@ class MapMaker extends React.Component {
 						mapList: jsx,
 					});
 				}
+			} else if (req.readyState == 4) {
+				this.setState({
+					showOpsChildren: "errormessage",
+					errormessage:
+						"Failed to open due to network issue, please try again.",
+				});
 			}
 		};
 		req.send(JSON.stringify({ stashName, stashKey }));
@@ -746,6 +760,12 @@ class MapMaker extends React.Component {
 
 					this._showFileOptions();
 				}
+			} else if (req.readyState == 4) {
+				this.setState({
+					showOpsChildren: "errormessage",
+					errormessage:
+						"Failed to save due to network issue, please try again.",
+				});
 			}
 		};
 		//send the local stash to server to save to DB
@@ -963,36 +983,27 @@ class MapMaker extends React.Component {
 							</div>
 						)}
 						{this.state.showOpsChildren == "whatsnew" && (
-							<div className="popupCont">
-								<h3>What's new?</h3>
-								<ul>
-									<li>
-										<span style={{ fontWeight: "bold" }}>
-											v1.1.0
-										</span>{" "}
-										Added "Hide tools" button to have wider
-										tileset view.
-										<br />
-										Button hotkey: [W] (4/20/2020)
-									</li>
-									<li>
-										<span style={{ fontWeight: "bold" }}>
-											v1.0.0
-										</span>{" "}
-										Started Semantic Versioning (4/20/2020)
-									</li>
-								</ul>
-								<button
-									onClick={() => this._showChild("files")}
-								>
-									Back
-								</button>
-							</div>
+							<Versioning _showChild={this._showChild} />
 						)}
 						{this.state.showOpsChildren == "loading" && (
 							<div className="popupCont">
 								<h3>Please wait..</h3>
 								<div id="loadingBar"></div>
+							</div>
+						)}
+						{this.state.showOpsChildren == "errormessage" && (
+							<div className="popupCont">
+								<h3>Sorry..</h3>
+								{this.state.errormessage}
+								<button
+									onClick={() =>
+										cols == undefined
+											? this._showChild("main")
+											: this._showChild("files")
+									}
+								>
+									Back
+								</button>
 							</div>
 						)}
 						{this.state.showOpsChildren == "createnewstash" && (
