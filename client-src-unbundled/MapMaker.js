@@ -1,3 +1,11 @@
+const React = require("react");
+
+const capturer = new CCapture({
+	format: "webm",
+	framerate: 60,
+	verbose: false,
+});
+
 let cellWidth = 32,
 	cellHeight = 32,
 	cols,
@@ -40,12 +48,6 @@ let mapCellArr = {
 	mapTop: {},
 };
 let stash = null;
-
-const capturer = new CCapture({
-	format: "webm",
-	framerate: 60,
-	verbose: false,
-});
 
 class MapMaker extends React.Component {
 	constructor(props) {
@@ -381,11 +383,10 @@ class MapMaker extends React.Component {
 		//if current map is not yet saved, ask
 		if (this.state.changes > 0) {
 			const conf = confirm(
-				"Changes in this file are not yet saved, proceed loading another file?"
+				"Changes in this file were not saved yet, proceed loading another file?"
 			);
-			if (!conf) return;
+			if (!conf) return false;
 		}
-
 		//redeclare variables
 		(scX = 0.1), (scY = 0.1);
 		mapCellArr = {
@@ -491,6 +492,8 @@ class MapMaker extends React.Component {
 			mapName: "",
 			mapAnimationArr: [],
 		});
+
+		return true;
 	}
 	_drawTile(e) {
 		const oX = e.offsetX,
@@ -749,18 +752,11 @@ class MapMaker extends React.Component {
 		req.send(JSON.stringify(stash));
 	}
 	_load(mapName) {
-		//if current map is not yet saved, ask
-		if (this.state.changes > 0) {
-			const conf = confirm(
-				"Changes in this file are not yet saved, proceed loading another file?"
-			);
-			if (!conf) return;
-		}
 		//get the map to load
 		const map = stash.maps[mapName];
 		//create new map area to load the render
-		this._newMap(map.mapWidth, map.mapHeight, true);
-
+		const conf = this._newMap(map.mapWidth, map.mapHeight, true);
+		if (!conf) return;
 		//draw the render from all layers
 		[
 			"mapBase1",
@@ -958,6 +954,11 @@ class MapMaker extends React.Component {
 									}
 								>
 									Create new stash
+								</button>
+								<button
+									onClick={() => (window.location.href = "/")}
+								>
+									{"<- Game Page"}
 								</button>
 							</div>
 						)}
@@ -1159,7 +1160,7 @@ class MapMaker extends React.Component {
 										<li>Press E to toggle Eraser on/off</li>
 									</ul>
 									<h4>How To Animate?</h4>
-									<img src="/mapMaker/animationGuide.png" />
+									<img src="/assets/system/animationGuide.png" />
 									<div>
 										Credits to Ivan Voirol for the tilesets!
 										You can follow him{" "}
@@ -1487,7 +1488,12 @@ class MapMaker extends React.Component {
 										>
 											Eraser[E]
 										</button>
-										<div style={{ color: "#13DF26" }}>
+										<div
+											style={{
+												color: "#13DF26",
+												backgroundColor: "black",
+											}}
+										>
 											Change rate since
 											<br />
 											your last save: {this.state.changes}
@@ -1762,5 +1768,6 @@ class MapMaker extends React.Component {
 	}
 }
 
-const root = document.querySelector("#root");
-ReactDOM.render(<MapMaker />, root);
+module.exports = () => {
+	return MapMaker;
+};

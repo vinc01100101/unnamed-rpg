@@ -73,6 +73,13 @@ module.exports = function Login(props) {
       </button>
       <button
         onClick={() => {
+          window.location.href = "/mapmaker";
+        }}
+      >
+        Map Maker
+      </button>
+      <button
+        onClick={() => {
           props._toggleVisibility("About");
         }}
       >

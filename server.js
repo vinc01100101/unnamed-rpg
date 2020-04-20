@@ -126,7 +126,10 @@ mongoose.connect(
 
     //CLIENT REQUEST FOR MAP MAKER PAGE
     app.get("/mapmaker", (req, res) => {
-      res.sendFile(__dirname + "/dist/mapMaker/mapMaker.html");
+      res.render(__dirname + "/dist/index.pug", {
+        page: "MapMaker",
+        isDesktop: req.useragent.isDesktop,
+      });
     });
 
     //CREATE STASH
