@@ -1806,7 +1806,7 @@ class MapMaker extends React.Component {
 										<input
 											id="toPng"
 											type="number"
-											defaultValue="1"
+											defaultValue={1}
 											onChange={(e) => {
 												if (e.target.value > 120)
 													e.target.value = 120;
@@ -1825,9 +1825,12 @@ class MapMaker extends React.Component {
 													verbose: false,
 												});
 
-												captureCounter = document.querySelector(
-													"#toPng"
-												).value;
+												captureCounter =
+													parseInt(
+														document.querySelector(
+															"#toPng"
+														).value
+													) + 1;
 												capturer.start();
 											}}
 										>
