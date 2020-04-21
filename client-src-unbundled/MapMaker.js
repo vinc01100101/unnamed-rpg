@@ -1,7 +1,7 @@
 const React = require("react");
 const Versioning = require("./mapmaker/Versioning");
 
-const capturer = new CCapture({
+let capturer = new CCapture({
 	format: "webm",
 	framerate: 60,
 	verbose: false,
@@ -9,6 +9,8 @@ const capturer = new CCapture({
 
 let cellWidth = 32,
 	cellHeight = 32,
+	charCellWidth = cellWidth / 3,
+	charCellHeight = cellHeight / 3,
 	cols,
 	rows,
 	selX,
@@ -32,7 +34,13 @@ let cellWidth = 32,
 	frameSelectAnimation,
 	mapClickCatcher,
 	captureCanvas,
-	captureCounter = 0;
+	captureCounter = 0,
+	renderXY = [],
+	pathXY = [],
+	getPathCoordinate = () =>
+		Math.round(pathXY[0] / charCellWidth) +
+		"_" +
+		Math.round(pathXY[1] / charCellHeight);
 
 let saveX, saveY;
 let mapCellArr = {
@@ -46,6 +54,7 @@ let mapCellArr = {
 	mapShadowTop: {},
 	mapTop: {},
 };
+let mapPathArr = {};
 let stash = null;
 
 class MapMaker extends React.Component {
@@ -71,6 +80,9 @@ class MapMaker extends React.Component {
 			fps: 15,
 			ref: "",
 			layer: "mapBase1",
+			z: [],
+			z_: 0,
+			ztart: null,
 		};
 
 		this._showFileOptions = this._showFileOptions.bind(this);
@@ -124,8 +136,12 @@ class MapMaker extends React.Component {
 				1 + scX * 2
 			},${1 + scY * 2})`;
 		});
+
+		//HOTKEYS
 		window.addEventListener("keypress", (e) => {
 			console.log(e.keyCode);
+
+			const thePath = mapPathArr[getPathCoordinate()];
 			switch (e.keyCode) {
 				case 101:
 					this.setState((currState) => {
@@ -139,6 +155,48 @@ class MapMaker extends React.Component {
 					break;
 				case 97:
 					this._toggleAnimation();
+					break;
+				//s == set the Z of a path by 1 cell
+				case 115:
+					if (!this.state.ztart) {
+						this.setState({
+							ztart: pathXY,
+						});
+					} else {
+						mapPathArr[getPathCoordinate()] = this.state.z;
+						this.setState({ ztart: null });
+					}
+
+					break;
+				//d == set the Z of a path by 0.1 cell
+				case 100:
+					break;
+				//f == switch from Z's of a path
+				case 102:
+					if (thePath) {
+						this.setState((currState) => {
+							return {
+								z_:
+									currState.z_ >= currState.z.length - 1
+										? 0
+										: currState.z_ + 1,
+							};
+						});
+					}
+					break;
+				//x == delete a Z from a path
+				case 120:
+					if (thePath && thePath.length > 1) {
+						thePath.splice(this.state.z_, 1);
+						this.setState({ z: thePath });
+					}
+					break;
+				//c == add a Z to a path
+				case 99:
+					if (thePath) {
+						thePath.push(0);
+						this.setState({ z: thePath });
+					}
 					break;
 			}
 		});
@@ -162,7 +220,6 @@ class MapMaker extends React.Component {
 		const frameSelectSquares = () => {
 			if (this.state.isAnimationOn) {
 				const len = this.state.animationFrames.length;
-				console.log(this.state.animationFrames.length);
 				//dont draw if frames are already 7
 				if (len >= 7) return;
 
@@ -187,14 +244,7 @@ class MapMaker extends React.Component {
 			ctx.lineWidth = 5;
 			ctx.stroke();
 		};
-		const mapClickCatcherPainter = (e) => {
-			e.preventDefault();
 
-			if (e.buttons == 1) {
-				if (!this.state.erase) e.target.style.cursor = "grab";
-				this._drawTile(e);
-			}
-		};
 		//MOUSE DOWN
 		const mDown = (e) => {
 			//drag
@@ -218,13 +268,19 @@ class MapMaker extends React.Component {
 				frameSelectSquares();
 			}
 			if (e.buttons == 1 && e.target.id == "mapClickCatcher") {
-				mapClickCatcherPainter(e);
+				e.target.style.cursor =
+					!this.state.erase && e.buttons != 1
+						? "grabbing"
+						: !this.state.erase && e.buttons == 1
+						? "grab"
+						: "cell";
+				this._drawTile(true);
 			}
 		};
 
 		//MOUSE MOVE
 		const mMove = (e) => {
-			//drag
+			//drag/move map/tileset
 			if (e.buttons == 2 && attachment == true) {
 				position = [e.clientX, e.clientY];
 				difference = [
@@ -243,7 +299,7 @@ class MapMaker extends React.Component {
 					lastPosition = [e.clientX, e.clientY];
 				}
 			}
-			//square
+			//square on tileset
 			if (e.buttons == 1 && e.target.id == "frameSelect") {
 				(offX = e.offsetX), (offY = e.offsetY);
 
@@ -266,46 +322,136 @@ class MapMaker extends React.Component {
 			}
 			//mapClickCatcher square on mouse hover
 			if (e.target.id == "mapClickCatcher") {
-				e.target.style.cursor = !this.state.erase ? "grabbing" : "cell";
+				e.target.style.cursor =
+					!this.state.erase && e.buttons != 1
+						? "grabbing"
+						: !this.state.erase && e.buttons == 1
+						? "grab"
+						: "cell";
 
 				const oX = e.offsetX,
 					oY = e.offsetY;
-				let x, y;
 
-				ctx2.clearRect(
-					0,
-					0,
-					mapClickCatcher.width,
-					mapClickCatcher.height
-				);
-				ctx2.beginPath();
+				//draw square function
+				const strokeRect = (x, y, w, h) => {
+					ctx2.clearRect(
+						0,
+						0,
+						mapClickCatcher.width,
+						mapClickCatcher.height
+					);
+
+					ctx2.beginPath();
+					ctx2.rect(x, y, w, h);
+
+					ctx2.strokeStyle = this.state.erase
+						? "white"
+						: !this.state.showRenderControls
+						? "#7AFE70"
+						: this.state.isAnimationOn
+						? "blue"
+						: "red";
+					ctx2.lineWidth = 2;
+					ctx2.stroke();
+				};
+				const fillRect = (x, y, w, h) => {
+					ctx2.beginPath();
+					ctx2.fillStyle = "red";
+					ctx2.globalAlpha = 0.5;
+					ctx2.fillRect(x, y, w, h);
+				};
+				//pathXY
 				if (!this.state.showRenderControls) {
-					x = (Math.floor(oX / (cellWidth / 3)) * cellWidth) / 3;
-					y = (Math.floor(oY / (cellHeight / 3)) * cellHeight) / 3;
-					ctx2.rect(x, y, cellWidth / 3, cellHeight / 3);
-				} else {
-					x = Math.floor(oX / cellWidth) * cellWidth;
-					y = Math.floor(oY / cellHeight) * cellHeight;
-					if (this.state.erase) {
-						ctx2.rect(x, y, cellWidth, cellHeight);
-					} else {
-						ctx2.rect(x, y, selW, selH);
+					//the main setter of pathXY coordinates
+					const x = Math.floor(oX / charCellWidth) * charCellWidth,
+						y = Math.floor(oY / charCellHeight) * charCellHeight;
+
+					//if not setting the Z
+					if (!this.state.ztart) {
+						if (pathXY[0] != x || pathXY[1] != y) {
+							pathXY = [x, y];
+
+							//the green square
+							strokeRect(
+								pathXY[0],
+								pathXY[1],
+								charCellWidth,
+								charCellHeight
+							);
+							const isAPath = mapPathArr[getPathCoordinate()];
+
+							if (isAPath) {
+								isAPath.map((x, i) => {
+									fillRect(
+										pathXY[0],
+										pathXY[1] - isAPath[i] * charCellHeight,
+										charCellWidth,
+										charCellHeight
+									);
+								});
+							}
+							this.setState({
+								//z to update the list
+								z: isAPath,
+								//z_=0 to reset the selection
+								z_: 0,
+							});
+						} else return;
+					}
+					//else if setting the Z
+					else {
+						//the green square
+						strokeRect(
+							this.state.ztart[0],
+							this.state.ztart[1],
+							charCellWidth,
+							charCellHeight
+						);
+
+						//set the Z based on mouse Y
+						let z = this.state.z;
+						z[this.state.z_] =
+							Math.round(this.state.ztart[1] / charCellHeight) -
+							Math.round(y / charCellHeight);
+
+						//put that in state
+						this.setState({
+							z,
+						});
+						//draw all the red sqaures of each z's
+						z.map((zEntry, i) => {
+							fillRect(
+								this.state.ztart[0],
+								this.state.ztart[1] - z[i] * charCellHeight,
+								charCellWidth,
+								charCellHeight
+							);
+						});
 					}
 				}
+				//renderXY
+				else {
+					const x = Math.floor(oX / cellWidth) * cellWidth,
+						y = Math.floor(oY / cellHeight) * cellHeight;
 
-				ctx2.strokeStyle = !this.state.showRenderControls
-					? "#7AFE70"
-					: this.state.erase
-					? "white"
-					: this.state.isAnimationOn
-					? "blue"
-					: "red";
-				ctx2.lineWidth = 2;
-				ctx2.stroke();
+					if (renderXY[0] != x || renderXY[1] != y) {
+						renderXY = [x, y];
+						if (this.state.erase) {
+							strokeRect(
+								renderXY[0],
+								renderXY[1],
+								cellWidth,
+								cellHeight
+							);
+						} else {
+							strokeRect(renderXY[0], renderXY[1], selW, selH);
+						}
+					} else return;
+				}
 
 				//PAINT TILE
-				if (e.buttons == 1 && !this.state.isAnimationOn) {
-					mapClickCatcherPainter(e);
+				if (e.buttons == 1) {
+					this._drawTile(false);
 				}
 			}
 		};
@@ -389,7 +535,7 @@ class MapMaker extends React.Component {
 		//if current map is not yet saved, ask
 		if (this.state.changes > 0) {
 			const conf = confirm(
-				"Changes in this file were not saved yet, proceed loading another file?"
+				"You haven't saved your current progress yet, proceed loading another file without saving?"
 			);
 			if (!conf) return false;
 		}
@@ -406,6 +552,7 @@ class MapMaker extends React.Component {
 			mapShadowTop: {},
 			mapTop: {},
 		};
+		mapPathArr = {};
 
 		const g = document.querySelector("#mapGrid"),
 			cg = document.querySelector("#charGrid"),
@@ -449,9 +596,13 @@ class MapMaker extends React.Component {
 
 		const ctx = g.getContext("2d");
 		const ctx2 = cg.getContext("2d");
+		ctx.clearRect(0, 0, g.width, g.height);
 		ctx.strokeStyle = "white";
+		ctx.lineWidth = 1;
+		ctx2.clearRect(0, 0, cg.width, cg.height);
 		ctx2.strokeStyle = "#538EF0";
 		ctx2.globalAlpha = 0.4;
+		ctx2.lineWidth = 1;
 		i = 0;
 		for (i; i <= cols; i++) {
 			const x = i * cellWidth;
@@ -459,12 +610,12 @@ class MapMaker extends React.Component {
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, mapH);
 			ctx.stroke();
-			ctx.font = "16px";
+			ctx.font = "32px";
 			ctx.fillText(i, x, cellHeight / 2);
 
 			j = 0;
 			for (j; j < 3; j++) {
-				const x2 = x + j * (cellWidth / 3);
+				const x2 = x + j * charCellWidth;
 				ctx2.beginPath();
 				ctx2.moveTo(x2, 0);
 				ctx2.lineTo(x2, mapH);
@@ -480,11 +631,11 @@ class MapMaker extends React.Component {
 			ctx.lineTo(mapW, y);
 			ctx.stroke();
 
-			ctx.font = "16px";
+			ctx.font = "32px";
 			ctx.fillText(i, 0, y + cellHeight / 2);
 			j = 0;
 			for (j; j < 3; j++) {
-				const y2 = y + j * (cellHeight / 3);
+				const y2 = y + j * charCellHeight;
 				ctx2.beginPath();
 				ctx2.moveTo(0, y2);
 				ctx2.lineTo(mapW, y2);
@@ -498,36 +649,66 @@ class MapMaker extends React.Component {
 			mapName: "",
 			mapAnimationArr: [],
 		});
-
 		return true;
 	}
-	_drawTile(e) {
-		const oX = e.offsetX,
-			oY = e.offsetY;
-
-		const x = Math.floor(oX / cellWidth) * cellWidth,
-			y = Math.floor(oY / cellHeight) * cellHeight;
-
+	_drawTile(isMouseDown) {
+		//drawing layer canvas
 		const ctx = document
 			.querySelector("#" + this.state.layer)
 			.getContext("2d");
 
+		//char grid layer canvas
+		const ctx2 = document.querySelector("#charGrid").getContext("2d");
+
 		//if on PATH MODE
-		if (!this.state.showRenderControls) {
+		if (!this.state.showRenderControls && !this.state.erase) {
+			//set the path cell data and render square
+			const coordTemp = getPathCoordinate();
+			if (!(coordTemp in mapPathArr)) {
+				mapPathArr[coordTemp] = [0];
+
+				ctx2.globalAlpha = 0.5;
+				ctx2.fillStyle = "blue";
+				ctx2.fillRect(
+					pathXY[0] + 1,
+					pathXY[1] + 1,
+					charCellWidth - 2,
+					charCellHeight - 2
+				);
+			}
 		}
 		//else if erase, just erase, update and return
 		else if (this.state.erase) {
-			//clear a tile
-			ctx.clearRect(x, y, cellWidth, cellHeight);
-			//remove the data of that tile
-			delete mapCellArr[this.state.layer][
-				Math.floor(oX / cellWidth) + "_" + Math.floor(oY / cellHeight)
-			];
-			return;
+			//if on rendering mode
+			if (this.state.showRenderControls) {
+				//clear a tile
+				ctx.clearRect(renderXY[0], renderXY[1], cellWidth, cellHeight);
+				//remove the data of that tile
+				delete mapCellArr[this.state.layer][
+					renderXY[0] / cellWidth + "_" + renderXY[1] / cellHeight
+				];
+			}
+			//else if on erase and path mode
+			else {
+				const coordTemp = getPathCoordinate();
+				if (coordTemp in mapPathArr) {
+					//remove the data of that tile
+					delete mapPathArr[coordTemp];
+					//clear a tile
+					ctx2.clearRect(
+						pathXY[0] + 1,
+						pathXY[1] + 1,
+						charCellWidth - 2,
+						charCellHeight - 2
+					);
+				}
+			}
 		}
 		//else,if not animating and has selected tile, draw the tile
 		else if (!this.state.isAnimationOn & (selX != undefined)) {
 			//setting for mapCellArr
+			//DAYS LATER.. I DONT FKING KNOW NOW HOW DID THIS WORK
+			//BECAUSE I FORGOT TO WRITE THE COMMENTS @#@#!%$#@$#@#
 			const forJ =
 				selH > 0
 					? { validate: (a, b) => a < b, incDec: 1, adj: 0 }
@@ -542,13 +723,14 @@ class MapMaker extends React.Component {
 				forJ.validate(j, selH / cellHeight);
 				j += forJ.incDec
 			) {
+				//DID I EFFIN WRITE THESE??? WTFFFF #$@%#^%^@*#*
 				for (
 					let i = 0;
 					forI.validate(i, selW / cellWidth);
 					i += forI.incDec
 				) {
-					const xIndex = Math.floor(oX / cellWidth) + i + forI.adj,
-						yIndex = Math.floor(oY / cellHeight) + j + forJ.adj;
+					const xIndex = renderXY[0] / cellWidth + i + forI.adj,
+						yIndex = renderXY[1] / cellHeight + j + forJ.adj;
 					if (
 						xIndex >= 0 &&
 						yIndex >= 0 &&
@@ -563,26 +745,26 @@ class MapMaker extends React.Component {
 				}
 			}
 
-			ctx.clearRect(x, y, selW, selH);
+			ctx.clearRect(renderXY[0], renderXY[1], selW, selH);
 			ctx.drawImage(
 				this.state.ref,
 				selX,
 				selY,
 				selW,
 				selH,
-				x,
-				y,
+				renderXY[0],
+				renderXY[1],
 				selW,
 				selH
 			);
 		}
 		//else if animating.. (length will be > 0 if animating)
-		else if (this.state.animationFrames.length > 0) {
+		else if (this.state.animationFrames.length > 0 && isMouseDown) {
 			this.setState((currState) => {
 				return {
 					mapAnimationArr: currState.mapAnimationArr.concat({
-						rx: x,
-						ry: y,
+						rx: renderXY[0],
+						ry: renderXY[1],
 						fps: currState.fps,
 						src: currState.animationFrames,
 					}),
@@ -724,7 +906,7 @@ class MapMaker extends React.Component {
 			mapWidth: mapBase1.width,
 			mapHeight: mapBase1.height,
 			render: mapCellArr,
-			pathData: [],
+			pathData: mapPathArr,
 			mapAnimationArr: this.state.mapAnimationArr,
 		};
 		const req = new XMLHttpRequest();
@@ -804,7 +986,8 @@ class MapMaker extends React.Component {
 			"mapTop",
 		].map((x) => {
 			const ctx = document.querySelector(`#${x}`).getContext("2d");
-
+			// ctx.webkitImageSmoothingEnabled = true;
+			// ctx.imageSmoothingEnabled = true;
 			for (const prop in map.render[x]) {
 				const axis = prop.split("_");
 				ctx.drawImage(
@@ -820,8 +1003,22 @@ class MapMaker extends React.Component {
 				);
 			}
 		});
-		//if we want to persist and carry over these states,
-		//we need to manually set this on top of this block
+		//draw the path data/mapPathArr { }
+
+		const ctx2 = document.querySelector("#charGrid").getContext("2d");
+		ctx2.globalAlpha = 0.5;
+		ctx2.fillStyle = "blue";
+		for (const prop in map.pathData) {
+			const axis = prop.split("_");
+
+			ctx2.fillRect(
+				axis[0] * charCellWidth + 1,
+				axis[1] * charCellHeight + 1,
+				charCellWidth - 2,
+				charCellHeight - 2
+			);
+		}
+
 		this.setState({
 			mapName,
 			mapAnimationArr: map.mapAnimationArr,
@@ -832,6 +1029,9 @@ class MapMaker extends React.Component {
 		//because they SHARE the same OBJECT reference
 		//so we use deep copy parse and stringify to prevent that
 		mapCellArr = JSON.parse(JSON.stringify(map.render));
+		mapPathArr = Array.isArray(map.pathData)
+			? {}
+			: JSON.parse(JSON.stringify(map.pathData));
 	}
 	_tilesetOnChange(tileset) {
 		const ts = document.querySelector("#" + tileset),
@@ -1081,7 +1281,7 @@ class MapMaker extends React.Component {
 						)}
 						{this.state.showOpsChildren == "files" && (
 							<div className="popupCont">
-								<div style={{ fontWeight: "bold" }}>v1.1.0</div>
+								<div style={{ fontWeight: "bold" }}>v1.2.1</div>
 								<button
 									onClick={() => this._showChild("whatsnew")}
 								>
@@ -1585,11 +1785,53 @@ class MapMaker extends React.Component {
 											onClick={() => {
 												this._showChild("loading");
 												this._showFileOptions();
+
+												capturer = new CCapture({
+													format: "webm",
+													framerate: 60,
+													verbose: false,
+												});
+
 												captureCounter = 120;
 												capturer.start();
 											}}
 										>
 											Export to .webm
+										</button>
+										<label htmlFor="toPng">
+											Number of frames
+											<br />
+											to export to .png:
+										</label>
+										<input
+											id="toPng"
+											type="number"
+											defaultValue="1"
+											onChange={(e) => {
+												if (e.target.value > 120)
+													e.target.value = 120;
+												if (e.target.value < 1)
+													e.target.value = 1;
+											}}
+										/>
+										<button
+											onClick={() => {
+												this._showChild("loading");
+												this._showFileOptions();
+
+												capturer = new CCapture({
+													format: "png",
+													framerate: 60,
+													verbose: false,
+												});
+
+												captureCounter = document.querySelector(
+													"#toPng"
+												).value;
+												capturer.start();
+											}}
+										>
+											Export to .png
 										</button>
 									</div>
 									<div className="mCChild">
@@ -1809,6 +2051,39 @@ class MapMaker extends React.Component {
 										: "none",
 								}}
 							></canvas>
+							<ul
+								id="z"
+								style={{
+									left: pathXY[0] + charCellWidth || 0,
+									top: pathXY[1] || 0,
+									display: this.state.z ? "block" : "none",
+								}}
+							>
+								{this.state.z &&
+									this.state.z.map((x, i) => {
+										return (
+											<li
+												key={i}
+												id={"z_" + i}
+												style={
+													this.state.z_ == i
+														? {
+																color: "white",
+																backgroundColor:
+																	"black",
+														  }
+														: {
+																color: "black",
+																backgroundColor:
+																	"white",
+														  }
+												}
+											>
+												[{x}]
+											</li>
+										);
+									})}
+							</ul>
 							<canvas
 								id="mapClickCatcher"
 								width="0"

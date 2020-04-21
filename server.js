@@ -234,6 +234,7 @@ mongoose.connect(
             });
 
           doc.maps = req.body.maps;
+          doc.markModified("maps");
           doc.save((err) => {
             if (err) return res.json({ type: "error", message: err });
             res.json({
