@@ -12,9 +12,7 @@ module.exports = function Login(props) {
       });
     }
     props._setStateCallback({
-      popup: {
-        loading: true,
-      },
+      loading: true,
     });
     props.socket.emit(
       "login",
@@ -26,16 +24,12 @@ module.exports = function Login(props) {
         if (info.type == "error") {
           props._setStateCallback({
             info,
-            popup: {
-              loading: false,
-            },
+            loading: false,
           });
         } else if (info.type == "success") {
-          props._toggleVisibility("SelectServer");
+          props._toggleVisibility("SelectChannel");
           props._setStateCallback({
-            popup: {
-              loading: false,
-            },
+            loading: false,
           });
         }
       }

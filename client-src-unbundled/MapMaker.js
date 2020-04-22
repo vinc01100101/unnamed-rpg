@@ -34,7 +34,7 @@ let cellWidth = 32,
 	frameSelectAnimation,
 	mapClickCatcher,
 	captureCanvas,
-	captureCounter = 0,
+	durationCounter = 0,
 	renderXY = [],
 	pathXY = [],
 	getPathCoordinate = () =>
@@ -77,12 +77,16 @@ class MapMaker extends React.Component {
 			isAnimationOn: false,
 			mapAnimationArr: [],
 			animationFrames: [],
+			exFormat: "webm",
 			fps: 15,
+			cps: 15,
+			ads: 1,
 			ref: "",
 			layer: "mapBase1",
 			z: [],
 			z_: 0,
 			ztart: null,
+			zMult: 1,
 		};
 
 		this._showFileOptions = this._showFileOptions.bind(this);
@@ -158,18 +162,33 @@ class MapMaker extends React.Component {
 					break;
 				//s == set the Z of a path by 1 cell
 				case 115:
-					if (!this.state.ztart) {
-						this.setState({
-							ztart: pathXY,
-						});
-					} else {
-						mapPathArr[getPathCoordinate()] = this.state.z;
-						this.setState({ ztart: null });
+					if (mapPathArr[getPathCoordinate()]) {
+						if (!this.state.ztart || this.state.zMult == 0.2) {
+							this.setState({
+								ztart: pathXY,
+								zMult: 1,
+							});
+						} else {
+							mapPathArr[getPathCoordinate()] = this.state.z;
+							this.setState({ ztart: null });
+						}
 					}
 
 					break;
-				//d == set the Z of a path by 0.1 cell
+				//d == set the Z of a path by 0.2 cell
 				case 100:
+					if (mapPathArr[getPathCoordinate()]) {
+						if (!this.state.ztart || this.state.zMult == 1) {
+							this.setState({
+								ztart: pathXY,
+								zMult: 0.2,
+							});
+						} else {
+							mapPathArr[getPathCoordinate()] = this.state.z;
+							this.setState({ ztart: null });
+						}
+					}
+
 					break;
 				//f == switch from Z's of a path
 				case 102:
@@ -407,13 +426,18 @@ class MapMaker extends React.Component {
 							charCellWidth,
 							charCellHeight
 						);
-
+						const yMult =
+							Math.floor(
+								oY / (charCellHeight * this.state.zMult)
+							) *
+							(charCellHeight * this.state.zMult);
 						//set the Z based on mouse Y
 						let z = this.state.z;
-						z[this.state.z_] =
-							Math.round(this.state.ztart[1] / charCellHeight) -
-							Math.round(y / charCellHeight);
-
+						z[this.state.z_] = (
+							this.state.ztart[1] / charCellHeight -
+							yMult / charCellHeight
+						).toFixed(1);
+						if (z[this.state.z_] == -0.0) z[this.state.z_] = "0.0";
 						//put that in state
 						this.setState({
 							z,
@@ -505,6 +529,13 @@ class MapMaker extends React.Component {
 		//================================================
 		//================================================
 
+		//I put this socket variable in CCapture.all.min.js to add listener when exporting is done
+		socket.on("okdone", () => {
+			this._showFileOptions();
+		});
+		socket.on("okdetail", (detail) => {
+			document.querySelector("#loadingDetails").textContent = detail;
+		});
 		this._mapAnimation();
 	}
 	// COMPONENTDIDMOUT ABOVE ------------------------------
@@ -665,7 +696,7 @@ class MapMaker extends React.Component {
 			//set the path cell data and render square
 			const coordTemp = getPathCoordinate();
 			if (!(coordTemp in mapPathArr)) {
-				mapPathArr[coordTemp] = [0];
+				mapPathArr[coordTemp] = ["0.0"];
 
 				ctx2.globalAlpha = 0.5;
 				ctx2.fillStyle = "blue";
@@ -829,6 +860,7 @@ class MapMaker extends React.Component {
 
 					let jsx = (
 						<select
+							id="mapList"
 							size="7"
 							onChange={(e) => {
 								if (this.state.showOpsChildren == "saveas") {
@@ -924,6 +956,7 @@ class MapMaker extends React.Component {
 				} else {
 					let jsx = (
 						<select
+							id="mapList"
 							size="7"
 							onChange={(e) => {
 								if (this.state.showOpsChildren == "saveas") {
@@ -986,8 +1019,9 @@ class MapMaker extends React.Component {
 			"mapTop",
 		].map((x) => {
 			const ctx = document.querySelector(`#${x}`).getContext("2d");
-			// ctx.webkitImageSmoothingEnabled = true;
-			// ctx.imageSmoothingEnabled = true;
+			ctx.webkitImageSmoothingEnabled = false;
+			ctx.imageSmoothingEnabled = false;
+			console.log(ctx.imageSmoothingEnabled);
 			for (const prop in map.render[x]) {
 				const axis = prop.split("_");
 				ctx.drawImage(
@@ -1103,7 +1137,14 @@ class MapMaker extends React.Component {
 		const ctxCapture = captureCanvas.getContext("2d");
 
 		const renderAnimation = () => {
+			requestAnimationFrame(renderAnimation);
 			ctx.clearRect(0, 0, mapAnimate.width, mapAnimate.height);
+			ctxCapture.clearRect(
+				0,
+				0,
+				captureCanvas.width,
+				captureCanvas.height
+			);
 			if (this.state.mapAnimationArr.length > 0) {
 				//loop through all instances of animation objects
 				this.state.mapAnimationArr.map((instance) => {
@@ -1139,7 +1180,7 @@ class MapMaker extends React.Component {
 				});
 			}
 
-			if (captureCounter > 0) {
+			if (durationCounter > 0) {
 				[
 					mapBase1,
 					mapBase2,
@@ -1155,18 +1196,21 @@ class MapMaker extends React.Component {
 					ctxCapture.drawImage(canv, 0, 0);
 				});
 
-				document.querySelector("#loadingBar").style.width =
-					((120 - captureCounter) / 120) * 100 + "%";
+				const bar = document.querySelector("#loadingBar");
+				if (bar != undefined)
+					bar.style.width =
+						((this.state.ads * 60 - durationCounter) /
+							(this.state.ads * 60)) *
+							100 +
+						"%";
 
-				if (captureCounter <= 1) {
-					capturer.stop();
-					capturer.save();
+				capturer.capture(captureCanvas);
+
+				durationCounter--;
+				durationCounter <= 0 &&
+					this.state.exFormat != "gif" &&
 					this._showFileOptions();
-				}
-				captureCounter--;
 			}
-			capturer.capture(captureCanvas);
-			requestAnimationFrame(renderAnimation);
 		};
 		requestAnimationFrame(renderAnimation);
 	}
@@ -1223,7 +1267,8 @@ class MapMaker extends React.Component {
 						{this.state.showOpsChildren == "loading" && (
 							<div className="popupCont">
 								<h3>Please wait..</h3>
-								<div id="loadingBar"></div>
+								<div id="loadingBar" />
+								<div id="loadingDetails" />
 							</div>
 						)}
 						{this.state.showOpsChildren == "errormessage" && (
@@ -1281,7 +1326,7 @@ class MapMaker extends React.Component {
 						)}
 						{this.state.showOpsChildren == "files" && (
 							<div className="popupCont">
-								<div style={{ fontWeight: "bold" }}>v1.2.1</div>
+								<div style={{ fontWeight: "bold" }}>v1.3.2</div>
 								<button
 									onClick={() => this._showChild("whatsnew")}
 								>
@@ -1305,12 +1350,16 @@ class MapMaker extends React.Component {
 								<button onClick={() => this._showChild("new")}>
 									New
 								</button>
+								<button
+									onClick={() => this._showChild("export")}
+								>
+									Export
+								</button>
 								<button onClick={this._showFileOptions}>
 									Back
 								</button>
 							</div>
 						)}
-
 						{this.state.showOpsChildren == "load" && (
 							<div className="popupCont">
 								<div>Open a map</div>
@@ -1329,7 +1378,6 @@ class MapMaker extends React.Component {
 								</button>
 							</div>
 						)}
-
 						{this.state.showOpsChildren == "saveas" && (
 							<div className="popupCont">
 								<div id="saveErr" />
@@ -1412,6 +1460,92 @@ class MapMaker extends React.Component {
 								</button>
 							</div>
 						)}
+						//zxc
+						{this.state.showOpsChildren == "export" && (
+							<div className="popupCont">
+								<label htmlFor="exFormat">Export format:</label>
+								<select
+									id="exFormat"
+									onChange={(e) => {
+										this.setState({
+											exFormat: e.target.value,
+										});
+									}}
+									value={this.state.exFormat}
+								>
+									<option value="webm">
+										.webm(Chrome only)
+									</option>
+									<option value="png">.png</option>
+									<option value="gif">.gif</option>
+								</select>
+								<label htmlFor="cps">
+									Captures per second
+									<br />
+									(max 60):
+								</label>
+								<input
+									id="cps"
+									type="number"
+									value={this.state.cps}
+									onChange={(e) => {
+										if (e.target.value > 60)
+											e.target.value = 60;
+										if (e.target.value < 1)
+											e.target.value = 1;
+
+										this.setState({
+											cps: e.target.value,
+										});
+									}}
+								/>
+								<label htmlFor="ads">
+									Animation duration
+									<br />
+									(in SECONDS) (max 5):
+								</label>
+								<input
+									id="ads"
+									type="number"
+									value={this.state.ads}
+									onChange={(e) => {
+										if (e.target.value > 5)
+											e.target.value = 5;
+										if (e.target.value < 1)
+											e.target.value = 1;
+
+										this.setState({
+											ads: e.target.value,
+										});
+									}}
+								/>
+								<button
+									onClick={() => {
+										this._showChild("loading");
+
+										capturer = new CCapture({
+											format: this.state.exFormat,
+											workersPath:
+												this.state.exFormat == "gif" &&
+												"/",
+											framerate: this.state.cps,
+											timeLimit: this.state.ads,
+											verbose: true,
+										});
+
+										durationCounter = 60 * this.state.ads;
+										capturer.start();
+									}}
+								>
+									Export!
+								</button>
+								<button
+									onClick={() => this._showChild("files")}
+								>
+									Back
+								</button>
+							</div>
+						)}
 						{this.state.showOpsChildren == "help" && (
 							<div className="popupCont">
 								<div id="instructions">
@@ -1462,10 +1596,10 @@ class MapMaker extends React.Component {
 											vincauxryua@gmail.com
 										</span>
 									</div>
-									<button onClick={this._showFileOptions}>
-										Back
-									</button>
 								</div>
+								<button onClick={this._showFileOptions}>
+									Back
+								</button>
 							</div>
 						)}
 					</div>
@@ -1781,61 +1915,6 @@ class MapMaker extends React.Component {
 											<br />
 											your last save: {this.state.changes}
 										</div>
-										<button
-											onClick={() => {
-												this._showChild("loading");
-												this._showFileOptions();
-
-												capturer = new CCapture({
-													format: "webm",
-													framerate: 60,
-													verbose: false,
-												});
-
-												captureCounter = 120;
-												capturer.start();
-											}}
-										>
-											Export to .webm
-										</button>
-										<label htmlFor="toPng">
-											Number of frames
-											<br />
-											to export to .png:
-										</label>
-										<input
-											id="toPng"
-											type="number"
-											defaultValue={1}
-											onChange={(e) => {
-												if (e.target.value > 120)
-													e.target.value = 120;
-												if (e.target.value < 1)
-													e.target.value = 1;
-											}}
-										/>
-										<button
-											onClick={() => {
-												this._showChild("loading");
-												this._showFileOptions();
-
-												capturer = new CCapture({
-													format: "png",
-													framerate: 60,
-													verbose: false,
-												});
-
-												captureCounter =
-													parseInt(
-														document.querySelector(
-															"#toPng"
-														).value
-													) + 1;
-												capturer.start();
-											}}
-										>
-											Export to .png
-										</button>
 									</div>
 									<div className="mCChild">
 										<div>

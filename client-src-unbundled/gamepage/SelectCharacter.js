@@ -1,15 +1,11 @@
 const React = require("react");
+const DATA_INDICES = require("../animation-variables/456indices");
 
 module.exports = function SelectCharacter(props) {
   return (
     <div className="formContainer">
       <p>Select Character</p>
-      <div id="gridChars">
-        <canvas className="selectCharFrame"></canvas>
-        <canvas className="selectCharFrame"></canvas>
-        <canvas className="selectCharFrame"></canvas>
-        <canvas className="selectCharFrame"></canvas>
-      </div>
+      <div id="selectCharsContainer">{props.mainCanvas}</div>
 
       <button>Enter</button>
       <button
@@ -21,7 +17,7 @@ module.exports = function SelectCharacter(props) {
       </button>
       <button
         onClick={() => {
-          props._toggleVisibility("SelectServer");
+          props._toggleVisibility("SelectChannel");
         }}
       >
         Back

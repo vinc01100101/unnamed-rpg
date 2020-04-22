@@ -27,9 +27,7 @@ module.exports = function Register(props) {
       });
     } else {
       props._setStateCallback({
-        popup: {
-          loading: true,
-        },
+        loading: true,
       });
 
       props.socket.emit(
@@ -46,9 +44,7 @@ module.exports = function Register(props) {
               regPassword: "",
               regConfirmPassword: "",
             },
-            popup: {
-              loading: false,
-            },
+            loading: false,
           });
         }
       );

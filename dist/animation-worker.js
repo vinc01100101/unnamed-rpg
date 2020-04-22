@@ -14,26 +14,20 @@ onmessage = (e) => {
 	switch (e.data.type) {
 		case "animationInit":
 			const args = e.data.args;
-
+			//clear
+			animationEngine = undefined;
+			//redefine
 			animationEngine = new AnimationEngine(
 				args[0],
 				JSON.parse(args[1]),
-				args[2],
-				args[3]
+				args[2]
 			);
-			animationEngine.renderThese = [
-				{
-					type: "player", // types = player,npc
-					body: "f_monk",
-					bodyFacing: "f",
-					act: "walk",
-					head: "f_head0",
-					fps: 10,
-				},
-			];
+
 			animationEngine.initialize();
 			break;
-
+		case "renderThese":
+			animationEngine.renderThese = e.data.renderThese;
+			break;
 		case "toBlob":
 			async function toBlob() {
 				const blob = await fetch(e.data.path).then((r) => r.blob());
@@ -42,7 +36,9 @@ onmessage = (e) => {
 			}
 			toBlob();
 			break;
-
+		case "test":
+			animationEngine.isTest = true;
+			break;
 		case "test_act":
 			animationEngine.renderThese[0].act = e.data.act;
 			break;
@@ -86,13 +82,13 @@ onmessage = (e) => {
 			break;
 
 		case "terminate":
-			animationEngine.terminate();
+			animationEngine && animationEngine.terminate();
 			break;
 	}
 };
 
 class AnimationEngine {
-	constructor(canvas, spriteSheetData, fps, DATA_INDICES) {
+	constructor(canvas, spriteSheetData, DATA_INDICES) {
 		this.adjustHeadXY = {
 			x: { f: 0, fl: 0, l: 0, bl: 0, b: 0, br: 0, r: 0, fr: 0 },
 			y: { f: 0, fl: 0, l: 0, bl: 0, b: 0, br: 0, r: 0, fr: 0 },
@@ -127,8 +123,7 @@ class AnimationEngine {
 		this.renderThese = [];
 
 		//store request id's
-		let reqID,
-			frameCounter = 0;
+		let reqID;
 
 		//initialize the timer
 		this.initialize = () => {
@@ -177,6 +172,9 @@ class AnimationEngine {
 					const isMirroredBodyFacing = isMirrored
 						? renderTHIS.bodyFacing.replace("r", "l")
 						: renderTHIS.bodyFacing;
+					//check if head is rotatable
+					const rotatable =
+						renderTHIS.act == "sit" || renderTHIS.act == "idle";
 					//add or increment self counter
 					if (
 						isNaN(renderTHIS.selfCounter) ||
@@ -185,21 +183,26 @@ class AnimationEngine {
 					) {
 						renderTHIS.selfCounter = 0;
 					}
+					if (isNaN(renderTHIS.frameCounter))
+						renderTHIS.frameCounter = 0;
 
 					//(TEST)VARIABLES OF OBJECT'S POSITION ON THE MAP
-					const variableX = 125,
-						variableY = 125;
-					//horizontal
-					ctx.strokeStyle = "green";
-					ctx.beginPath();
-					ctx.moveTo(0, 125);
-					ctx.lineTo(250, 125);
-					ctx.stroke();
-					//vertical
-					ctx.beginPath();
-					ctx.moveTo(125, 0);
-					ctx.lineTo(125, 250);
-					ctx.stroke();
+					const variableX = renderTHIS.coords[0],
+						variableY = renderTHIS.coords[1];
+
+					if (this.isTest) {
+						//horizontal
+						ctx.strokeStyle = "green";
+						ctx.beginPath();
+						ctx.moveTo(0, 125);
+						ctx.lineTo(250, 125);
+						ctx.stroke();
+						//vertical
+						ctx.beginPath();
+						ctx.moveTo(125, 0);
+						ctx.lineTo(125, 250);
+						ctx.stroke();
+					}
 
 					//BODY--------------------
 					//necessary variables for animation
@@ -228,10 +231,12 @@ class AnimationEngine {
 						scaleX = isMirrored ? -1 : 1,
 						transX = isMirrored ? srcW + renderX * 2 : 0;
 
-					//rectangle character body outline
-					ctx.beginPath();
-					ctx.rect(renderX, renderY, srcW, srcH);
-					ctx.stroke();
+					if (this.isTest) {
+						//rectangle character body outline
+						ctx.beginPath();
+						ctx.rect(renderX, renderY, srcW, srcH);
+						ctx.stroke();
+					}
 
 					//drawThisImage
 
@@ -250,12 +255,15 @@ class AnimationEngine {
 						srcW,
 						srcH
 					);
-					//rect for mirrored
-					ctx.beginPath();
-					ctx.rect(renderX, renderY, srcW, srcH);
-					ctx.strokeStyle = "red";
-					ctx.stroke();
-					//
+
+					if (this.isTest) {
+						//rect for mirrored
+						ctx.beginPath();
+						ctx.rect(renderX, renderY, srcW, srcH);
+						ctx.strokeStyle = "red";
+						ctx.stroke();
+					}
+
 					ctx.restore();
 
 					// TESTER---------------
@@ -266,10 +274,6 @@ class AnimationEngine {
 					//HEAD----------------------
 					//if the body has head, render it
 					//some sprites has head already attached
-
-					//check if head is rotatable
-					const rotatable =
-						renderTHIS.act == "sit" || renderTHIS.act == "idle";
 
 					if (renderTHIS.head) {
 						//check if head is animating
@@ -356,15 +360,17 @@ class AnimationEngine {
 							? sprActHead.widths[frameNum] + renderX * 2
 							: 0;
 
-						//rectangle character head outline
-						ctx.beginPath();
-						ctx.rect(
-							renderX,
-							renderY,
-							sprActHead.widths[frameNum],
-							sprActHead.heights[frameNum]
-						);
-						ctx.stroke();
+						if (this.isTest) {
+							//rectangle character head outline
+							ctx.beginPath();
+							ctx.rect(
+								renderX,
+								renderY,
+								sprActHead.widths[frameNum],
+								sprActHead.heights[frameNum]
+							);
+							ctx.stroke();
+						}
 
 						ctx.save();
 						ctx.translate(transX, 0);
@@ -381,24 +387,25 @@ class AnimationEngine {
 							sprActHead.widths[frameNum],
 							sprActHead.heights[frameNum]
 						);
-						//rect for mirrored
-						ctx.beginPath();
-						ctx.rect(
-							renderX,
-							renderY,
-							sprActHead.widths[frameNum],
-							sprActHead.heights[frameNum]
-						);
-						ctx.strokeStyle = "red";
-						ctx.stroke();
-						//
+						if (this.isTest) {
+							//rect for mirrored
+							ctx.beginPath();
+							ctx.rect(
+								renderX,
+								renderY,
+								sprActHead.widths[frameNum],
+								sprActHead.heights[frameNum]
+							);
+							ctx.strokeStyle = "red";
+							ctx.stroke();
+						}
 						ctx.restore();
 					}
-					frameCounter++;
 					if (!rotatable) {
-						if (frameCounter >= 60 / renderTHIS.fps) {
+						renderTHIS.frameCounter++;
+						if (renderTHIS.frameCounter >= 60 / renderTHIS.fps) {
 							renderTHIS.selfCounter++;
-							frameCounter = 0;
+							renderTHIS.frameCounter = 0;
 						}
 					}
 				});

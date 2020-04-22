@@ -1,10 +1,11 @@
-/* canvas {
+canvas {
 	image-rendering: optimizeSpeed;
 	image-rendering: -moz-crisp-edges;
 	image-rendering: -webkit-optimize-contrast;
+	image-rendering: pixelated;
 	image-rendering: -o-crisp-edges;
 	image-rendering: optimize-contrast;
-} */
+}
 
 #group1 {
 	display: flex;
@@ -169,14 +170,14 @@
 .popupCont {
 	background-color: white;
 	opacity: 1;
-	width: 300px;
-	height: 300px;
+	width: 400px;
+	height: 400px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	/* justify-content: center; */
-	overflow: scroll;
 	padding: 10px;
+	border-radius: 10px;
+	border: solid black 3px;
 }
 .popupCont button {
 	width: 80px;
@@ -204,4 +205,18 @@
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
+}
+#mapList{
+	width: 200px;
+	overflow: scroll;
+}
+#versioning,#instructions{
+	height: 90%;
+	overflow-y: scroll;
+}
+#versioning span{
+	font-weight: bold;
+}
+#versioning ol{
+	list-style-type: lower-alpha;
 }

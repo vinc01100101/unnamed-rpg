@@ -1,6 +1,4 @@
 const React = require("react");
-const AnimationEngine = require("./AnimationEngine");
-const DATA_INDICES = require("./animation-variables/456indices");
 
 const directions = ["f", "fl", "l", "bl", "b", "br", "r", "fr"];
 let allIndex = 0;
@@ -9,35 +7,11 @@ module.exports = class AnimationTESTER extends React.Component {
   constructor(props) {
     super(props);
   }
-  componentDidMount() {
-    const c = document.querySelector("#testerCanvas");
 
-    if (!this.props.worker) {
-      alert(
-        "Worker API not supported on this browser. Unable to render animation."
-      );
-      //else if no worker found
-    } else {
-      console.log("Worker found, rendering on the worker thread");
-      const offscreen = c.transferControlToOffscreen();
-      this.props.worker.postMessage(
-        {
-          type: "animationInit",
-          args: [
-            offscreen,
-            JSON.stringify(this.props.spriteSheetData),
-            10,
-            DATA_INDICES,
-          ],
-        },
-        [offscreen]
-      );
-    }
-  }
   render() {
     return (
       <div id="testWindow">
-        <canvas id="testerCanvas" width="250" height="250"></canvas>
+        {this.props.mainCanvas}
         <div id="testControls">
           <select
             onChange={(e) => {
@@ -182,9 +156,6 @@ module.exports = class AnimationTESTER extends React.Component {
 
           <button
             onClick={() => {
-              this.props.worker.postMessage({
-                type: "terminate",
-              });
               this.props._toggleVisibility("Login");
             }}
           >

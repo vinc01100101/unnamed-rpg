@@ -3,7 +3,7 @@ const React = require("react");
 const Login = require("./gamepage/Login");
 const Register = require("./gamepage/Register");
 const About = require("./gamepage/About");
-const SelectServer = require("./gamepage/SelectServer");
+const SelectChannel = require("./gamepage/SelectChannel");
 const SelectCharacter = require("./gamepage/SelectCharacter");
 const CreateCharacter = require("./gamepage/CreateCharacter");
 const OG = require("./gamepage/OG");
@@ -13,6 +13,7 @@ const PortraitScreen = require("./gamepage/PortraitScreen");
 //animation
 const AssetDownloader = require("./AssetDownloader");
 const SpriteSheetData = require("./SpriteSheetData");
+const DATA_INDICES = require("./animation-variables/456indices");
 //for testing purpose only
 const AnimationTESTER = require("./AnimationTESTER");
 
@@ -28,11 +29,9 @@ module.exports = () => {
         show: "PortraitScreen",
         lastShow: "Login",
         //modal types
-        popup: {
-          loading: false,
-          modal: false,
-        },
-
+        loading: false,
+        modal: false,
+        modalJsx: null,
         //live input values
         loginInput: {
           username: "",
@@ -57,6 +56,10 @@ module.exports = () => {
       this._updateInput = this._updateInput.bind(this);
       this._toggleVisibility = this._toggleVisibility.bind(this);
       this._setStateCallback = this._setStateCallback.bind(this);
+      this._functionComponentDidMount = this._functionComponentDidMount.bind(
+        this
+      );
+      this._socketListeners = this._socketListeners.bind(this);
     }
 
     componentDidMount() {
@@ -77,6 +80,8 @@ module.exports = () => {
 
       let assetDownloader = new AssetDownloader();
       this.spriteSheetData = new SpriteSheetData();
+      this.mainCanvas = <canvas id="mainCanvas" />;
+
       assetDownloader.downloadAll(
         this.spriteSheetData,
         this.worker,
@@ -122,6 +127,8 @@ module.exports = () => {
           // x.style.margin = gameContWidth * 0.02 + "px";
         });
       };
+
+      this._socketListeners();
     }
     componentDidUpdate(prevProps, prevState) {
       if (prevState.bgIsOn != this.state.bgIsOn) {
@@ -129,6 +136,35 @@ module.exports = () => {
           ? this.bgAnimate.startTransition()
           : this.bgAnimate.endTransition();
       }
+
+      if (prevState.show != this.state.show) {
+        this._functionComponentDidMount(this.state.show);
+      }
+    }
+    _socketListeners() {
+      console.log("listening");
+      //socket listeners
+      socket.on("forceleave", (message) => {
+        this.setState({
+          modal: true,
+          modalJsx: (
+            <div>
+              <h4>{message}</h4>
+              <button
+                onClick={() => {
+                  this._toggleVisibility("Login");
+                }}
+              >
+                Ok
+              </button>
+            </div>
+          ),
+        });
+      });
+
+      socket.on("newuser", (user) => {
+        console.log("user " + user + " has connected");
+      });
     }
     _setStateCallback(toChange) {
       this.setState(toChange);
@@ -161,9 +197,9 @@ module.exports = () => {
               type: "",
               message: "",
             },
-            popup: {
-              loading: false,
-            },
+            loading: false,
+            modal: false,
+            modalJsx: null,
           });
         }
         if (counter >= 20) {
@@ -171,6 +207,91 @@ module.exports = () => {
           fader.style.display = "none";
         }
       }, 25);
+    }
+
+    //MODIFIED FUNCTIONAL-COMPONENTS DID MOUNT
+    _functionComponentDidMount(component) {
+      //terminate worker's animation first
+      this.worker.postMessage({
+        type: "terminate",
+      });
+
+      switch (component) {
+        case "AnimationTESTER":
+          const mainCanvas = document.querySelector("#mainCanvas");
+          mainCanvas.width = 250;
+          mainCanvas.height = 250;
+          console.log(mainCanvas.mozTransferControlToOffscreen);
+          const offscreen = mainCanvas.transferControlToOffscreen();
+
+          this.worker.postMessage(
+            {
+              type: "animationInit",
+              args: [
+                offscreen,
+                JSON.stringify(this.spriteSheetData),
+                DATA_INDICES,
+              ],
+            },
+            [offscreen]
+          );
+          this.worker.postMessage({
+            type: "test",
+          });
+          this.worker.postMessage({
+            type: "renderThese",
+            renderThese: [
+              {
+                type: "player", // types = player,npc
+                body: "f_monk",
+                bodyFacing: "f",
+                act: "walk",
+                head: "f_head0",
+                fps: 10,
+                coords: [125, 125],
+              },
+            ],
+          });
+
+          break;
+        case "SelectCharacter":
+          socket.emit("characterscreen", (characters) => {
+            let renderThese = [];
+            Object.keys(characters).map((character, i) => {
+              renderThese.push({
+                body: characters[character].class,
+                head: characters[character].head,
+                coords: [i * 100 + 50, 100],
+                type: "player", // types = player,npc
+                bodyFacing: "f",
+                act: "standby",
+                fps: 10,
+              });
+            });
+
+            const mainCanvas = document.querySelector("#mainCanvas");
+            mainCanvas.width = renderThese.length * 100;
+            mainCanvas.height = 110;
+            const offscreen = mainCanvas.transferControlToOffscreen();
+            this.worker.postMessage(
+              {
+                type: "animationInit",
+                args: [
+                  offscreen,
+                  JSON.stringify(this.spriteSheetData),
+                  DATA_INDICES,
+                ],
+              },
+              [offscreen]
+            );
+
+            this.worker.postMessage({
+              type: "renderThese",
+              renderThese,
+            });
+          });
+          break;
+      }
     }
     _updateInput(e) {
       const elem = e.target;
@@ -204,8 +325,8 @@ module.exports = () => {
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
               info={this.state.info}
-              spriteSheetData={this.spriteSheetData}
               worker={this.worker}
+              mainCanvas={this.mainCanvas}
             />
           )}
 
@@ -232,8 +353,8 @@ module.exports = () => {
             />
           )}
 
-          {this.state.show == "SelectServer" && (
-            <SelectServer
+          {this.state.show == "SelectChannel" && (
+            <SelectChannel
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
               info={this.state.info}
@@ -244,12 +365,16 @@ module.exports = () => {
             <SelectCharacter
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
+              worker={this.worker}
+              mainCanvas={this.mainCanvas}
+              socket={socket}
             />
           )}
           {this.state.show == "CreateCharacter" && (
             <CreateCharacter
               _toggleVisibility={this._toggleVisibility}
               _setStateCallback={this._setStateCallback}
+              socket={socket}
             />
           )}
 
@@ -259,15 +384,15 @@ module.exports = () => {
             <About _toggleVisibility={this._toggleVisibility} />
           )}
 
-          {this.state.popup.loading && (
+          {this.state.loading && (
             <div id="loading">
               <p>Processing, please wait..</p>
             </div>
           )}
 
-          {this.state.popup.modal && (
-            <div className="modal-bg">
-              <div className="modal-fg"></div>
+          {this.state.modal && (
+            <div id="modal-bg">
+              <div id="modal-fg">{this.state.modalJsx}</div>
             </div>
           )}
           <div id="fader"></div>
