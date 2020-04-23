@@ -6,15 +6,16 @@ module.exports = function Versioning(props) {
 			<h3>What's new?</h3>
 			<ul id="versioning">
 				<li>
-					<span>v1.4.2</span> Now we can add our custom tileset. But
-					since the local custom tileset is not saved on the server
-					side, we would have to upload it everytime we continue our
-					project. Please remember the slot where the tileset were
-					uploaded, for example; We uploaded a tileset at{" "}
-					<strong>Custom Tileset 1</strong>, we have to upload the
-					same tileset at the same slot(Custom Tileset 1) everytime we
-					load our map, so it will re-render the map correctly.
-					(4/23/2020)
+					<span>v1.4.2</span> Now we can add our custom tileset, we
+					can use maximum of 3 different custom tilesets. But since
+					the local custom tileset is not saved on the server side, we
+					would have to upload it everytime we continue our project.
+					Please remember the slot where the tileset were uploaded,
+					for example; We uploaded a tileset at{" "}
+					<strong>Custom Tileset 1</strong> and used it for our map,
+					we have to upload the same tileset at the same slot(Custom
+					Tileset 1) everytime we load our map, so it will re-render
+					the map correctly. (4/23/2020)
 				</li>
 				<li>
 					<span>v1.3.2</span>
