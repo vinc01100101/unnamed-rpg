@@ -104,7 +104,20 @@ class MapMaker extends React.Component {
 		document.querySelector("#group1").oncontextmenu = (event) => {
 			event.preventDefault();
 		};
-
+		injectThis = (type, data) => {
+			console.log("Triggering injected function..");
+			switch (type) {
+				case "done":
+					this._showFileOptions();
+					break;
+				case "detail":
+					const loadingDetails = document.querySelector(
+						"#loadingDetails"
+					);
+					if (loadingDetails) loadingDetails.textContent = data;
+					break;
+			}
+		};
 		mapBase1 = document.querySelector("#mapBase1");
 		mapBase2 = document.querySelector("#mapBase2");
 		mapBase3 = document.querySelector("#mapBase3");
@@ -530,12 +543,7 @@ class MapMaker extends React.Component {
 		//================================================
 
 		//I put this socket variable in CCapture.all.min.js to add listener when exporting is done
-		socket.on("okdone", () => {
-			this._showFileOptions();
-		});
-		socket.on("okdetail", (detail) => {
-			document.querySelector("#loadingDetails").textContent = detail;
-		});
+
 		this._mapAnimation();
 	}
 	// COMPONENTDIDMOUT ABOVE ------------------------------
@@ -1460,7 +1468,6 @@ class MapMaker extends React.Component {
 								</button>
 							</div>
 						)}
-						//zxc
 						{this.state.showOpsChildren == "export" && (
 							<div className="popupCont">
 								<label htmlFor="exFormat">Export format:</label>

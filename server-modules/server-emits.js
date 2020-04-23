@@ -11,14 +11,6 @@ module.exports = (io, AccountModel) => {
   let connectedUsers = {};
 
   io.on("connection", (socket) => {
-    //TRY
-    socket.on("doneexporting", () => {
-      console.log("SOCKETED");
-      socket.emit("okdone");
-    });
-    socket.on("detailexport", (detail) => {
-      socket.emit("okdetail", detail);
-    });
     //LOGIN
     socket.on("login", (attempt, done) => {
       console.log("SOCKET STRATEGY OYEA!!");
