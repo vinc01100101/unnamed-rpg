@@ -1,5 +1,6 @@
 const React = require("react");
 const Versioning = require("./mapmaker/Versioning");
+const TileUploader = require("./mapmaker/TileUploader");
 
 let capturer = new CCapture({
 	format: "webm",
@@ -87,6 +88,10 @@ class MapMaker extends React.Component {
 			z_: 0,
 			ztart: null,
 			zMult: 1,
+			//custom tilesets
+			custom1: "",
+			custom2: "",
+			custom3: "",
 		};
 
 		this._showFileOptions = this._showFileOptions.bind(this);
@@ -104,6 +109,7 @@ class MapMaker extends React.Component {
 		document.querySelector("#group1").oncontextmenu = (event) => {
 			event.preventDefault();
 		};
+		//I injected a function to CCapture.all.min.js
 		injectThis = (type, data) => {
 			console.log("Triggering injected function..");
 			switch (type) {
@@ -541,8 +547,6 @@ class MapMaker extends React.Component {
 
 		//================================================
 		//================================================
-
-		//I put this socket variable in CCapture.all.min.js to add listener when exporting is done
 
 		this._mapAnimation();
 	}
@@ -1009,6 +1013,7 @@ class MapMaker extends React.Component {
 		req.send(JSON.stringify(stash));
 	}
 	_load(mapName) {
+		console.log("Loading map: " + mapName);
 		//get the map to load
 		const map = stash.maps[mapName];
 		//create new map area to load the render
@@ -1099,7 +1104,7 @@ class MapMaker extends React.Component {
 		for (i; i <= cols; i++) {
 			const x = i * cellWidth;
 			ctx.beginPath();
-			ctx.moveTo(x, cellHeight);
+			ctx.moveTo(x, 0);
 			ctx.lineTo(x, h);
 			ctx.stroke();
 		}
@@ -1222,6 +1227,26 @@ class MapMaker extends React.Component {
 		};
 		requestAnimationFrame(renderAnimation);
 	}
+	_returnATileset(id, mapUrlName) {
+		return (
+			<img
+				id={id}
+				className="tileset"
+				src={
+					mapUrlName
+						? "/assets/maps/" + mapUrlName + ".png"
+						: this.state[id]
+				}
+				style={{
+					display: this.state.showTile == id ? "block" : "none",
+				}}
+				onLoad={() => {
+					this._tilesetOnChange(id);
+					this.state.mapName && this._load(this.state.mapName);
+				}}
+			/>
+		);
+	}
 	render() {
 		return (
 			<div id="mainCont">
@@ -1334,7 +1359,7 @@ class MapMaker extends React.Component {
 						)}
 						{this.state.showOpsChildren == "files" && (
 							<div className="popupCont">
-								<div style={{ fontWeight: "bold" }}>v1.3.2</div>
+								<div style={{ fontWeight: "bold" }}>v1.4.2</div>
 								<button
 									onClick={() => this._showChild("whatsnew")}
 								>
@@ -1628,6 +1653,15 @@ class MapMaker extends React.Component {
 								<option value="tileset2">
 									Slates V2[updated] by Ivan Voirol
 								</option>
+								<option value="custom1">
+									Custom Tileset 1
+								</option>
+								<option value="custom2">
+									Custom Tileset 2
+								</option>
+								<option value="custom3">
+									Custom Tileset 3
+								</option>
 							</select>
 							<button
 								onClick={() => {
@@ -1665,7 +1699,7 @@ class MapMaker extends React.Component {
 						</div>
 						{/*TILESET*/}
 						<div id="tilesCont" onClick={(e) => {}}>
-							<img
+							{/*<img
 								id="tileset1"
 								className="tileset"
 								src="/assets/maps/maptiles1.png"
@@ -1689,7 +1723,28 @@ class MapMaker extends React.Component {
 											? "block"
 											: "none",
 								}}
-							/>
+							/>*/}
+							{this.state[this.state.showTile] == "" && (
+								<TileUploader
+									cb={(dataUrl) => {
+										const customs = (this.state[
+											this.state.showTile
+										] = dataUrl);
+
+										this.setState((currState) => {
+											return {
+												customs,
+											};
+										});
+									}}
+								/>
+							)}
+							{this._returnATileset("tileset1", "maptiles1")}
+							{this._returnATileset("tileset2", "maptiles2")}
+							{this._returnATileset("custom1")}
+							{this._returnATileset("custom2")}
+							{this._returnATileset("custom3")}
+
 							<canvas id="frame"></canvas>
 							<canvas id="frameSelectAnimation"></canvas>
 							<canvas id="frameSelect"></canvas>
