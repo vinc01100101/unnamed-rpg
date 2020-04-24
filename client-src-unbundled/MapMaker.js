@@ -2199,7 +2199,9 @@ class MapMaker extends React.Component {
 											}}
 											onClick={(e) => {
 												this.setState((currState) => {
-													erase: !currState.erase;
+													return {
+														erase: !currState.erase,
+													};
 												});
 											}}
 										>
