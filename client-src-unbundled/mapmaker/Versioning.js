@@ -6,26 +6,52 @@ module.exports = function Versioning(props) {
 			<h3>What's new?</h3>
 			<ul id="versioning">
 				<li>
-					<span>v1.4.2</span> Now we can add our custom tileset, we
-					can use maximum of 3 different custom tilesets. But since
-					the local custom tileset is not saved on the server side, we
-					would have to upload it everytime we continue our project.
-					Please remember the slot where the tileset were uploaded,
-					for example; We uploaded a tileset at{" "}
+					<span>v1.5.3 [UNDO REDO + ACCURATE CHANGE COUNTER]</span>
+					<ol>
+						<li>
+							Undo and redo are now functioning, use them with the
+							usual hotkeys z and y respectively{" "}
+							<strong>without the ctrl button.</strong> The scope
+							of this history is the entire canvas where the map
+							is being rendered. There's no count-limit to use
+							undo/redo. However, this feature is still on beta.
+							We may put range limit to history whenever our app
+							shows some performance drop when used for a long
+							session, so please report to us if you noticed that
+							drop.
+						</li>
+						<li>
+							The <strong>Change rate</strong> is not spamming
+							anymore! In our previous versions, it increments
+							every mouse move. Now it is more accurate and will
+							only increment when real changes in canvas happened.
+							The change rate can be a negative number when you{" "}
+							<strong>Undo</strong> just after saving the
+							progress, it's like travelling back in time! :D
+						</li>
+					</ol>
+				</li>
+				<li>
+					<span>v1.4.2 [CUSTOM TILESET]</span> Now we can add our
+					custom tileset, we can use maximum of 3 different custom
+					tilesets. But since the local custom tileset is not saved on
+					the server side, we would have to upload it everytime we
+					continue our project. Please remember the slot where the
+					tileset was uploaded, for example; We uploaded a tileset at{" "}
 					<strong>Custom Tileset 1</strong> and used it for our map,
 					we have to upload the same tileset at the same slot(Custom
 					Tileset 1) everytime we load our map, so it will re-render
 					the map correctly. (4/23/2020)
 				</li>
 				<li>
-					<span>v1.3.2</span>
+					<span>v1.3.2 [MAP QUALITY IMPROVEMENT + EXPORTING]</span>
 					<ol>
 						<li>
 							The issue that was addressed in version 1.2.1.b is
-							now fixed! The pixel loss are now gone! And to add
-							to that, while applying that fix, to our surprise we
+							now fixed! No pixel loss anymore! And to add to
+							that, while applying that fix, to our surprise we
 							found out that the quality of the map doesn't blur
-							anymore when zooming in! How's that? We catch 2
+							anymore when zooming in! How's that? We caught 2
 							fishes in one pull! :D
 						</li>
 						<li>
@@ -87,7 +113,7 @@ module.exports = function Versioning(props) {
 				</li>
 
 				<li>
-					<span>v1.2.1</span>
+					<span>v1.2.1 [PNG EXPORTING + EDGE'S PIXEL LOSS]</span>
 					<ol>
 						<li>
 							Added an option to export the map to .png format.
@@ -109,18 +135,20 @@ module.exports = function Versioning(props) {
 					</ol>
 				</li>
 				<li>
-					<span>v1.1.1</span> Network failure causes loading window to
-					stuck, we now added an error handling to network failure
-					while saving, loading, opening/creating a stash. (4/20/2020)
+					<span>v1.1.1 [NETTWORK FAILURES]</span> Network failure
+					causes loading window to stuck, we now added an error
+					handling to network failure while saving, loading,
+					opening/creating a stash. (4/20/2020)
 				</li>
 				<li>
-					<span>v1.1.0</span> Added "Hide tools" button to have wider
-					tileset view.
+					<span>v1.1.0 [HIDE TOOLS]</span> Added "Hide tools" button
+					to have wider tileset view.
 					<br />
 					Button hotkey: [W] (4/20/2020)
 				</li>
 				<li>
-					<span>v1.0.0</span> Started Semantic Versioning (4/20/2020)
+					<span>v1.0.0 [THE ROCKET IS LAUNCHED! :D]</span> Started
+					Semantic Versioning (4/20/2020)
 				</li>
 			</ul>
 			<button onClick={() => props._showChild("files")}>Back</button>

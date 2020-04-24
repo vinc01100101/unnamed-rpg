@@ -92,6 +92,10 @@ class MapMaker extends React.Component {
 			custom1: "",
 			custom2: "",
 			custom3: "",
+			//history for redo undo, and action index to map on history
+			history: [],
+			actionIndex: -1,
+			method: "",
 		};
 
 		this._showFileOptions = this._showFileOptions.bind(this);
@@ -103,6 +107,8 @@ class MapMaker extends React.Component {
 		this._load = this._load.bind(this);
 		this._tilesetOnChange = this._tilesetOnChange.bind(this);
 		this._toggleAnimation = this._toggleAnimation.bind(this);
+		this._mapHistory = this._mapHistory.bind(this);
+		this._drawTimeTravel = this._drawTimeTravel.bind(this);
 	}
 
 	componentDidMount() {
@@ -166,22 +172,29 @@ class MapMaker extends React.Component {
 
 			const thePath = mapPathArr[getPathCoordinate()];
 			switch (e.keyCode) {
+				//e == eraser button toggle
 				case 101:
 					this.setState((currState) => {
 						return { erase: !currState.erase };
 					});
 					break;
+
+				//w == show/hide controls toggle
 				case 119:
 					this.setState((currState) => {
 						return { showCONTROLS: !currState.showCONTROLS };
 					});
 					break;
+
+				//a == animation button toggle
 				case 97:
 					this._toggleAnimation();
 					break;
+
 				//s == set the Z of a path by 1 cell
 				case 115:
 					if (mapPathArr[getPathCoordinate()]) {
+						//if not active yet
 						if (!this.state.ztart || this.state.zMult == 0.2) {
 							this.setState({
 								ztart: pathXY,
@@ -189,14 +202,24 @@ class MapMaker extends React.Component {
 							});
 						} else {
 							mapPathArr[getPathCoordinate()] = this.state.z;
-							this.setState({ ztart: null });
+							const modHist = JSON.parse(
+								JSON.stringify(this.state.history)
+							);
+							modHist.filter(
+								(x) =>
+									x.redo.arrSrc == "mapPathArr" &&
+									x.redo.prop == getPathCoordinate()
+							)[0].redo.val = this.state.z;
+							this.setState({ ztart: null, history: modHist });
 						}
 					}
 
 					break;
+
 				//d == set the Z of a path by 0.2 cell
 				case 100:
 					if (mapPathArr[getPathCoordinate()]) {
+						//if not active yet
 						if (!this.state.ztart || this.state.zMult == 1) {
 							this.setState({
 								ztart: pathXY,
@@ -204,11 +227,20 @@ class MapMaker extends React.Component {
 							});
 						} else {
 							mapPathArr[getPathCoordinate()] = this.state.z;
-							this.setState({ ztart: null });
+							const modHist = JSON.parse(
+								JSON.stringify(this.state.history)
+							);
+							modHist.filter(
+								(x) =>
+									x.redo.arrSrc == "mapPathArr" &&
+									x.redo.prop == getPathCoordinate()
+							)[0].redo.val = this.state.z;
+							this.setState({ ztart: null, history: modHist });
 						}
 					}
 
 					break;
+
 				//f == switch from Z's of a path
 				case 102:
 					if (thePath) {
@@ -222,6 +254,7 @@ class MapMaker extends React.Component {
 						});
 					}
 					break;
+
 				//x == delete a Z from a path
 				case 120:
 					if (thePath && thePath.length > 1) {
@@ -229,12 +262,23 @@ class MapMaker extends React.Component {
 						this.setState({ z: thePath });
 					}
 					break;
+
 				//c == add a Z to a path
 				case 99:
 					if (thePath) {
 						thePath.push(0);
 						this.setState({ z: thePath });
 					}
+					break;
+
+				//undo [z]
+				case 122:
+					this._mapHistory("undo");
+					break;
+
+				//redo[y]
+				case 121:
+					this._mapHistory("redo");
 					break;
 			}
 		});
@@ -545,13 +589,57 @@ class MapMaker extends React.Component {
 		mapCont.addEventListener("mousemove", mMove);
 		mapCont.addEventListener("mouseup", mUp);
 
+		//================DRAW FUNCTIONS=============cxz
+		//drawing layer canvas
+		const getLayer = () =>
+			document.querySelector("#" + this.state.layer).getContext("2d");
+
+		//char grid layer canvas
+		const ctx4 = document.querySelector("#charGrid").getContext("2d");
+
+		this.drawPath = (x, y) => {
+			ctx4.globalAlpha = 0.5;
+			ctx4.fillStyle = "blue";
+			ctx4.fillRect(
+				Math.round(x) + 1,
+				Math.round(y) + 1,
+				Math.floor(charCellWidth - 2),
+				Math.floor(charCellHeight - 2)
+			);
+		};
+		this.erasePath = (x, y) => {
+			console.log(x + "_" + y);
+			ctx4.clearRect(
+				Math.round(x) + 1,
+				Math.round(y) + 1,
+				Math.floor(charCellWidth - 2),
+				Math.floor(charCellHeight - 2)
+			);
+		};
+		this.drawRender = (ref, sx, sy, sw, sh, rx, ry, rw, rh, layer) => {
+			const ctx3 = layer
+				? document.querySelector("#" + layer).getContext("2d")
+				: getLayer();
+			ctx3.clearRect(rx, ry, rw, rh);
+			ctx3.drawImage(ref, sx, sy, sw, sh, rx, ry, rw, rh, layer);
+		};
+		this.eraseRender = (x, y, layer) => {
+			const ctx3 = layer
+				? document.querySelector("#" + layer).getContext("2d")
+				: getLayer();
+			ctx3.clearRect(x, y, cellWidth, cellHeight);
+		};
 		//================================================
 		//================================================
 
 		this._mapAnimation();
 	}
 	// COMPONENTDIDMOUT ABOVE ------------------------------
-
+	componentDidUpdate(prevProps, prevState) {
+		if (prevState.actionIndex != this.state.actionIndex) {
+			this.state.method && this._drawTimeTravel(this.state.method);
+		}
+	}
 	_showFileOptions() {
 		this.setState((currState) => {
 			return {
@@ -576,7 +664,7 @@ class MapMaker extends React.Component {
 	}
 	_newMap(w, h, u) {
 		//if current map is not yet saved, ask
-		if (this.state.changes > 0) {
+		if (this.state.changes != 0) {
 			const conf = confirm(
 				"You haven't saved your current progress yet, proceed loading another file without saving?"
 			);
@@ -694,61 +782,103 @@ class MapMaker extends React.Component {
 		});
 		return true;
 	}
-	_drawTile(isMouseDown) {
-		//drawing layer canvas
-		const ctx = document
-			.querySelector("#" + this.state.layer)
-			.getContext("2d");
-
-		//char grid layer canvas
-		const ctx2 = document.querySelector("#charGrid").getContext("2d");
+	_drawTile(isMouseDown, fromAnimationHistory) {
+		//the change done to store in data for redo undo
+		let changeDone, mapAnimationArr;
 
 		//if on PATH MODE
 		if (!this.state.showRenderControls && !this.state.erase) {
 			//set the path cell data and render square
 			const coordTemp = getPathCoordinate();
 			if (!(coordTemp in mapPathArr)) {
+				//save the current state before changing
+				changeDone = {
+					undo: {
+						arrSrc: "mapPathArr",
+						prop: coordTemp,
+						val: null,
+						coordRender: [pathXY[0], pathXY[1]],
+					},
+					redo: {
+						arrSrc: "mapPathArr",
+						prop: coordTemp,
+						val: ["0.0"],
+						coordRender: [pathXY[0], pathXY[1]],
+					},
+				};
 				mapPathArr[coordTemp] = ["0.0"];
 
-				ctx2.globalAlpha = 0.5;
-				ctx2.fillStyle = "blue";
-				ctx2.fillRect(
-					pathXY[0] + 1,
-					pathXY[1] + 1,
-					charCellWidth - 2,
-					charCellHeight - 2
-				);
-			}
+				this.drawPath(pathXY[0], pathXY[1]);
+			} else return;
 		}
 		//else if erase, just erase, update and return
-		else if (this.state.erase) {
-			//if on rendering mode
-			if (this.state.showRenderControls) {
+		else if (this.state.erase && !fromAnimationHistory) {
+			//use 'let' so we can delete it
+			const prop1 = this.state.layer,
+				prop2 =
+					renderXY[0] / cellWidth + "_" + renderXY[1] / cellHeight;
+
+			let objRender = mapCellArr[prop1][prop2];
+			//if on erase and rendering mode xx
+			if (this.state.showRenderControls && objRender) {
+				changeDone = {
+					undo: {
+						arrSrc: "mapCellArr",
+						data: [
+							{
+								layer: this.state.layer,
+								prop: prop2,
+								val: mapCellArr[prop1][prop2],
+							},
+						],
+					},
+					redo: {
+						arrSrc: "mapCellArr",
+						data: [
+							{
+								layer: this.state.layer,
+								prop: prop2,
+							},
+						],
+					},
+				};
 				//clear a tile
-				ctx.clearRect(renderXY[0], renderXY[1], cellWidth, cellHeight);
-				//remove the data of that tile
-				delete mapCellArr[this.state.layer][
-					renderXY[0] / cellWidth + "_" + renderXY[1] / cellHeight
-				];
+				this.eraseRender(renderXY[0], renderXY[1]);
+				//remove the data of that tile (direct objRenderer cannot be deleted)
+				delete mapCellArr[prop1][prop2];
 			}
 			//else if on erase and path mode
-			else {
+			else if (!this.state.showRenderControls) {
 				const coordTemp = getPathCoordinate();
 				if (coordTemp in mapPathArr) {
+					//save the current state before changing
+					changeDone = {
+						undo: {
+							arrSrc: "mapPathArr",
+							prop: coordTemp,
+							val: mapPathArr[coordTemp],
+							coordRender: [pathXY[0], pathXY[1]],
+						},
+						redo: {
+							arrSrc: "mapPathArr",
+							prop: coordTemp,
+							val: null,
+							coordRender: [pathXY[0], pathXY[1]],
+						},
+					};
 					//remove the data of that tile
 					delete mapPathArr[coordTemp];
 					//clear a tile
-					ctx2.clearRect(
-						pathXY[0] + 1,
-						pathXY[1] + 1,
-						charCellWidth - 2,
-						charCellHeight - 2
-					);
-				}
-			}
+					this.erasePath(pathXY[0], pathXY[1]);
+				} else return;
+			} else return;
 		}
 		//else,if not animating and has selected tile, draw the tile
-		else if (!this.state.isAnimationOn & (selX != undefined)) {
+		else if (
+			!this.state.isAnimationOn &&
+			selX != undefined &&
+			!fromAnimationHistory
+		) {
 			//setting for mapCellArr
 			//DAYS LATER.. I DONT FKING KNOW NOW HOW DID THIS WORK
 			//BECAUSE I FORGOT TO WRITE THE COMMENTS @#@#!%$#@$#@#
@@ -761,12 +891,18 @@ class MapMaker extends React.Component {
 					? { validate: (a, b) => a < b, incDec: 1, adj: 0 }
 					: { validate: (a, b) => a > b, incDec: -1, adj: -1 };
 
+			//4/23/2020 - i'm modifying this now and surely gonna write comment!!
+
+			//store data here to validate
+			let data = [];
+			let dataCompare = []; //the previous data to compare  to new
 			for (
 				let j = 0;
 				forJ.validate(j, selH / cellHeight);
 				j += forJ.incDec
 			) {
 				//DID I EFFIN WRITE THESE??? WTFFFF #$@%#^%^@*#*
+
 				for (
 					let i = 0;
 					forI.validate(i, selW / cellWidth);
@@ -779,17 +915,46 @@ class MapMaker extends React.Component {
 						yIndex >= 0 &&
 						xIndex < cols &&
 						yIndex < rows
-					)
-						mapCellArr[this.state.layer][xIndex + "_" + yIndex] = [
-							selX + (i + forI.adj) * cellWidth,
-							selY + (j + forJ.adj) * cellHeight,
-							this.state.showTile,
-						];
+					) {
+						dataCompare.push({
+							layer: this.state.layer,
+							prop: xIndex + "_" + yIndex,
+							val:
+								mapCellArr[this.state.layer][
+									xIndex + "_" + yIndex
+								],
+						});
+						data.push({
+							layer: this.state.layer,
+							prop: xIndex + "_" + yIndex,
+							val: [
+								selX + (i + forI.adj) * cellWidth,
+								selY + (j + forJ.adj) * cellHeight,
+								this.state.showTile,
+							],
+						});
+					}
 				}
 			}
+			//if rendered vs to be rendered are the same, do nothingzz
+			if (JSON.stringify(data) == JSON.stringify(dataCompare)) {
+				return;
+			}
+			changeDone = {
+				undo: {
+					arrSrc: "mapCellArr",
+					data: dataCompare,
+				},
+				redo: {
+					arrSrc: "mapCellArr",
+					data,
+				},
+			};
 
-			ctx.clearRect(renderXY[0], renderXY[1], selW, selH);
-			ctx.drawImage(
+			data.map((d) => {
+				mapCellArr[d.layer][d.prop] = d.val;
+			});
+			this.drawRender(
 				this.state.ref,
 				selX,
 				selY,
@@ -803,21 +968,169 @@ class MapMaker extends React.Component {
 		}
 		//else if animating.. (length will be > 0 if animating)
 		else if (this.state.animationFrames.length > 0 && isMouseDown) {
-			this.setState((currState) => {
-				return {
-					mapAnimationArr: currState.mapAnimationArr.concat({
+			changeDone = {
+				undo: {
+					arrSrc: "mapAnimationArr",
+					data: this.state.mapAnimationArr,
+				},
+				redo: {
+					arrSrc: "mapAnimationArr",
+					data: this.state.mapAnimationArr.concat({
 						rx: renderXY[0],
 						ry: renderXY[1],
-						fps: currState.fps,
-						src: currState.animationFrames,
+						fps: this.state.fps,
+						src: this.state.animationFrames,
 					}),
-				};
+				},
+			};
+
+			mapAnimationArr = this.state.mapAnimationArr.concat({
+				rx: renderXY[0],
+				ry: renderXY[1],
+				fps: this.state.fps,
+				src: this.state.animationFrames,
 			});
+		} else if (fromAnimationHistory) {
+			const val = document.querySelector("#selAnimationInstance").value;
+
+			let toDel;
+			{
+				/*if none choose, select the last index*/
+			}
+			if (this.state.mapAnimationArr.length > 0) {
+				if (val == "") {
+					toDel = this.state.mapAnimationArr.length - 1;
+				} else toDel = val;
+
+				const arrs = this.state.mapAnimationArr.concat();
+				arrs.splice(toDel, 1);
+
+				mapAnimationArr = arrs;
+
+				changeDone = {
+					undo: {
+						arrSrc: "mapAnimationArr",
+						data: this.state.mapAnimationArr,
+					},
+					redo: {
+						arrSrc: "mapAnimationArr",
+						data: arrs,
+					},
+				};
+			} else return;
 		} else return;
 
+		//if history and action index are not equal, cut the excess history indices
+		let tempHistory;
+		if (this.state.history.length > this.state.actionIndex + 1) {
+			tempHistory = JSON.parse(JSON.stringify(this.state.history));
+			tempHistory.splice(this.state.actionIndex + 1);
+		}
 		this.setState((currState) => {
-			return { changes: currState.changes + 1 };
+			return {
+				changes: currState.changes + 1,
+				history: tempHistory
+					? tempHistory.concat(changeDone)
+					: currState.history.concat(changeDone),
+				actionIndex: currState.actionIndex + 1,
+				mapAnimationArr: mapAnimationArr
+					? mapAnimationArr
+					: currState.mapAnimationArr,
+			};
 		});
+	}
+	//zxc
+	//the draw function of history undo redo
+	_drawTimeTravel(method) {
+		//get the pointer in history
+		const toDo =
+			method == "undo"
+				? this.state.history[this.state.actionIndex + 1]
+				: this.state.history[this.state.actionIndex];
+
+		switch (toDo[method].arrSrc) {
+			case "mapPathArr":
+				if (toDo[method].val) {
+					mapPathArr[toDo[method].prop] = toDo[method].val;
+					this.drawPath(...toDo[method].coordRender);
+				} else {
+					delete mapPathArr[toDo[method].prop];
+					this.erasePath(...toDo[method].coordRender);
+				}
+				break;
+			case "mapCellArr":
+				//for render history
+				if (toDo[method].data) {
+					//-------
+					toDo[method].data.map((d) => {
+						//render axis
+						const axis = d.prop.split("_");
+						//draw the render data from toDo[method].data
+						if (d.val) {
+							this.drawRender(
+								document.querySelector("#" + d.val[2]),
+								d.val[0],
+								d.val[1],
+								cellWidth,
+								cellHeight,
+								axis[0] * cellWidth,
+								axis[1] * cellHeight,
+								cellWidth,
+								cellHeight,
+								d.layer
+							);
+							//set the mapCellArr
+							mapCellArr[d.layer][d.prop] = d.val;
+						} else {
+							this.eraseRender(
+								axis[0] * cellWidth,
+								axis[1] * cellHeight,
+								d.layer
+							);
+							delete mapCellArr[d.layer][d.prop];
+						}
+					});
+					//------------------
+				}
+
+				break;
+
+			case "mapAnimationArr":
+				this.setState({
+					mapAnimationArr: toDo[method].data,
+				});
+				break;
+		}
+		//turn method back to empty
+		this.setState({ method: "" });
+	}
+	_mapHistory(method) {
+		//know the method then process
+		if (method == "undo") {
+			//decrement index when undo and valid
+			if (this.state.actionIndex > -1) {
+				this.setState((currState) => {
+					return {
+						actionIndex: currState.actionIndex - 1,
+						method,
+						changes: currState.changes - 1,
+					};
+				});
+			}
+		}
+		//else if redo
+		else {
+			//increment index when redo and valid
+			if (this.state.actionIndex < this.state.history.length - 1) {
+				this.setState((currState) => {
+					return {
+						actionIndex: currState.actionIndex + 1,
+						method,
+						changes: currState.changes + 1,
+					};
+				});
+			}
+		}
 	}
 	_toggleVisibility(e) {
 		document.querySelector("#" + e.target.value).style.display = e.target
@@ -1032,9 +1345,6 @@ class MapMaker extends React.Component {
 			"mapTop",
 		].map((x) => {
 			const ctx = document.querySelector(`#${x}`).getContext("2d");
-			ctx.webkitImageSmoothingEnabled = false;
-			ctx.imageSmoothingEnabled = false;
-			console.log(ctx.imageSmoothingEnabled);
 			for (const prop in map.render[x]) {
 				const axis = prop.split("_");
 				ctx.drawImage(
@@ -1070,6 +1380,8 @@ class MapMaker extends React.Component {
 			mapName,
 			mapAnimationArr: map.mapAnimationArr,
 			changes: 0,
+			actionIndex: -1,
+			history: [],
 		});
 		//when assigning directly (mapCellArr = map.render)
 		//changing mapCellArr will also change map.render
@@ -1359,7 +1671,7 @@ class MapMaker extends React.Component {
 						)}
 						{this.state.showOpsChildren == "files" && (
 							<div className="popupCont">
-								<div style={{ fontWeight: "bold" }}>v1.4.2</div>
+								<div style={{ fontWeight: "bold" }}>v1.5.3</div>
 								<button
 									onClick={() => this._showChild("whatsnew")}
 								>
@@ -1973,7 +2285,7 @@ class MapMaker extends React.Component {
 												backgroundColor: "black",
 											}}
 										>
-											Change rate since
+											Changes since
 											<br />
 											your last save: {this.state.changes}
 										</div>
@@ -2091,39 +2403,7 @@ class MapMaker extends React.Component {
 										</select>
 										<button
 											onClick={() => {
-												const val = document.querySelector(
-													"#selAnimationInstance"
-												).value;
-
-												let toDel;
-												{
-													/*if none choose, select the last index*/
-												}
-												if (
-													this.state.mapAnimationArr
-														.length > 0
-												) {
-													if (val == "") {
-														toDel =
-															this.state
-																.mapAnimationArr
-																.length - 1;
-													} else toDel = val;
-
-													const arrs = this.state
-														.mapAnimationArr;
-													arrs.splice(toDel, 1);
-													this.setState(
-														(currState) => {
-															return {
-																mapAnimationArr: arrs,
-																changes:
-																	currState.changes +
-																	1,
-															};
-														}
-													);
-												}
+												this._drawTile(false, true);
 											}}
 										>
 											Delete Selected Animation
