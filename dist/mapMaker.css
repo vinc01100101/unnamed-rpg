@@ -6,7 +6,78 @@ canvas {
 	image-rendering: -o-crisp-edges;
 	image-rendering: optimize-contrast;
 }
+/* -------------------- */
+*{font-family: 'Roboto', sans-serif;}
 
+/* @keyframes click-wave {
+  0% {
+    height: 40px;
+    width: 40px;
+    opacity: 0.35;
+    position: relative;
+  }
+  100% {
+    height: 200px;
+    width: 200px;
+    margin-left: -80px;
+    margin-top: -80px;
+    opacity: 0;
+  }
+} */
+
+.option-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+  position: relative;
+  height: 20px;
+  width: 20px;
+  transition: all 0.15s ease-out 0s;
+  background: #cbd1d8;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  margin-right: 0.5rem;
+  outline: none;
+  position: relative;
+}
+.option-input:hover {
+  background: #9faab7;
+}
+.option-input:checked {
+  background: #40e0d0;
+}
+.option-input:checked::before {
+  height: 20px;
+  width: 20px;
+  position: absolute;
+  content: '✔';
+  display: inline-block;
+  font-size: 20px;
+  text-align: center;
+  top:  -5px;
+}
+.option-input:checked::after {
+  /* -webkit-animation: click-wave 0.65s;
+  -moz-animation: click-wave 0.65s;
+  animation: click-wave 0.65s; */
+  background: #40e0d0;
+  content: '';
+  display: block;
+  position: relative;
+}
+.option-input.radio {
+  border-radius: 50%;
+}
+.option-input.radio::after {
+  border-radius: 50%;
+}
+
+
+/* --------------------------------- */
 #group1 {
 	display: flex;
 	max-width: 100%;
@@ -146,8 +217,15 @@ canvas {
 .mainControls {
 	display: flex;
 	flex-direction: row;
-	/* flex-wrap: wrap; */
+	justify-content: flex-end;
 	align-items: flex-start;
+}
+.alignEnd{
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-end;
+	font-weight: bold;
 }
 .mCChild {
 	border: solid black 1px;

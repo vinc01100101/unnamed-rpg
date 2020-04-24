@@ -109,6 +109,7 @@ class MapMaker extends React.Component {
 		this._toggleAnimation = this._toggleAnimation.bind(this);
 		this._mapHistory = this._mapHistory.bind(this);
 		this._drawTimeTravel = this._drawTimeTravel.bind(this);
+		this._layerOnChange = this._layerOnChange.bind(this);
 	}
 
 	componentDidMount() {
@@ -741,7 +742,9 @@ class MapMaker extends React.Component {
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, mapH);
 			ctx.stroke();
-			ctx.font = "32px";
+			//the column label
+			ctx.font = "20px Arial Bold";
+			ctx.fillStyle = "white";
 			ctx.fillText(i, x, cellHeight / 2);
 
 			j = 0;
@@ -761,8 +764,9 @@ class MapMaker extends React.Component {
 			ctx.moveTo(0, y);
 			ctx.lineTo(mapW, y);
 			ctx.stroke();
-
-			ctx.font = "32px";
+			//the row label
+			ctx.font = "20px Arial Bold";
+			ctx.fillStyle = "white";
 			ctx.fillText(i, 0, y + cellHeight / 2);
 			j = 0;
 			for (j; j < 3; j++) {
@@ -1559,6 +1563,15 @@ class MapMaker extends React.Component {
 			/>
 		);
 	}
+	_layerOnChange(e) {
+		this.setState({
+			layer: e.target.value,
+		});
+
+		document.querySelector("#opacitySelect").value = document.querySelector(
+			"#" + e.target.value
+		).style.opacity;
+	}
 	render() {
 		return (
 			<div id="mainCont">
@@ -2011,31 +2024,6 @@ class MapMaker extends React.Component {
 						</div>
 						{/*TILESET*/}
 						<div id="tilesCont" onClick={(e) => {}}>
-							{/*<img
-								id="tileset1"
-								className="tileset"
-								src="/assets/maps/maptiles1.png"
-								style={{
-									display:
-										this.state.showTile == "tileset1"
-											? "block"
-											: "none",
-								}}
-								onLoad={() => {
-									this._tilesetOnChange("tileset1");
-								}}
-							/>
-							<img
-								id="tileset2"
-								className="tileset"
-								src="/assets/maps/maptiles2.png"
-								style={{
-									display:
-										this.state.showTile == "tileset2"
-											? "block"
-											: "none",
-								}}
-							/>*/}
 							{this.state[this.state.showTile] == "" && (
 								<TileUploader
 									cb={(dataUrl) => {
@@ -2198,68 +2186,6 @@ class MapMaker extends React.Component {
 										</div>
 									</div>
 									<div className="mCChild">
-										Layer:
-										<select
-											id="layerSelect"
-											onChange={(e) => {
-												document.querySelector(
-													"#opacitySelect"
-												).value = document.querySelector(
-													"#" + e.target.value
-												).style.opacity;
-
-												this.setState({
-													layer: e.target.value,
-												});
-											}}
-											value={this.state.layer}
-										>
-											<option value="mapBase1">
-												Base1
-											</option>
-											<option value="mapBase2">
-												Base2
-											</option>
-											<option value="mapBase3">
-												Base3
-											</option>
-											<option value="mapShadowMid1">
-												Mid1 Shadow
-											</option>
-											<option value="mapMid1">
-												Mid1
-											</option>
-											<option value="mapShadowMid2">
-												Mid2 Shadow
-											</option>
-											<option value="mapMid2">
-												Mid2
-											</option>
-											<option value="mapShadowTop">
-												Top Shadow
-											</option>
-											<option value="mapTop">Top</option>
-										</select>
-										<select
-											id="opacitySelect"
-											defaultValue="label"
-											onChange={(e) => {
-												const elem = document.querySelector(
-													"#layerSelect"
-												).value;
-												document.querySelector(
-													"#" + elem
-												).style.opacity =
-													e.target.value;
-											}}
-										>
-											<option disabled value="label">
-												Opacity
-											</option>
-											<option value="1">100%</option>
-											<option value="0.7">70%</option>
-											<option value="0.3">30%</option>
-										</select>
 										<button
 											id="eraser"
 											style={{
@@ -2272,25 +2198,13 @@ class MapMaker extends React.Component {
 													: "white",
 											}}
 											onClick={(e) => {
-												this.setState({
-													erase: true,
+												this.setState((currState) => {
+													erase: !currState.erase;
 												});
 											}}
 										>
 											Eraser[E]
 										</button>
-										<div
-											style={{
-												color: "#13DF26",
-												backgroundColor: "black",
-											}}
-										>
-											Changes since
-											<br />
-											your last save: {this.state.changes}
-										</div>
-									</div>
-									<div className="mCChild">
 										<div>
 											<button
 												style={
@@ -2408,6 +2322,171 @@ class MapMaker extends React.Component {
 										>
 											Delete Selected Animation
 										</button>
+										<div
+											style={{
+												color: "#13DF26",
+												backgroundColor: "black",
+											}}
+										>
+											Changes since
+											<br />
+											your last save: {this.state.changes}
+										</div>
+									</div>
+									<div className="mCChild alignEnd">
+										<div>
+											<label htmlFor="l1">
+												Base1
+												<input
+													onChange={
+														this._layerOnChange
+													}
+													type="radio"
+													id="l1"
+													name="layer"
+													value="mapBase1"
+													className="option-input radio"
+													defaultChecked
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="l2">
+												Base2
+												<input
+													onChange={
+														this._layerOnChange
+													}
+													type="radio"
+													id="l2"
+													name="layer"
+													value="mapBase2"
+													className="option-input radio"
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="l3">
+												Base3
+												<input
+													onChange={
+														this._layerOnChange
+													}
+													type="radio"
+													id="l3"
+													name="layer"
+													value="mapBase3"
+													className="option-input radio"
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="l4">
+												Mid1 Shadow
+												<input
+													onChange={
+														this._layerOnChange
+													}
+													type="radio"
+													id="l4"
+													name="layer"
+													value="mapShadowMid1"
+													className="option-input radio"
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="l5">
+												Mid1
+												<input
+													onChange={
+														this._layerOnChange
+													}
+													type="radio"
+													id="l5"
+													name="layer"
+													value="mapMid1"
+													className="option-input radio"
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="l6">
+												Mid2 Shadow
+												<input
+													onChange={
+														this._layerOnChange
+													}
+													type="radio"
+													id="l6"
+													name="layer"
+													value="mapShadowMid2"
+													className="option-input radio"
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="l7">
+												Mid2
+												<input
+													onChange={
+														this._layerOnChange
+													}
+													type="radio"
+													id="l7"
+													name="layer"
+													value="mapMid2"
+													className="option-input radio"
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="l8">
+												Top Shadow
+												<input
+													onChange={
+														this._layerOnChange
+													}
+													type="radio"
+													id="l8"
+													name="layer"
+													value="mapShadowTop"
+													className="option-input radio"
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="l9">
+												Top
+												<input
+													onChange={
+														this._layerOnChange
+													}
+													type="radio"
+													id="l9"
+													name="layer"
+													value="mapTop"
+													className="option-input radio"
+												/>
+											</label>
+										</div>
+										<select
+											id="opacitySelect"
+											defaultValue="label"
+											onChange={(e) => {
+												document.querySelector(
+													"#" + this.state.layer
+												).style.opacity =
+													e.target.value;
+											}}
+										>
+											<option disabled value="label">
+												Opacity
+											</option>
+											<option value="1">100%</option>
+											<option value="0.7">70%</option>
+											<option value="0.3">30%</option>
+										</select>
 									</div>
 								</div>
 							)}

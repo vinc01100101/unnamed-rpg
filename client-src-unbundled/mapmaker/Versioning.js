@@ -28,6 +28,7 @@ module.exports = function Versioning(props) {
 							The change rate can be a negative number when you{" "}
 							<strong>Undo</strong> just after saving the
 							progress, it's like travelling back in time! :D
+							(4/24/2020)
 						</li>
 					</ol>
 				</li>
