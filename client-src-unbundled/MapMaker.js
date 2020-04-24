@@ -2348,7 +2348,10 @@ class MapMaker extends React.Component {
 													name="layer"
 													value="mapBase1"
 													className="option-input radio"
-													defaultChecked
+													defaultChecked={
+														this.state.layer ==
+														"mapBase1"
+													}
 												/>
 											</label>
 										</div>
@@ -2364,6 +2367,10 @@ class MapMaker extends React.Component {
 													name="layer"
 													value="mapBase2"
 													className="option-input radio"
+													defaultChecked={
+														this.state.layer ==
+														"mapBase2"
+													}
 												/>
 											</label>
 										</div>
@@ -2379,6 +2386,10 @@ class MapMaker extends React.Component {
 													name="layer"
 													value="mapBase3"
 													className="option-input radio"
+													defaultChecked={
+														this.state.layer ==
+														"mapBase3"
+													}
 												/>
 											</label>
 										</div>
@@ -2394,6 +2405,10 @@ class MapMaker extends React.Component {
 													name="layer"
 													value="mapShadowMid1"
 													className="option-input radio"
+													defaultChecked={
+														this.state.layer ==
+														"mapShadowMid1"
+													}
 												/>
 											</label>
 										</div>
@@ -2409,6 +2424,10 @@ class MapMaker extends React.Component {
 													name="layer"
 													value="mapMid1"
 													className="option-input radio"
+													defaultChecked={
+														this.state.layer ==
+														"mapMid1"
+													}
 												/>
 											</label>
 										</div>
@@ -2424,6 +2443,10 @@ class MapMaker extends React.Component {
 													name="layer"
 													value="mapShadowMid2"
 													className="option-input radio"
+													defaultChecked={
+														this.state.layer ==
+														"mapShadowMid2"
+													}
 												/>
 											</label>
 										</div>
@@ -2439,6 +2462,10 @@ class MapMaker extends React.Component {
 													name="layer"
 													value="mapMid2"
 													className="option-input radio"
+													defaultChecked={
+														this.state.layer ==
+														"mapMid2"
+													}
 												/>
 											</label>
 										</div>
@@ -2454,6 +2481,10 @@ class MapMaker extends React.Component {
 													name="layer"
 													value="mapShadowTop"
 													className="option-input radio"
+													defaultChecked={
+														this.state.layer ==
+														"mapShadowTop"
+													}
 												/>
 											</label>
 										</div>
@@ -2469,6 +2500,10 @@ class MapMaker extends React.Component {
 													name="layer"
 													value="mapTop"
 													className="option-input radio"
+													defaultChecked={
+														this.state.layer ==
+														"mapTop"
+													}
 												/>
 											</label>
 										</div>
