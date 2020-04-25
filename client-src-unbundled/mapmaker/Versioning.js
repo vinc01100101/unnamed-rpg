@@ -6,6 +6,34 @@ module.exports = function Versioning(props) {
 			<h3>What's new?</h3>
 			<ul id="versioning">
 				<li>
+					<span>
+						v1.6.3 [LAYER STACK PREVIEW + DRAG ENHANCEMENT + LAYER
+						SELECTION IN RADIO BUTTONS]
+					</span>
+					<ol>
+						<li>
+							Previews of <strong>tiles used in a cell</strong>{" "}
+							will be shown beside the visibility checkboxes
+							whenever a user hover a mouse pointer on that cell.
+							Further details can be included like the tileset
+							used and the x-y coordinate of the tile, but we
+							thought that it is not necessary as of now. Please
+							inform us if you think it is, and we'll implement it
+							:D
+						</li>
+						<li>
+							Users can now move the map with right click or
+							zoom-in even the mouse pointer is not on the main
+							canvas, as long as it is inside the container.
+						</li>
+						<li>
+							Layer selection is now in radio buttons rather than
+							dropdown list, and it is moved on the right side for
+							easy access. (4/26/2020)
+						</li>
+					</ol>
+				</li>
+				<li>
 					<span>v1.5.3 [UNDO REDO + ACCURATE CHANGE COUNTER]</span>
 					<ol>
 						<li>

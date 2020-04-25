@@ -7,58 +7,57 @@ canvas {
 	image-rendering: optimize-contrast;
 }
 /* -------------------- */
-*{font-family: 'Roboto', sans-serif;}
-
-
+* {
+	font-family: "Roboto", sans-serif;
+}
 
 .option-input {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  -ms-appearance: none;
-  -o-appearance: none;
-  appearance: none;
-  position: relative;
-  height: 20px;
-  width: 20px;
-  transition: all 0.3s ease-out 0s;
-  background: #cbd1d8;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  display: inline-block;
-  margin-right: 0.5rem;
-  outline: none;
-  position: relative;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	-o-appearance: none;
+	appearance: none;
+	position: relative;
+	height: 20px;
+	width: 20px;
+	transition: all 0.3s ease-out 0s;
+	background: #cbd1d8;
+	border: none;
+	color: #fff;
+	cursor: pointer;
+	display: inline-block;
+	margin-right: 0.5rem;
+	outline: none;
+	position: relative;
 }
 .option-input:hover {
-  background: #9faab7;
+	background: #9faab7;
 }
 .option-input:checked {
-  background: red;
+	background: red;
 }
 .option-input:checked::before {
-  height: 20px;
-  width: 20px;
-  position: absolute;
-  content: '✔';
-  display: inline-block;
-  font-size: 20px;
-  text-align: center;
-  top:  -5px;
+	height: 20px;
+	width: 20px;
+	position: absolute;
+	content: "✔";
+	display: inline-block;
+	font-size: 20px;
+	text-align: center;
+	top: -5px;
 }
-.option-input:checked::after {
+/* .option-input:checked::after {
   background: #40e0d0;
   content: '';
   display: block;
   position: relative;
-}
+} */
 .option-input.radio {
-  border-radius: 50%;
+	border-radius: 50%;
 }
 .option-input.radio::after {
-  border-radius: 50%;
+	border-radius: 50%;
 }
-
 
 /* --------------------------------- */
 #group1 {
@@ -88,8 +87,7 @@ canvas {
 	position: relative;
 	width: 60%;
 	height: 100%;
-	overflow: scroll;
-	margin: 5px;
+	overflow: auto;
 	background-color: gray;
 }
 #mapCont p {
@@ -150,6 +148,7 @@ canvas {
 	top: 0;
 	z-index: 10;
 }
+
 #mapClickCatcher {
 	position: absolute;
 	left: 0;
@@ -160,6 +159,7 @@ canvas {
 	position: relative;
 	transition: all 0.7s;
 	background-color: #202020;
+	/* padding: 10%; */
 }
 #tilesCont {
 	position: relative;
@@ -203,7 +203,7 @@ canvas {
 	justify-content: flex-end;
 	align-items: flex-start;
 }
-.alignEnd{
+.alignEnd {
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
@@ -214,6 +214,9 @@ canvas {
 	border: solid black 1px;
 	display: flex;
 	flex-direction: column;
+}
+.mCChild canvas{
+	border: solid black 2px;
 }
 #popupBG {
 	position: fixed;
@@ -267,17 +270,18 @@ canvas {
 	margin: 0;
 	padding: 0;
 }
-#mapList{
+#mapList {
 	width: 200px;
 	overflow: scroll;
 }
-#versioning,#instructions{
+#versioning,
+#instructions {
 	height: 90%;
 	overflow-y: scroll;
 }
-#versioning span{
+#versioning span {
 	font-weight: bold;
 }
-#versioning ol{
+#versioning ol {
 	list-style-type: lower-alpha;
 }

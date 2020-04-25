@@ -35,13 +35,19 @@ let cellWidth = 32,
 	frameSelectAnimation,
 	mapClickCatcher,
 	captureCanvas,
+	mapScaler,
+	mapCont,
+	//
+	scalerHeight,
 	durationCounter = 0,
 	renderXY = [],
 	pathXY = [],
 	getPathCoordinate = () =>
 		Math.round(pathXY[0] / charCellWidth) +
 		"_" +
-		Math.round(pathXY[1] / charCellHeight);
+		Math.round(pathXY[1] / charCellHeight),
+	getRenderCoordinate = () =>
+		renderXY[0] / cellWidth + "_" + renderXY[1] / cellHeight;
 
 let saveX, saveY;
 let mapCellArr = {
@@ -96,6 +102,9 @@ class MapMaker extends React.Component {
 			history: [],
 			actionIndex: -1,
 			method: "",
+			//layers stack preview
+			layersStackPreview: [],
+			lspToggle: true,
 		};
 
 		this._showFileOptions = this._showFileOptions.bind(this);
@@ -145,9 +154,10 @@ class MapMaker extends React.Component {
 		frameSelectAnimation = document.querySelector("#frameSelectAnimation");
 		mapClickCatcher = document.querySelector("#mapClickCatcher");
 		captureCanvas = document.querySelector("#captureCanvas");
-
+		mapScaler = document.querySelector("#mapScaler");
+		mapCont = document.querySelector("#mapCont");
 		//ZOOM FUNCTION
-		mapClickCatcher.addEventListener("wheel", (e) => {
+		const zoomFunction = (e) => {
 			e.preventDefault();
 			[scX, scY] =
 				e.deltaY < 0 ? [scX + 0.1, scY + 0.1] : [scX - 0.1, scY - 0.1];
@@ -160,12 +170,13 @@ class MapMaker extends React.Component {
 			}
 			const x = cols * cellWidth * scX,
 				y = rows * cellHeight * scY;
-			document.querySelector(
-				"#mapScaler"
-			).style.transform = `translate(${x}px,${y}px) scale(${
+
+			mapScaler.style.transform = `translate(${x}px,${y}px) scale(${
 				1 + scX * 2
 			},${1 + scY * 2})`;
-		});
+		};
+		mapClickCatcher.addEventListener("wheel", zoomFunction);
+		mapCont.addEventListener("wheel", zoomFunction);
 
 		//HOTKEYS
 		window.addEventListener("keypress", (e) => {
@@ -287,8 +298,7 @@ class MapMaker extends React.Component {
 		//================================================
 		//==============MOUSE EVENTS ON MAP/TILES=========
 		//================================================
-		const tilesCont = document.querySelector("#tilesCont"),
-			mapCont = document.querySelector("#mapCont");
+		const tilesCont = document.querySelector("#tilesCont");
 
 		let attachment = false,
 			lastPosition,
@@ -373,7 +383,11 @@ class MapMaker extends React.Component {
 
 				let targetScroll;
 				if (e.target.id == "frameSelect") targetScroll = tilesCont;
-				if (e.target.id == "mapClickCatcher") targetScroll = mapCont;
+				if (
+					e.target.id == "mapClickCatcher" ||
+					e.target.id == "mapCont"
+				)
+					targetScroll = mapCont;
 				if (targetScroll) {
 					targetScroll.scrollLeft =
 						targetScroll.scrollLeft - difference[0];
@@ -443,6 +457,7 @@ class MapMaker extends React.Component {
 					ctx2.globalAlpha = 0.5;
 					ctx2.fillRect(x, y, w, h);
 				};
+
 				//pathXY
 				if (!this.state.showRenderControls) {
 					//the main setter of pathXY coordinates
@@ -534,6 +549,13 @@ class MapMaker extends React.Component {
 						} else {
 							strokeRect(renderXY[0], renderXY[1], selW, selH);
 						}
+
+						//the layers stack preview function
+						this.setState({
+							layersStackPreview: Object.keys(mapCellArr).map(
+								(l) => mapCellArr[l][getRenderCoordinate()]
+							),
+						});
 					} else return;
 				}
 
@@ -590,7 +612,7 @@ class MapMaker extends React.Component {
 		mapCont.addEventListener("mousemove", mMove);
 		mapCont.addEventListener("mouseup", mUp);
 
-		//================DRAW FUNCTIONS=============cxz
+		//================DRAW FUNCTIONS=============
 		//drawing layer canvas
 		const getLayer = () =>
 			document.querySelector("#" + this.state.layer).getContext("2d");
@@ -609,7 +631,6 @@ class MapMaker extends React.Component {
 			);
 		};
 		this.erasePath = (x, y) => {
-			console.log(x + "_" + y);
 			ctx4.clearRect(
 				Math.round(x) + 1,
 				Math.round(y) + 1,
@@ -639,6 +660,34 @@ class MapMaker extends React.Component {
 	componentDidUpdate(prevProps, prevState) {
 		if (prevState.actionIndex != this.state.actionIndex) {
 			this.state.method && this._drawTimeTravel(this.state.method);
+		}
+		if (
+			prevState.changes != this.state.changes ||
+			JSON.stringify(prevState.layersStackPreview) !=
+				JSON.stringify(this.state.layersStackPreview)
+		) {
+			this.state.layersStackPreview.map((x, i) => {
+				const ctx = document
+					.querySelector("#lsp_" + i)
+					.getContext("2d");
+				ctx.clearRect(0, 0, cellWidth, cellHeight);
+
+				if (x) {
+					const ref = document.querySelector("#" + x[2]);
+
+					ctx.drawImage(
+						ref,
+						x[0],
+						x[1],
+						cellWidth,
+						cellHeight,
+						0,
+						0,
+						cellWidth,
+						cellHeight
+					);
+				}
+			});
 		}
 	}
 	_showFileOptions() {
@@ -687,8 +736,7 @@ class MapMaker extends React.Component {
 		mapPathArr = {};
 
 		const g = document.querySelector("#mapGrid"),
-			cg = document.querySelector("#charGrid"),
-			mapScaler = document.querySelector("#mapScaler");
+			cg = document.querySelector("#charGrid");
 
 		let mapW, mapH;
 
@@ -723,6 +771,7 @@ class MapMaker extends React.Component {
 		mapScaler.style.left = 0;
 		mapScaler.style.top = 0;
 		mapScaler.style.transform = "scale(1,1)";
+		scalerHeight = mapH;
 
 		let i, j;
 
@@ -819,11 +868,10 @@ class MapMaker extends React.Component {
 		else if (this.state.erase && !fromAnimationHistory) {
 			//use 'let' so we can delete it
 			const prop1 = this.state.layer,
-				prop2 =
-					renderXY[0] / cellWidth + "_" + renderXY[1] / cellHeight;
+				prop2 = getRenderCoordinate();
 
 			let objRender = mapCellArr[prop1][prop2];
-			//if on erase and rendering mode xx
+			//if on erase and rendering mode
 			if (this.state.showRenderControls && objRender) {
 				changeDone = {
 					undo: {
@@ -940,7 +988,7 @@ class MapMaker extends React.Component {
 					}
 				}
 			}
-			//if rendered vs to be rendered are the same, do nothingzz
+			//if rendered vs to be rendered are the same, do nothing
 			if (JSON.stringify(data) == JSON.stringify(dataCompare)) {
 				return;
 			}
@@ -1040,10 +1088,12 @@ class MapMaker extends React.Component {
 				mapAnimationArr: mapAnimationArr
 					? mapAnimationArr
 					: currState.mapAnimationArr,
+				layersStackPreview: Object.keys(mapCellArr).map(
+					(l) => mapCellArr[l][getRenderCoordinate()]
+				),
 			};
 		});
 	}
-	//zxc
 	//the draw function of history undo redo
 	_drawTimeTravel(method) {
 		//get the pointer in history
@@ -1105,8 +1155,13 @@ class MapMaker extends React.Component {
 				});
 				break;
 		}
-		//turn method back to empty
-		this.setState({ method: "" });
+		//turn method back to empty and update layer stack preview
+		this.setState({
+			method: "",
+			layersStackPreview: Object.keys(mapCellArr).map(
+				(l) => mapCellArr[l][getRenderCoordinate()]
+			),
+		});
 	}
 	_mapHistory(method) {
 		//know the method then process
@@ -1684,7 +1739,7 @@ class MapMaker extends React.Component {
 						)}
 						{this.state.showOpsChildren == "files" && (
 							<div className="popupCont">
-								<div style={{ fontWeight: "bold" }}>v1.5.3</div>
+								<div style={{ fontWeight: "bold" }}>v1.6.3</div>
 								<button
 									onClick={() => this._showChild("whatsnew")}
 								>
@@ -2053,138 +2108,6 @@ class MapMaker extends React.Component {
 						{this.state.showRenderControls &&
 							this.state.showCONTROLS && (
 								<div className="mainControls">
-									<div
-										className="mCChild"
-										style={{ color: "white" }}
-									>
-										Layer Visibility
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="b1"
-												value="mapBase1"
-											/>
-											<label htmlFor="b1">Base1</label>
-										</div>
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="b2"
-												value="mapBase2"
-											/>
-											<label htmlFor="b2">Base2</label>
-										</div>
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="b3"
-												value="mapBase3"
-											/>
-											<label htmlFor="b3">Base3</label>
-										</div>
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="sm1"
-												value="mapShadowMid1"
-											/>
-											<label htmlFor="sm1">
-												Mid1 Shadow
-											</label>
-										</div>
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="m1"
-												value="mapMid1"
-											/>
-											<label htmlFor="m1">Mid1</label>
-										</div>
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="a"
-												value="mapAnimate"
-											/>
-											<label htmlFor="a">Animation</label>
-										</div>
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="sm2"
-												value="mapShadowMid2"
-											/>
-											<label htmlFor="sm2">
-												Mid2 Shadow
-											</label>
-										</div>
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="m2"
-												value="mapMid2"
-											/>
-											<label htmlFor="m2">Mid2</label>
-										</div>
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="st"
-												value="mapShadowTop"
-											/>
-											<label htmlFor="st">
-												Top Shadow
-											</label>
-										</div>
-										<div>
-											<input
-												onChange={
-													this._toggleVisibility
-												}
-												type="checkbox"
-												defaultChecked
-												id="t"
-												value="mapTop"
-											/>
-											<label htmlFor="t">Top</label>
-										</div>
-									</div>
 									<div className="mCChild">
 										<button
 											id="eraser"
@@ -2333,6 +2256,207 @@ class MapMaker extends React.Component {
 											Changes since
 											<br />
 											your last save: {this.state.changes}
+										</div>
+									</div>
+									<div
+										className="mCChild alignEnd"
+										style={{ color: "white" }}
+									>
+										Layer Visibility || Preview
+										<div>
+											<label htmlFor="b1">
+												Base1
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="b1"
+													value="mapBase1"
+													className="option-input radio"
+												/>
+												<canvas
+													id={"lsp_0"}
+													width={cellWidth}
+													height={cellHeight}
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="b2">
+												Base2
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="b2"
+													value="mapBase2"
+													className="option-input radio"
+												/>
+												<canvas
+													id={"lsp_1"}
+													width={cellWidth}
+													height={cellHeight}
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="b3">
+												Base3
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="b3"
+													value="mapBase3"
+													className="option-input radio"
+												/>
+												<canvas
+													id={"lsp_2"}
+													width={cellWidth}
+													height={cellHeight}
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="sm1">
+												Mid1 Shadow
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="sm1"
+													value="mapShadowMid1"
+													className="option-input radio"
+												/>
+												<canvas
+													id={"lsp_3"}
+													width={cellWidth}
+													height={cellHeight}
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="m1">
+												Mid1
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="m1"
+													value="mapMid1"
+													className="option-input radio"
+												/>
+												<canvas
+													id={"lsp_4"}
+													width={cellWidth}
+													height={cellHeight}
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="a">
+												Animation
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="a"
+													value="mapAnimate"
+													className="option-input radio"
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="sm2">
+												Mid2 Shadow
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="sm2"
+													value="mapShadowMid2"
+													className="option-input radio"
+												/>
+												<canvas
+													id={"lsp_5"}
+													width={cellWidth}
+													height={cellHeight}
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="m2">
+												Mid2
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="m2"
+													value="mapMid2"
+													className="option-input radio"
+												/>
+												<canvas
+													id={"lsp_6"}
+													width={cellWidth}
+													height={cellHeight}
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="st">
+												Top Shadow
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="st"
+													value="mapShadowTop"
+													className="option-input radio"
+												/>
+												<canvas
+													id={"lsp_7"}
+													width={cellWidth}
+													height={cellHeight}
+												/>
+											</label>
+										</div>
+										<div>
+											<label htmlFor="t">
+												Top
+												<input
+													onChange={
+														this._toggleVisibility
+													}
+													type="checkbox"
+													defaultChecked
+													id="t"
+													value="mapTop"
+													className="option-input radio"
+												/>
+												<canvas
+													id={"lsp_8"}
+													width={cellWidth}
+													height={cellHeight}
+												/>
+											</label>
 										</div>
 									</div>
 									<div className="mCChild alignEnd">
@@ -2624,6 +2748,7 @@ class MapMaker extends React.Component {
 										);
 									})}
 							</ul>
+
 							<canvas
 								id="mapClickCatcher"
 								width="0"
