@@ -662,9 +662,11 @@ class MapMaker extends React.Component {
 			this.state.method && this._drawTimeTravel(this.state.method);
 		}
 		if (
-			prevState.changes != this.state.changes ||
-			JSON.stringify(prevState.layersStackPreview) !=
-				JSON.stringify(this.state.layersStackPreview)
+			(prevState.changes != this.state.changes ||
+				JSON.stringify(prevState.layersStackPreview) !=
+					JSON.stringify(this.state.layersStackPreview)) &&
+			this.state.showRenderControls &&
+			this.state.showCONTROLS
 		) {
 			this.state.layersStackPreview.map((x, i) => {
 				const ctx = document
