@@ -118,10 +118,24 @@ mongoose.connect(
     //routes
     emits(io, AccountModel);
     app.get("/", (req, res) => {
-      res.render(__dirname + "/dist/index.pug", {
-        page: "MainPage",
-        isDesktop: req.useragent.isDesktop,
-      });
+      if (req.useragent.isFirefox && req.useragent.isDesktop) {
+        res.send(
+          `<h3>Sorry, our app doesn't run on Firefox.</h3>
+          <p>Because Firefox doesn't support canvas transferring which our app is using,
+          consider downloading other browser which supports it?</p>
+          <ul>
+          <li>Recommended: <a href='https://www.google.com/chrome/?brand=CHBD&gclid=CjwKCAjwnIr1BRAWEiwA6GpwNW3mAOe44k8Gt7bs_R45kW3AwTYZxt3FOD3wFnutclgrv5Rcn4XlghoCc4sQAvD_BwE&gclsrc=aw.ds'>Chrome</a></li>
+          <li>Recommended: <a href='https://brave.com/?ref=cra598'>Brave</a></li>
+          <li><a href='https://www.opera.com/'>Opera</a></li>
+          </ul>`
+        );
+      } else {
+        res.render(__dirname + "/dist/index.pug", {
+          page: "MainPage",
+          isDesktop: req.useragent.isDesktop,
+          userAgent: JSON.stringify(req.useragent),
+        });
+      }
     });
 
     //CLIENT REQUEST FOR MAP MAKER PAGE

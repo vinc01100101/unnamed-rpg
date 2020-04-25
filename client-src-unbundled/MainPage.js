@@ -221,7 +221,8 @@ module.exports = () => {
           const mainCanvas = document.querySelector("#mainCanvas");
           mainCanvas.width = 250;
           mainCanvas.height = 250;
-          console.log(mainCanvas.mozTransferControlToOffscreen);
+          console.log(mainCanvas);
+          console.log(mainCanvas.transferControlToOffscreen);
           const offscreen = mainCanvas.transferControlToOffscreen();
 
           this.worker.postMessage(
@@ -238,6 +239,7 @@ module.exports = () => {
           this.worker.postMessage({
             type: "test",
           });
+          console.log("WORKING");
           this.worker.postMessage({
             type: "renderThese",
             renderThese: [

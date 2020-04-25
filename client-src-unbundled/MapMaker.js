@@ -2247,7 +2247,9 @@ class MapMaker extends React.Component {
 												this._drawTile(false, true);
 											}}
 										>
-											Delete Selected Animation
+											Delete Selected
+											<br />
+											Animation
 										</button>
 										<div
 											style={{
@@ -2267,7 +2269,7 @@ class MapMaker extends React.Component {
 										Layer Visibility || Preview
 										<div>
 											<label htmlFor="b1">
-												Base1
+												<span>Base1</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2287,7 +2289,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="b2">
-												Base2
+												<span>Base2</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2307,7 +2309,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="b3">
-												Base3
+												<span>Base3</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2327,7 +2329,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="sm1">
-												Mid1 Shadow
+												<span>Mid1 Shadow</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2347,7 +2349,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="m1">
-												Mid1
+												<span>Mid1</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2367,7 +2369,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="a">
-												Animation
+												<span>Animation</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2382,7 +2384,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="sm2">
-												Mid2 Shadow
+												<span>Mid2 Shadow</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2402,7 +2404,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="m2">
-												Mid2
+												<span>Mid2</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2422,7 +2424,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="st">
-												Top Shadow
+												<span>Top Shadow</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2442,7 +2444,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="t">
-												Top
+												<span>Top</span>
 												<input
 													onChange={
 														this._toggleVisibility
@@ -2464,7 +2466,7 @@ class MapMaker extends React.Component {
 									<div className="mCChild alignEnd">
 										<div>
 											<label htmlFor="l1">
-												Base1
+												<span>Base1</span>
 												<input
 													onChange={
 														this._layerOnChange
@@ -2483,7 +2485,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="l2">
-												Base2
+												<span>Base2</span>
 												<input
 													onChange={
 														this._layerOnChange
@@ -2502,7 +2504,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="l3">
-												Base3
+												<span>Base3</span>
 												<input
 													onChange={
 														this._layerOnChange
@@ -2521,7 +2523,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="l4">
-												Mid1 Shadow
+												<span>Mid1 Shadow</span>
 												<input
 													onChange={
 														this._layerOnChange
@@ -2540,7 +2542,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="l5">
-												Mid1
+												<span>Mid1</span>
 												<input
 													onChange={
 														this._layerOnChange
@@ -2559,7 +2561,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="l6">
-												Mid2 Shadow
+												<span>Mid2 Shadow</span>
 												<input
 													onChange={
 														this._layerOnChange
@@ -2578,7 +2580,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="l7">
-												Mid2
+												<span>Mid2</span>
 												<input
 													onChange={
 														this._layerOnChange
@@ -2597,7 +2599,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="l8">
-												Top Shadow
+												<span>Top Shadow</span>
 												<input
 													onChange={
 														this._layerOnChange
@@ -2616,7 +2618,7 @@ class MapMaker extends React.Component {
 										</div>
 										<div>
 											<label htmlFor="l9">
-												Top
+												<span>Top</span>
 												<input
 													onChange={
 														this._layerOnChange
@@ -2674,28 +2676,12 @@ class MapMaker extends React.Component {
 							<canvas id="mapBase1" width="0" height="0"></canvas>
 							<canvas id="mapBase2" width="0" height="0"></canvas>
 							<canvas id="mapBase3" width="0" height="0"></canvas>
-							<canvas
-								id="mapShadowMid1"
-								width="0"
-								height="0"
-							></canvas>
+							<canvas id="mapShadowMid1" width="0" height="0" />
 							<canvas id="mapMid1" width="0" height="0"></canvas>
-							<canvas
-								id="mapAnimate"
-								width="0"
-								height="0"
-							></canvas>
-							<canvas
-								id="mapShadowMid2"
-								width="0"
-								height="0"
-							></canvas>
+							<canvas id="mapAnimate" width="0" height="0" />
+							<canvas id="mapShadowMid2" width="0" height="0" />
 							<canvas id="mapMid2" width="0" height="0"></canvas>
-							<canvas
-								id="mapShadowTop"
-								width="0"
-								height="0"
-							></canvas>
+							<canvas id="mapShadowTop" width="0" height="0" />
 							<canvas id="mapTop" width="0" height="0"></canvas>
 							<canvas
 								id="mapGrid"
@@ -2706,7 +2692,7 @@ class MapMaker extends React.Component {
 										? "block"
 										: "none",
 								}}
-							></canvas>
+							/>
 							<canvas
 								id="charGrid"
 								width="0"
@@ -2716,7 +2702,7 @@ class MapMaker extends React.Component {
 										? "block"
 										: "none",
 								}}
-							></canvas>
+							/>
 							<ul
 								id="z"
 								style={{
@@ -2751,17 +2737,13 @@ class MapMaker extends React.Component {
 									})}
 							</ul>
 
-							<canvas
-								id="mapClickCatcher"
-								width="0"
-								height="0"
-							></canvas>
+							<canvas id="mapClickCatcher" width="0" height="0" />
 							<canvas
 								id="captureCanvas"
 								width="0"
 								height="0"
 								style={{ display: "none" }}
-							></canvas>
+							/>
 						</div>
 					</div>
 				</div>

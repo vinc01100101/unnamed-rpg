@@ -65,6 +65,12 @@ canvas {
 	max-width: 100%;
 	height: 100%;
 	flex-direction: row;
+	font-size: 10px;
+}
+#group1 button,
+#group1 input,
+#group1 select {
+	font-size: 10px;
 }
 #mainCont {
 	height: 100%;
@@ -215,8 +221,14 @@ canvas {
 	display: flex;
 	flex-direction: column;
 }
-.mCChild canvas{
+.mCChild canvas {
 	border: solid black 2px;
+	width: 20px;
+	height: 20px;
+}
+.mCChild span{
+	position: relative;
+	top: -9px;
 }
 #popupBG {
 	position: fixed;
