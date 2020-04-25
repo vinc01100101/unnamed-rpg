@@ -122,7 +122,7 @@ mongoose.connect(
         res.send(
           `<h3>Sorry, our app doesn't run on Firefox.</h3>
           <p>Because Firefox doesn't support canvas transferring which our app is using,
-          consider downloading other browser which supports it?</p>
+          consider downloading other browser which supports it instead?</p>
           <ul>
           <li>Recommended: <a href='https://www.google.com/chrome/?brand=CHBD&gclid=CjwKCAjwnIr1BRAWEiwA6GpwNW3mAOe44k8Gt7bs_R45kW3AwTYZxt3FOD3wFnutclgrv5Rcn4XlghoCc4sQAvD_BwE&gclsrc=aw.ds'>Chrome</a></li>
           <li>Recommended: <a href='https://brave.com/?ref=cra598'>Brave</a></li>
@@ -140,10 +140,28 @@ mongoose.connect(
 
     //CLIENT REQUEST FOR MAP MAKER PAGE
     app.get("/mapmaker", (req, res) => {
-      res.render(__dirname + "/dist/index.pug", {
-        page: "MapMaker",
-        isDesktop: req.useragent.isDesktop,
-      });
+      if (!req.useragent.isDesktop) {
+        res.send(`<head><meta name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale = 1.0, user-scalable=no"></head>
+          <h3>Sorry! Our mapMaker is not yet compatible with mobile.. :(</h3>
+          <a href='/'>Back to game page</a>
+          `);
+      } else if (req.useragent.isFirefox) {
+        res.send(
+          `<h3>Sorry, our app doesn't run well on Firefox.</h3>
+          <p>Because Firefox doesn't support canvas transferring and webm which our app is using,
+          consider downloading other browser which supports it instead?</p>
+          <ul>
+          <li>Recommended: <a href='https://www.google.com/chrome/?brand=CHBD&gclid=CjwKCAjwnIr1BRAWEiwA6GpwNW3mAOe44k8Gt7bs_R45kW3AwTYZxt3FOD3wFnutclgrv5Rcn4XlghoCc4sQAvD_BwE&gclsrc=aw.ds'>Chrome</a></li>
+          <li>Recommended: <a href='https://brave.com/?ref=cra598'>Brave</a></li>
+          <li><a href='https://www.opera.com/'>Opera</a></li>
+          </ul>`
+        );
+      } else {
+        res.render(__dirname + "/dist/index.pug", {
+          page: "MapMaker",
+          isDesktop: req.useragent.isDesktop,
+        });
+      }
     });
 
     //CREATE STASH
