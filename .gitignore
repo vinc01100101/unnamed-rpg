@@ -1,6 +1,6 @@
 node_modules
 .env
-dist/gate-bundle.js
+client-src-unbundled
 .vscode
 ws.code-workspace
 my-tools

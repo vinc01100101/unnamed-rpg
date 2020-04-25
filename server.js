@@ -133,7 +133,7 @@ mongoose.connect(
         res.render(__dirname + "/dist/index.pug", {
           page: "MainPage",
           isDesktop: req.useragent.isDesktop,
-          userAgent: JSON.stringify(req.useragent),
+          // userAgent: JSON.stringify(req.useragent),
         });
       }
     });
