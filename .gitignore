@@ -1,6 +1,6 @@
+#client-src-unbundled
 node_modules
 .env
-client-src-unbundled
 .vscode
 ws.code-workspace
 my-tools
