@@ -97,8 +97,8 @@ module.exports = (io, AccountModel) => {
                 password: bcrypt.hashSync(attempt.password, 12),
                 characters: {
                   "Test Character 1": {
-                    class: "f_ninja",
-                    head: "f_head0",
+                    class: "fNinja",
+                    head: "fHead0",
                     map: "Starting Zone",
                     x: 32,
                     y: 20,
@@ -123,8 +123,8 @@ module.exports = (io, AccountModel) => {
                     quickSlots: ["0201", "0401", "1124", "1032"],
                   },
                   "Test Character 2": {
-                    class: "f_alchemist",
-                    head: "f_head1",
+                    class: "fAlchemist",
+                    head: "fHead1",
                     map: "Starting Zone",
                     x: 32,
                     y: 20,
@@ -149,8 +149,8 @@ module.exports = (io, AccountModel) => {
                     quickSlots: ["0201", "0401", "1124", "1032"],
                   },
                   "Test Character 3": {
-                    class: "f_monk",
-                    head: "f_head0",
+                    class: "fRebellion",
+                    head: "fHead0",
                     map: "Starting Zone",
                     x: 32,
                     y: 20,

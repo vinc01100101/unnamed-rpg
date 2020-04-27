@@ -39,6 +39,9 @@ onmessage = (e) => {
 		case "test":
 			animationEngine.isTest = true;
 			break;
+		case "test_show_ref_head":
+			animationEngine.showRefHead = !animationEngine.showRefHead;
+			break;
 		case "test_act":
 			animationEngine.renderThese[0].act = e.data.act;
 			break;
@@ -77,8 +80,68 @@ onmessage = (e) => {
 			animationEngine.renderThese[0].headFacing = e.data.dir;
 			break;
 
-		case "test_print":
-			console.log(JSON.stringify(animationEngine.adjustHeadXY));
+		case "test_print_x":
+			console.log("printing X...");
+			console.log(
+				JSON.stringify({
+					f:
+						animationEngine.adjustHeadXY.x.f +
+						animationEngine.headXPos.f,
+					fl:
+						animationEngine.adjustHeadXY.x.fl +
+						animationEngine.headXPos.fl,
+					l:
+						animationEngine.adjustHeadXY.x.l +
+						animationEngine.headXPos.l,
+					bl:
+						animationEngine.adjustHeadXY.x.bl +
+						animationEngine.headXPos.bl,
+					b:
+						animationEngine.adjustHeadXY.x.b +
+						animationEngine.headXPos.b,
+					br:
+						animationEngine.adjustHeadXY.x.br +
+						animationEngine.headXPos.br,
+					r:
+						animationEngine.adjustHeadXY.x.r +
+						animationEngine.headXPos.r,
+					fr:
+						animationEngine.adjustHeadXY.x.fr +
+						animationEngine.headXPos.fr,
+				})
+			);
+			break;
+
+		case "test_print_y":
+			console.log("printing Y...");
+			console.log(
+				JSON.stringify({
+					f:
+						animationEngine.adjustHeadXY.y.f +
+						animationEngine.headYPos.f,
+					fl:
+						animationEngine.adjustHeadXY.y.fl +
+						animationEngine.headYPos.fl,
+					l:
+						animationEngine.adjustHeadXY.y.l +
+						animationEngine.headYPos.l,
+					bl:
+						animationEngine.adjustHeadXY.y.bl +
+						animationEngine.headYPos.bl,
+					b:
+						animationEngine.adjustHeadXY.y.b +
+						animationEngine.headYPos.b,
+					br:
+						animationEngine.adjustHeadXY.y.bl +
+						animationEngine.headYPos.bl,
+					r:
+						animationEngine.adjustHeadXY.y.l +
+						animationEngine.headYPos.l,
+					fr:
+						animationEngine.adjustHeadXY.y.fl +
+						animationEngine.headYPos.fl,
+				})
+			);
 			break;
 
 		case "terminate":
@@ -327,6 +390,10 @@ class AnimationEngine {
 							  (renderTHIS.selfCounter % 2);
 
 						const sprActHead = spriteSheetData[renderTHIS.head];
+						//FOR TEST: PRINTING ADJUSTED Y POSITION
+						this.headYPos = sprActHead.anchorPoints.normal.y;
+						this.headXPos = sprActHead.anchorPoints.normal.x;
+
 						img = blobs[renderTHIS.head];
 						srcX = sprActHead.xPos[frameNum];
 
@@ -398,6 +465,65 @@ class AnimationEngine {
 							);
 							ctx.strokeStyle = "red";
 							ctx.stroke();
+
+							ctx.restore();
+							ctx.save();
+
+							const transXREF = isMirrored
+								? spriteSheetData.fHead0.widths[frameNum] +
+								  (variableX -
+										Math.round(
+											spriteSheetData.fHead0.widths[
+												frameNum
+											] / 2
+										) +
+										sprAct.data.anchorHead[
+											COMPUTED_456_INDEX
+										][0] +
+										spriteSheetData.fHead0.anchorPoints[
+											anchorAct
+										].x[this.headFacing]) *
+										2
+								: 0;
+
+							ctx.translate(transXREF, 0);
+							ctx.scale(scaleX, 1);
+							//reference
+							if (this.showRefHead) {
+								ctx.drawImage(
+									blobs.fHead0,
+									spriteSheetData.fHead0.xPos[frameNum],
+									0,
+									spriteSheetData.fHead0.widths[frameNum],
+									spriteSheetData.fHead0.heights[frameNum],
+									variableX -
+										Math.round(
+											spriteSheetData.fHead0.widths[
+												frameNum
+											] / 2
+										) +
+										sprAct.data.anchorHead[
+											COMPUTED_456_INDEX
+										][0] +
+										spriteSheetData.fHead0.anchorPoints[
+											anchorAct
+										].x[this.headFacing],
+									variableY -
+										Math.round(
+											spriteSheetData.fHead0.heights[
+												frameNum
+											] / 2
+										) +
+										sprAct.data.anchorHead[
+											COMPUTED_456_INDEX
+										][1] +
+										spriteSheetData.fHead0.anchorPoints[
+											anchorAct
+										].y[this.headFacing],
+									spriteSheetData.fHead0.widths[frameNum],
+									spriteSheetData.fHead0.heights[frameNum]
+								);
+							}
 						}
 						ctx.restore();
 					}
