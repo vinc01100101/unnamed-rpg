@@ -2,11 +2,6 @@ const bcrypt = require("bcryptjs");
 const registrationPromise = require("./registration-promise");
 
 module.exports = (io, AccountModel) => {
-  //as soon as entered a channel
-  let playerCountOnChannel = {
-    ch1: 0,
-    ch2: 0,
-  };
   //as soon as logged in
   let connectedUsers = {};
 
@@ -36,27 +31,36 @@ module.exports = (io, AccountModel) => {
               "forceleave",
               "Someone has logged on this account"
             );
-            leaveRooms(connectedUsers[doc.username]);
           }
-          console.log("my ID is " + socket.id);
-
+          //log
+          console.log(doc.username + " has connected");
           //broadcast new user
           io.emit("newuser", doc.username);
           //now enter the new socket to connectedUsers object
           connectedUsers[doc.username] = socket;
           //attach doc to socket.__user
           socket.__user = doc;
-          done({ type: "success", message: "" });
+          done({ type: "success", message: doc.characters });
         }
       });
     });
 
     //LOGOUT
     socket.on("logout", (cb) => {
-      console.log("User " + socket.__user.username + " logged out");
+      console.log(socket.__user);
+      if (socket.__user) {
+        console.log("User " + socket.__user.username + " logged out");
+        delete connectedUsers[socket.__user.username];
+        delete socket.__user;
+      }
 
-      delete socket.__user;
       cb();
+    });
+
+    //DISCONNECTED
+    socket.on("disconnect", () => {
+      socket.__user && delete connectedUsers[socket.__user.username];
+      socket.__user && console.log(socket.__user.username + " disconnected");
     });
 
     //REGISTER
@@ -98,8 +102,9 @@ module.exports = (io, AccountModel) => {
                 characters: {
                   "Test Character 1": {
                     class: "fNinja",
-                    head: "fHead0",
-                    map: "Starting Zone",
+                    lv: 20,
+                    head: "fHead18",
+                    map: "Kunlun",
                     x: 32,
                     y: 20,
                     z: 5,
@@ -124,8 +129,9 @@ module.exports = (io, AccountModel) => {
                   },
                   "Test Character 2": {
                     class: "fAlchemist",
-                    head: "fHead1",
-                    map: "Starting Zone",
+                    lv: 42,
+                    head: "fHead23",
+                    map: "Aldebaran",
                     x: 32,
                     y: 20,
                     z: 5,
@@ -150,8 +156,36 @@ module.exports = (io, AccountModel) => {
                   },
                   "Test Character 3": {
                     class: "fRebellion",
-                    head: "fHead0",
-                    map: "Starting Zone",
+                    lv: 82,
+                    head: "fHead28",
+                    map: "Glastheim Underground 1F",
+                    x: 32,
+                    y: 20,
+                    z: 5,
+                    zeny: 1240107,
+                    currHp: 800,
+                    currMp: 450,
+                    stats: {
+                      str: 20,
+                      agi: 10,
+                      int: 9,
+                    },
+                    //for items and skills we use ID//
+                    skills: ["1124", "1032"],
+                    inventory: ["0201", "1031", "0401", "1209"],
+                    equipment: {
+                      head: "0001",
+                      armor: "0002",
+                      weapon: "0003",
+                      accessory: "1214",
+                    },
+                    quickSlots: ["0201", "0401", "1124", "1032"],
+                  },
+                  "Test Character 4": {
+                    class: "fRoyalGuard",
+                    lv: 97,
+                    head: "fHead20",
+                    map: "Prontera",
                     x: 32,
                     y: 20,
                     z: 5,
@@ -222,50 +256,6 @@ module.exports = (io, AccountModel) => {
         }
       }
     });
-
-    //ON ENTER CHANNEL-----------------
-    socket.on("enterchannel", (channelSelected, cb) => {
-      //check if room is valid
-      const availableRooms = Object.keys(playerCountOnChannel);
-      if (availableRooms.indexOf(channelSelected) != -1) {
-        socket.join(channelSelected);
-        playerCountOnChannel[channelSelected]++;
-        cb({ type: "success" });
-        console.log(socket.__user.username + " has joined " + channelSelected);
-      } else {
-        cb({ type: "error", message: "Invalid room" });
-      }
-    });
-
-    //ON SELECT CHANNEL SCREEN-----------------
-    socket.on("channelscreen", (cb) => {
-      leaveRooms(socket);
-      cb(playerCountOnChannel);
-    });
-
-    //ON SELECT CHARACTER SCREEN
-    socket.on("characterscreen", (cb) => {
-      cb(socket.__user.characters);
-    });
-    //DISCONNECTED
-    socket.on("disconnect", () => {
-      leaveRooms(socket);
-      socket.__user && console.log(socket.__user.username + " disconnected");
-    });
-
-    function leaveRooms(s) {
-      //check if has existing room
-      const rooms = Object.keys(s.rooms);
-      //leave all
-      if (rooms.length > 1) {
-        rooms.map((room) => {
-          if (room in playerCountOnChannel) {
-            s.leave(room);
-            playerCountOnChannel[room] && playerCountOnChannel[room]--;
-          }
-        });
-      }
-    }
   });
 };
 

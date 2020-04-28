@@ -3,7 +3,6 @@ const React = require("react");
 const Login = require("./gamepage/Login");
 const Register = require("./gamepage/Register");
 const About = require("./gamepage/About");
-const SelectChannel = require("./gamepage/SelectChannel");
 const SelectCharacter = require("./gamepage/SelectCharacter");
 const CreateCharacter = require("./gamepage/CreateCharacter");
 const OG = require("./gamepage/OG");
@@ -51,6 +50,9 @@ module.exports = () => {
 
         //Bg Animation Object
         bgIsOn: true,
+
+        //character selection
+        selectedCharData: null,
       };
       this.bgAnimate = null;
       this._updateInput = this._updateInput.bind(this);
@@ -170,6 +172,7 @@ module.exports = () => {
     _setStateCallback(toChange) {
       this.setState(toChange);
     }
+
     _toggleVisibility(component) {
       const fader = document.querySelector("#fader");
       fader.style.display = "block";
@@ -216,15 +219,15 @@ module.exports = () => {
       this.worker.postMessage({
         type: "terminate",
       });
-
+      let mainCanvas, offscreen;
       switch (component) {
         case "AnimationTESTER":
-          const mainCanvas = document.querySelector("#mainCanvas");
+          mainCanvas = document.querySelector("#mainCanvas");
           mainCanvas.width = 250;
           mainCanvas.height = 250;
           console.log(mainCanvas);
           console.log(mainCanvas.transferControlToOffscreen);
-          const offscreen = mainCanvas.transferControlToOffscreen();
+          offscreen = mainCanvas.transferControlToOffscreen();
 
           this.worker.postMessage(
             {
@@ -258,41 +261,78 @@ module.exports = () => {
 
           break;
         case "SelectCharacter":
-          socket.emit("characterscreen", (characters) => {
-            let renderThese = [];
-            Object.keys(characters).map((character, i) => {
-              renderThese.push({
-                body: characters[character].class,
-                head: characters[character].head,
-                coords: [i * 100 + 50, 100],
-                type: "player", // types = player,npc
-                bodyFacing: "f",
-                act: "standby",
-                fps: 10,
-              });
-            });
-
-            const mainCanvas = document.querySelector("#mainCanvas");
-            mainCanvas.width = renderThese.length * 100;
-            mainCanvas.height = 110;
-            const offscreen = mainCanvas.transferControlToOffscreen();
-            this.worker.postMessage(
-              {
-                type: "animationInit",
-                args: [
-                  offscreen,
-                  JSON.stringify(this.spriteSheetData),
-                  DATA_INDICES,
-                ],
-              },
-              [offscreen]
-            );
-
-            this.worker.postMessage({
-              type: "renderThese",
-              renderThese,
+          let renderThese = [];
+          Object.keys(this.CHARACTERS).map((character, i) => {
+            renderThese.push({
+              body: this.CHARACTERS[character].class,
+              head: this.CHARACTERS[character].head,
+              coords: [i * 100 + 50, 120],
+              type: "player", // types = player,npc
+              bodyFacing: "fl",
+              act: "sit",
+              fps: 10,
+              selectCharacterSelected: false,
             });
           });
+
+          mainCanvas = document.querySelector("#mainCanvas");
+          mainCanvas.width = renderThese.length * 100;
+          mainCanvas.height = 160;
+
+          let selectedIndexRef;
+
+          const clickHandler = (e) => {
+            const selectedIndexSet = Math.floor(e.offsetX / 100);
+
+            if (selectedIndexSet != selectedIndexRef) {
+              selectedIndexRef = selectedIndexSet;
+              renderThese.map((c) => {
+                c.act = "sit";
+                c.bodyFacing = "fl";
+                c.selectCharacterSelected = false;
+              });
+
+              renderThese[selectedIndexRef].act = "standby";
+              renderThese[selectedIndexRef].bodyFacing = "fl";
+              renderThese[selectedIndexRef].selectCharacterSelected = true;
+
+              this.worker.postMessage({
+                type: "renderThese",
+                renderThese,
+              });
+
+              const selectedCharName = Object.keys(this.CHARACTERS)[
+                selectedIndexRef
+              ];
+              this.setState({
+                selectedCharData: {
+                  name: selectedCharName,
+                  data: this.CHARACTERS[selectedCharName],
+                },
+              });
+            }
+          };
+
+          mainCanvas.addEventListener("click", clickHandler);
+
+          offscreen = mainCanvas.transferControlToOffscreen();
+          this.worker.postMessage(
+            {
+              type: "animationInit",
+              args: [
+                offscreen,
+                JSON.stringify(this.spriteSheetData),
+                DATA_INDICES,
+              ],
+            },
+            [offscreen]
+          );
+
+          this.worker.postMessage({
+            type: "renderThese",
+            renderThese,
+          });
+
           break;
       }
     }
@@ -342,6 +382,9 @@ module.exports = () => {
               info={this.state.info}
               bgIsOn={this.state.bgIsOn}
               socket={socket}
+              userCallBack={(characters) => {
+                this.CHARACTERS = characters;
+              }}
             />
           )}
 
@@ -356,14 +399,6 @@ module.exports = () => {
             />
           )}
 
-          {this.state.show == "SelectChannel" && (
-            <SelectChannel
-              _toggleVisibility={this._toggleVisibility}
-              _setStateCallback={this._setStateCallback}
-              info={this.state.info}
-              socket={socket}
-            />
-          )}
           {this.state.show == "SelectCharacter" && (
             <SelectCharacter
               _toggleVisibility={this._toggleVisibility}
@@ -371,6 +406,7 @@ module.exports = () => {
               worker={this.worker}
               mainCanvas={this.mainCanvas}
               socket={socket}
+              selectedCharData={this.state.selectedCharData}
             />
           )}
           {this.state.show == "CreateCharacter" && (

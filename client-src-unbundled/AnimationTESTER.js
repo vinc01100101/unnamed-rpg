@@ -10,12 +10,20 @@ const classes = {
   fAlchemist: "Alchemist (F)",
   fOboro: "Oboro (F)",
   fRebellion: "Rebellion (F)",
-  fRoyalGuard: "Royal Guard (F)",
+  fRoyalGuard: "RoyalGuard (F)",
   fGunslinger: "Gunslinger (F)",
   fSwordsman: "Swordsman (F)",
   fCrusader: "Crusader (F)",
-  fTaekwonMaster: "Taekwon Master (F)",
+  fTaekwonKid: "TaekwonKid (F)",
   fArcher: "Archer (F)",
+  fThief: "Thief (F)",
+  fRanger: "Ranger (F)",
+  fLordKnight: "LordKnight (F)",
+  fMechanic: "Mechanic (F)",
+  fBlacksmith: "Blacksmith (F)",
+  fTaekwonMaster: "TaekwonMaster (F)",
+  fAssassin: "Assassin (F)",
+  fShadowChaser: "ShadowChaser (F)",
 };
 
 const actions = [
@@ -55,6 +63,13 @@ const heads = [
   "fHead19",
   "fHead20",
   "fHead21",
+  "fHead22",
+  "fHead23",
+  "fHead24",
+  "fHead25",
+  "fHead26",
+  "fHead27",
+  "fHead28",
 ];
 
 module.exports = class AnimationTESTER extends React.Component {
@@ -98,18 +113,13 @@ module.exports = class AnimationTESTER extends React.Component {
         document.querySelector("#actionSelect").value = actions[actionIndex];
         this._selectOnChange();
         break;
-      //y
-      case 121:
+      //b
+      case 98:
         this.props.worker.postMessage({
-          type: "test_print_y",
+          type: "test_print",
         });
         break;
-      //x
-      case 120:
-        this.props.worker.postMessage({
-          type: "test_print_x",
-        });
-        break;
+
       case 114:
         this.props.worker.postMessage({
           type: "test_head_up",
@@ -169,6 +179,18 @@ module.exports = class AnimationTESTER extends React.Component {
     return (
       <div id="testWindow">
         {this.props.mainCanvas}
+        <ul
+          style={{
+            position: "fixed",
+            left: "0px",
+            top: "0px",
+            color: "white",
+            backgroundColor: "black",
+          }}
+        >
+          <li>W/S= Change Action</li>
+          <li>A/D= Rotate Left/Right</li>
+        </ul>
         <div id="testControls">
           <select id="actionSelect" onChange={this._selectOnChange}>
             {actions.map((x, i) => (

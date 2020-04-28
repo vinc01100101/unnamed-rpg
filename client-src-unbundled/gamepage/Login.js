@@ -27,7 +27,8 @@ module.exports = function Login(props) {
             loading: false,
           });
         } else if (info.type == "success") {
-          props._toggleVisibility("SelectChannel");
+          props.userCallBack(info.message);
+          props._toggleVisibility("SelectCharacter");
           props._setStateCallback({
             loading: false,
           });

@@ -80,66 +80,62 @@ onmessage = (e) => {
 			animationEngine.renderThese[0].headFacing = e.data.dir;
 			break;
 
-		case "test_print_x":
-			console.log("printing X...");
+		case "test_print":
+			console.log("printing...");
 			console.log(
 				JSON.stringify({
-					f:
-						animationEngine.adjustHeadXY.x.f +
-						animationEngine.headXPos.f,
-					fl:
-						animationEngine.adjustHeadXY.x.fl +
-						animationEngine.headXPos.fl,
-					l:
-						animationEngine.adjustHeadXY.x.l +
-						animationEngine.headXPos.l,
-					bl:
-						animationEngine.adjustHeadXY.x.bl +
-						animationEngine.headXPos.bl,
-					b:
-						animationEngine.adjustHeadXY.x.b +
-						animationEngine.headXPos.b,
-					br:
-						animationEngine.adjustHeadXY.x.br +
-						animationEngine.headXPos.br,
-					r:
-						animationEngine.adjustHeadXY.x.r +
-						animationEngine.headXPos.r,
-					fr:
-						animationEngine.adjustHeadXY.x.fr +
-						animationEngine.headXPos.fr,
-				})
-			);
-			break;
-
-		case "test_print_y":
-			console.log("printing Y...");
-			console.log(
-				JSON.stringify({
-					f:
-						animationEngine.adjustHeadXY.y.f +
-						animationEngine.headYPos.f,
-					fl:
-						animationEngine.adjustHeadXY.y.fl +
-						animationEngine.headYPos.fl,
-					l:
-						animationEngine.adjustHeadXY.y.l +
-						animationEngine.headYPos.l,
-					bl:
-						animationEngine.adjustHeadXY.y.bl +
-						animationEngine.headYPos.bl,
-					b:
-						animationEngine.adjustHeadXY.y.b +
-						animationEngine.headYPos.b,
-					br:
-						animationEngine.adjustHeadXY.y.bl +
-						animationEngine.headYPos.bl,
-					r:
-						animationEngine.adjustHeadXY.y.l +
-						animationEngine.headYPos.l,
-					fr:
-						animationEngine.adjustHeadXY.y.fl +
-						animationEngine.headYPos.fl,
+					x: {
+						f:
+							animationEngine.adjustHeadXY.x.f +
+							animationEngine.headXPos.f,
+						fl:
+							animationEngine.adjustHeadXY.x.fl +
+							animationEngine.headXPos.fl,
+						l:
+							animationEngine.adjustHeadXY.x.l +
+							animationEngine.headXPos.l,
+						bl:
+							animationEngine.adjustHeadXY.x.bl +
+							animationEngine.headXPos.bl,
+						b:
+							animationEngine.adjustHeadXY.x.b +
+							animationEngine.headXPos.b,
+						br:
+							animationEngine.adjustHeadXY.x.br +
+							animationEngine.headXPos.br,
+						r:
+							animationEngine.adjustHeadXY.x.r +
+							animationEngine.headXPos.r,
+						fr:
+							animationEngine.adjustHeadXY.x.fr +
+							animationEngine.headXPos.fr,
+					},
+					y: {
+						f:
+							animationEngine.adjustHeadXY.y.f +
+							animationEngine.headYPos.f,
+						fl:
+							animationEngine.adjustHeadXY.y.fl +
+							animationEngine.headYPos.fl,
+						l:
+							animationEngine.adjustHeadXY.y.l +
+							animationEngine.headYPos.l,
+						bl:
+							animationEngine.adjustHeadXY.y.bl +
+							animationEngine.headYPos.bl,
+						b:
+							animationEngine.adjustHeadXY.y.b +
+							animationEngine.headYPos.b,
+						br:
+							animationEngine.adjustHeadXY.y.bl +
+							animationEngine.headYPos.bl,
+						r:
+							animationEngine.adjustHeadXY.y.l +
+							animationEngine.headYPos.l,
+						fr:
+							animationEngine.adjustHeadXY.y.fl +
+							animationEngine.headYPos.fl,
+					},
 				})
 			);
 			break;
@@ -213,7 +209,7 @@ class AnimationEngine {
 							/r/.test(renderTHIS.bodyFacing) ||
 							/^b$/.test(renderTHIS.bodyFacing);
 
-						//pick animation has different order
+						//some pick and attack animation has different order
 
 						const regs = { f: /f|^r$/, b: /b|^l$/ };
 						if (sprAct.reversed) {
@@ -249,7 +245,7 @@ class AnimationEngine {
 					if (isNaN(renderTHIS.frameCounter))
 						renderTHIS.frameCounter = 0;
 
-					//(TEST)VARIABLES OF OBJECT'S POSITION ON THE MAP
+					//VARIABLES OF OBJECT'S POSITION ON THE MAP
 					const variableX = renderTHIS.coords[0],
 						variableY = renderTHIS.coords[1];
 
@@ -301,8 +297,10 @@ class AnimationEngine {
 						ctx.stroke();
 					}
 
-					//drawThisImage
+					//the shadow
+					ctx.drawImage(blobs.shadow, variableX - 18, variableY - 9);
 
+					//the body
 					ctx.save();
 					ctx.translate(transX, 0);
 					ctx.scale(scaleX, 1);
@@ -370,6 +368,43 @@ class AnimationEngine {
 						this.headFacing = rotatable
 							? dirToIndex[dirToIndexRotatable]
 							: dirToIndex[dirToIndexFourDir];
+
+						//SPECIAL CASE FOR TAEKWON KID WHERE IT REVOLVES 350 DEGREE ON ATTACK 3
+						if (
+							/TaekwonKid/.test(renderTHIS.body) &&
+							renderTHIS.act == "attack3"
+						) {
+							if (renderTHIS.selfCounter == 5) {
+								console.log(this.headFacing);
+								console.log("taek attack 3!");
+								const regTestX = /l/.test(this.headFacing)
+									? "l"
+									: "r";
+								const toReplaceX = regTestX == "l" ? "r" : "l";
+
+								const regTestY = /f/.test(this.headFacing)
+									? "f"
+									: "b";
+								const toReplaceY = regTestY == "f" ? "b" : "f";
+
+								this.headFacing = this.headFacing.replace(
+									regTestX,
+									toReplaceX
+								);
+								this.headFacing = this.headFacing.replace(
+									regTestY,
+									toReplaceY
+								);
+
+								console.log(this.headFacing);
+							} else if (renderTHIS.selfCounter == 4) {
+								this.headFacing = /l/.test(this.headFacing)
+									? "r"
+									: "l";
+							}
+						}
+						//ABOVE ^ IS THE SPECIAL CASE FOR TAEKWON KID WHERE IT REVOLVES 350 DEGREE ON ATTACK 3
+
 						//check if it is mirrored
 						isMirrored = /r/.test(this.headFacing);
 						//translate facing
@@ -390,7 +425,7 @@ class AnimationEngine {
 							  (renderTHIS.selfCounter % 2);
 
 						const sprActHead = spriteSheetData[renderTHIS.head];
-						//FOR TEST: PRINTING ADJUSTED Y POSITION
+						//FOR TEST: PRINTING ADJUSTED XY POSITION
 						this.headYPos = sprActHead.anchorPoints.normal.y;
 						this.headXPos = sprActHead.anchorPoints.normal.x;
 
@@ -525,7 +560,18 @@ class AnimationEngine {
 								);
 							}
 						}
+
 						ctx.restore();
+
+						if (renderTHIS.selectCharacterSelected) {
+							ctx.drawImage(
+								blobs.selectCharacterFrame,
+								variableX - 50,
+								variableY - 110,
+								100,
+								130
+							);
+						}
 					}
 					if (!rotatable) {
 						renderTHIS.frameCounter++;

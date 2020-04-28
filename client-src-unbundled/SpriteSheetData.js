@@ -1,12 +1,12 @@
-//TaekwonMaster attack3 deprecated
+//TaekwonMaster attack3 deprecated //I FIXED IT NOW 4/28/2020
 
 const head = require("./animation-variables/head/head");
 
 module.exports = function SpriteSheetData() {
   //.PNG SPRITESHEET PATHS
   this.paths = {
-    // f_head0: "./assets/characters/head/f_head0.png",
-    // f_head1: "./assets/characters/head/f_head1.png",
+    shadow: "./assets/characters/shadow.png",
+    selectCharacterFrame: "./assets/system/selectCharacterFrame.png",
   };
 
   //JOB CLASS SPRITES GENERATOR
@@ -34,8 +34,18 @@ module.exports = function SpriteSheetData() {
     fGunslinger: { reversed: null },
     fSwordsman: { reversed: { acts: ["pick"], dirs: ["f"] } },
     fCrusader: { reversed: null },
-    fTaekwonMaster: { reversed: null },
+    fTaekwonKid: { reversed: null },
     fArcher: { reversed: { acts: ["pick"], dirs: ["f"] } },
+    fThief: { reversed: { acts: ["pick"], dirs: ["f"] } },
+    fRanger: { reversed: { acts: ["pick"], dirs: ["f"] } },
+    fLordKnight: {
+      reversed: { acts: ["attack1", "attack3"], dirs: ["b", "b"] },
+    },
+    fMechanic: { reversed: null },
+    fBlacksmith: { reversed: { acts: ["pick"], dirs: ["f"] } },
+    fTaekwonMaster: { reversed: null }, //<-----FIX THIS
+    fAssassin: { reversed: { acts: ["pick"], dirs: ["f"] } },
+    fShadowChaser: { reversed: null },
   };
   //JOB CLASS CONSTRUCTOR
   class object_body {
@@ -77,13 +87,17 @@ module.exports = function SpriteSheetData() {
     "fHead19",
     "fHead20",
     "fHead21",
+    "fHead22",
+    "fHead23",
+    "fHead24",
+    "fHead25",
+    "fHead26",
+    "fHead27",
+    "fHead28",
   ];
 
   data_head.map((h) => {
     this[h] = head[h];
     this.paths[h] = `./assets/characters/head/${h}.png`;
   });
-
-  //general sprites for head Pick Damage Dead animation
-  const PDD = {};
 };
