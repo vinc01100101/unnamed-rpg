@@ -210,9 +210,6 @@ canvas {
 	justify-content: flex-end;
 	align-items: flex-start;
 }
-.justifyEnd{
-	cursor:  pointer;
-}
 .justifyEnd div{
 	width: 100%;
 	display: flex;
@@ -220,7 +217,7 @@ canvas {
 	justify-content: flex-end;
 	font-weight: bold;
 	transition: 0.4s all;
-	color:  black;
+	color:  white;
 }
 .justifyEnd div canvas{
 	background-color: white;
