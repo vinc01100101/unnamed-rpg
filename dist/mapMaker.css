@@ -65,12 +65,12 @@ canvas {
 	max-width: 100%;
 	height: 100%;
 	flex-direction: row;
-	font-size: 10px;
+	font-size: 14px;
 }
 #group1 button,
 #group1 input,
 #group1 select {
-	font-size: 10px;
+	font-size: 14px;
 }
 #mainCont {
 	height: 100%;
