@@ -209,12 +209,18 @@ canvas {
 	justify-content: flex-end;
 	align-items: flex-start;
 }
-.alignEnd {
+
+.justifyEnd div{
+	width: 100%;
 	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-end;
+	flex-direction: row;
+	justify-content: flex-end;
 	font-weight: bold;
+}
+.justifyEnd div span{
+}
+.justifyEnd div canvas{
+	background-color: white;
 }
 .mCChild {
 	border: solid black 1px;
@@ -225,10 +231,6 @@ canvas {
 	border: solid black 2px;
 	width: 20px;
 	height: 20px;
-}
-.mCChild span{
-	position: relative;
-	top: -9px;
 }
 #popupBG {
 	position: fixed;

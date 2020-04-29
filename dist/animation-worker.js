@@ -19,8 +19,8 @@ onmessage = (e) => {
 			//redefine
 			animationEngine = new AnimationEngine(
 				args[0],
-				JSON.parse(args[1]),
-				args[2]
+				JSON.parse(args[1])
+				//args[2]
 			);
 
 			animationEngine.initialize();
@@ -147,11 +147,30 @@ onmessage = (e) => {
 };
 
 class AnimationEngine {
-	constructor(canvas, spriteSheetData, DATA_INDICES) {
+	constructor(canvas, spriteSheetData) {
+		//variables for adjusting head sprites position
 		this.adjustHeadXY = {
 			x: { f: 0, fl: 0, l: 0, bl: 0, b: 0, br: 0, r: 0, fr: 0 },
 			y: { f: 0, fl: 0, l: 0, bl: 0, b: 0, br: 0, r: 0, fr: 0 },
 		};
+		//this will be referenced inside the render() function
+		//Action per index:
+		const actsPerIndex = [
+			"idle",
+			"walk",
+			"sit",
+			"pick",
+			"standby",
+			"attack1",
+			"damaged",
+			"freeze1",
+			"dead",
+			"freeze2",
+			"attack2",
+			"attack3",
+			"cast",
+		];
+
 		//index of head frames per action
 		const frameHead = {
 			plain: {
@@ -190,7 +209,40 @@ class AnimationEngine {
 				//clear canvas first
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				//map on array of objects to render
-				this.renderThese.map(async (renderTHIS) => {
+				this.renderThese.map((renderTHIS) => {
+					//general body frame count values per act
+					//modify this if some sprite shows different frame count in some act
+					let actsCounts = [3, 8, 3, 3, 6, 5, 3, 1, 1, 1, 9, 8, 6];
+					//modify the act counts for some sprites that has different counts
+					//we do that before asigning them to DATA_INDICES
+					//sprites that have different cast frame count
+					if (renderTHIS.body == "fShadowChaser") {
+						//the cast value at 10'th index
+						actsCounts[10] = 5;
+					} else if (renderTHIS.body == "fWizard") {
+						console.log("atk1 = 4");
+						actsCounts[5] = 4;
+					}
+
+					//object to store our frame count data
+					let DATA_INDICES = {};
+					//now map to actsCount and assign variables to DATA_INDICES
+					actsCounts.map((count, i) => {
+						if (i == 5) console.log("tO Set COUNT: " + count);
+						//define the property because it is undefined at first
+						DATA_INDICES[actsPerIndex[i]] = {};
+						//assign frame count and starting frame animation index
+						DATA_INDICES[actsPerIndex[i]].count = count;
+						//the first index has to start at 0
+						//preceding indeces will be computed with formula:
+						//current act's start = previous act's count * 8 + previous act's start
+						DATA_INDICES[actsPerIndex[i]].start =
+							i == 0
+								? 0
+								: DATA_INDICES[actsPerIndex[i - 1]].count * 8 +
+								  DATA_INDICES[actsPerIndex[i - 1]].start;
+					});
+					//-----------------------------------
 					const sprAct = spriteSheetData[renderTHIS.body];
 					//check if the character is facing on the right side
 					//if mirrored, use the mirror data, those are the same
@@ -205,12 +257,25 @@ class AnimationEngine {
 						isMirrored = /r/.test(renderTHIS.bodyFacing);
 					} else {
 						fourDir = true;
+						//transform f,l,b,r to 4 directional when fourDir==true
+						if (renderTHIS.bodyFacing.length == 1) {
+							renderTHIS.bodyFacing =
+								renderTHIS.bodyFacing == "f"
+									? "fl"
+									: renderTHIS.bodyFacing == "l"
+									? "bl"
+									: renderTHIS.bodyFacing == "b"
+									? "br"
+									: renderTHIS.bodyFacing == "r"
+									? "fr"
+									: renderTHIS.bodyFacing;
+						}
 						isMirrored =
 							/r/.test(renderTHIS.bodyFacing) ||
 							/^b$/.test(renderTHIS.bodyFacing);
 
-						//some pick and attack animation has different order
-
+						//some pick and attack animation has
+						//different order so we flip it back
 						const regs = { f: /f|^r$/, b: /b|^l$/ };
 						if (sprAct.reversed) {
 							const revIndex = sprAct.reversed.acts.indexOf(
@@ -234,6 +299,7 @@ class AnimationEngine {
 					//check if head is rotatable
 					const rotatable =
 						renderTHIS.act == "sit" || renderTHIS.act == "idle";
+
 					//add or increment self counter
 					if (
 						isNaN(renderTHIS.selfCounter) ||
@@ -276,7 +342,7 @@ class AnimationEngine {
 
 					let COMPUTED_SPRITE_INDEX =
 						sprAct.data.spriteIndices[COMPUTED_456_INDEX];
-
+					console.log(COMPUTED_SPRITE_INDEX);
 					const srcW = sprAct.data.widths[COMPUTED_SPRITE_INDEX];
 					let srcH = sprAct.data.heights[COMPUTED_SPRITE_INDEX];
 					let srcX = sprAct.data.xPos[COMPUTED_SPRITE_INDEX];
@@ -371,10 +437,15 @@ class AnimationEngine {
 
 						//SPECIAL CASE FOR TAEKWON KID WHERE IT REVOLVES 350 DEGREE ON ATTACK 3
 						if (
-							/TaekwonKid/.test(renderTHIS.body) &&
+							/TaekwonKid|TaekwonMaster/.test(renderTHIS.body) &&
 							renderTHIS.act == "attack3"
 						) {
-							if (renderTHIS.selfCounter == 5) {
+							if (
+								(/TaekwonKid/.test(renderTHIS.body) &&
+									renderTHIS.selfCounter == 5) ||
+								(/TaekwonMaster/.test(renderTHIS.body) &&
+									renderTHIS.selfCounter == 6)
+							) {
 								console.log(this.headFacing);
 								console.log("taek attack 3!");
 								const regTestX = /l/.test(this.headFacing)
@@ -397,7 +468,12 @@ class AnimationEngine {
 								);
 
 								console.log(this.headFacing);
-							} else if (renderTHIS.selfCounter == 4) {
+							} else if (
+								(/TaekwonKid/.test(renderTHIS.body) &&
+									renderTHIS.selfCounter == 4) ||
+								(/TaekwonMaster/.test(renderTHIS.body) &&
+									renderTHIS.selfCounter == 5)
+							) {
 								this.headFacing = /l/.test(this.headFacing)
 									? "r"
 									: "l";
