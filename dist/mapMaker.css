@@ -210,16 +210,16 @@ canvas {
 	justify-content: flex-end;
 	align-items: flex-start;
 }
-.justifyEnd div{
+.justifyEnd div {
 	width: 100%;
 	display: flex;
 	flex-direction: row;
 	justify-content: flex-end;
 	font-weight: bold;
-	transition: 0.4s all;
-	color:  white;
+	color: white;
+	border-bottom: 1px solid white;
 }
-.justifyEnd div canvas{
+.justifyEnd div canvas {
 	background-color: white;
 }
 .mCChild {
