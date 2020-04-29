@@ -221,16 +221,13 @@ canvas {
 }
 .justifyEnd div canvas {
 	background-color: white;
+	width: 25px;
+	height: 25px;
 }
 .mCChild {
 	border: solid black 1px;
 	display: flex;
 	flex-direction: column;
-}
-.mCChild canvas {
-	border: solid black 2px;
-	width: 20px;
-	height: 20px;
 }
 #popupBG {
 	position: fixed;
