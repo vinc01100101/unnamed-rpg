@@ -19,16 +19,28 @@ let canvasWidth = 0;
 let images = [];
 let maxHeight = 0;
 
+//FOR VERTICAL GET---
+let canvasHeight = 0;
+let maxWidth = 0;
+//-------------------
+
 const hacked = (img) => {
   console.log("Hacked >:)");
   images.push(img);
   count.textContent = "count: " + images.length;
+  //horizontal get
   canvasWidth += img.width;
   if (img.height > maxHeight) {
     maxHeight = img.height;
   }
+  //vertical get
+  canvasHeight += img.height;
+  if (img.width > maxWidth) {
+    maxWidth = img.width;
+  }
 };
 
+//FOR HORIZONTAL GET
 const getEm = () => {
   let widthIncrement = [],
     widthList = [],
@@ -48,6 +60,21 @@ const getEm = () => {
   hyt.textContent = "heights: [" + heightList + "],";
 };
 
+//FOR VERTICAL GET
+const getVertical = () => {
+  let heightIncrement = [],
+    lastHeight = 0;
+  c.width = maxWidth;
+  c.height = canvasHeight;
+  images.map((x) => {
+    ctx.drawImage(x, 0, lastHeight);
+    heightIncrement.push(lastHeight);
+    lastHeight += x.height;
+  });
+  num.textContent = "yPos: [" + heightIncrement + "],";
+};
+
+//FOR MAKING TRANSPARENT BG WITH ONE CLICK
 c.addEventListener("click", (e) => {
   const x = e.offsetX,
     y = e.offsetY;

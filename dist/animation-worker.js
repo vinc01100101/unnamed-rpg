@@ -30,8 +30,14 @@ onmessage = (e) => {
 			break;
 		case "toBlob":
 			async function toBlob() {
-				const blob = await fetch(e.data.path).then((r) => r.blob());
-				const img = await createImageBitmap(blob);
+				const blob = await fetch(e.data.path)
+					.then((r) => r.blob())
+					.catch(() => {
+						console.log("error");
+					});
+				const img = await createImageBitmap(blob).catch(() => {
+					console.log("error uploading an image: " + e.data.path);
+				});
 				blobs[e.data.name] = img;
 			}
 			toBlob();
@@ -216,19 +222,24 @@ class AnimationEngine {
 					//modify the act counts for some sprites that has different counts
 					//we do that before asigning them to DATA_INDICES
 					//sprites that have different cast frame count
-					if (renderTHIS.body == "fShadowChaser") {
-						//the cast value at 10'th index
-						actsCounts[10] = 5;
-					} else if (renderTHIS.body == "fWizard") {
-						console.log("atk1 = 4");
-						actsCounts[5] = 4;
+					switch (renderTHIS.body) {
+						case "fShadowChaser":
+						case "fRogue":
+						case "fStalker":
+							actsCounts[12] = 5;
+							break;
+						case "fWizard":
+							actsCounts[5] = 4;
+							break;
+						case "fAssassinCross":
+							actsCounts[5] = 4;
+							break;
 					}
 
 					//object to store our frame count data
 					let DATA_INDICES = {};
 					//now map to actsCount and assign variables to DATA_INDICES
 					actsCounts.map((count, i) => {
-						if (i == 5) console.log("tO Set COUNT: " + count);
 						//define the property because it is undefined at first
 						DATA_INDICES[actsPerIndex[i]] = {};
 						//assign frame count and starting frame animation index
@@ -282,7 +293,9 @@ class AnimationEngine {
 								renderTHIS.act
 							);
 							if (revIndex != -1) {
-								if (
+								if (sprAct.reversed.dirs[revIndex] == "both") {
+									isMirrored = !isMirrored;
+								} else if (
 									regs[sprAct.reversed.dirs[revIndex]].test(
 										renderTHIS.bodyFacing
 									)
@@ -333,7 +346,6 @@ class AnimationEngine {
 					//necessary variables for animation
 					//LET's will be reused on the head object to save memory
 
-					let img = blobs[renderTHIS.body];
 					let COMPUTED_456_INDEX =
 						DATA_INDICES[renderTHIS.act].start +
 						DATA_INDICES[renderTHIS.act].count *
@@ -342,7 +354,6 @@ class AnimationEngine {
 
 					let COMPUTED_SPRITE_INDEX =
 						sprAct.data.spriteIndices[COMPUTED_456_INDEX];
-					console.log(COMPUTED_SPRITE_INDEX);
 					const srcW = sprAct.data.widths[COMPUTED_SPRITE_INDEX];
 					let srcH = sprAct.data.heights[COMPUTED_SPRITE_INDEX];
 					let srcX = sprAct.data.xPos[COMPUTED_SPRITE_INDEX];
@@ -372,9 +383,9 @@ class AnimationEngine {
 					ctx.scale(scaleX, 1);
 
 					ctx.drawImage(
-						img,
+						blobs.fSortedClassPackage,
 						srcX,
-						0,
+						sprAct.yPos,
 						srcW,
 						srcH,
 						renderX,
@@ -446,8 +457,6 @@ class AnimationEngine {
 								(/TaekwonMaster/.test(renderTHIS.body) &&
 									renderTHIS.selfCounter == 6)
 							) {
-								console.log(this.headFacing);
-								console.log("taek attack 3!");
 								const regTestX = /l/.test(this.headFacing)
 									? "l"
 									: "r";
@@ -466,8 +475,6 @@ class AnimationEngine {
 									regTestY,
 									toReplaceY
 								);
-
-								console.log(this.headFacing);
 							} else if (
 								(/TaekwonKid/.test(renderTHIS.body) &&
 									renderTHIS.selfCounter == 4) ||
@@ -505,7 +512,7 @@ class AnimationEngine {
 						this.headYPos = sprActHead.anchorPoints.normal.y;
 						this.headXPos = sprActHead.anchorPoints.normal.x;
 
-						img = blobs[renderTHIS.head];
+						let img = blobs[renderTHIS.head];
 						srcX = sprActHead.xPos[frameNum];
 
 						//these has different anchor
