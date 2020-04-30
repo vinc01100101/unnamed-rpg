@@ -383,7 +383,7 @@ class AnimationEngine {
 					ctx.scale(scaleX, 1);
 
 					ctx.drawImage(
-						blobs.fSortedClassPackage,
+						blobs.fClass,
 						srcX,
 						sprAct.yPos,
 						srcW,
@@ -512,7 +512,6 @@ class AnimationEngine {
 						this.headYPos = sprActHead.anchorPoints.normal.y;
 						this.headXPos = sprActHead.anchorPoints.normal.x;
 
-						let img = blobs[renderTHIS.head];
 						srcX = sprActHead.xPos[frameNum];
 
 						//these has different anchor
@@ -562,9 +561,9 @@ class AnimationEngine {
 						ctx.scale(scaleX, 1);
 
 						ctx.drawImage(
-							img,
+							blobs.fHead,
 							srcX,
-							0,
+							sprActHead.yPos,
 							sprActHead.widths[frameNum],
 							sprActHead.heights[frameNum],
 							renderX,
