@@ -6,81 +6,32 @@ canvas {
 	image-rendering: -o-crisp-edges;
 	image-rendering: optimize-contrast;
 }
-/* -------------------- */
-* {
-	font-family: "Roboto", sans-serif;
-}
 
-.option-input {
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	-ms-appearance: none;
-	-o-appearance: none;
-	appearance: none;
-	position: relative;
-	height: 20px;
-	width: 20px;
-	transition: all 0.3s ease-out 0s;
-	background: #cbd1d8;
-	border: none;
-	color: #fff;
-	cursor: pointer;
-	display: inline-block;
-	margin-right: 0.5rem;
-	outline: none;
-	position: relative;
-}
-.option-input:hover {
-	background: #9faab7;
-}
-.option-input:checked {
-	background: red;
-}
-.option-input:checked::before {
-	height: 20px;
-	width: 20px;
-	position: absolute;
-	content: "✔";
-	display: inline-block;
-	font-size: 20px;
-	text-align: center;
-	top: -5px;
-}
-.option-input.radio {
-	border-radius: 50%;
-}
-.option-input.radio::after {
-	border-radius: 50%;
-}
-
-/* --------------------------------- */
-#group1 {
-	display: flex;
-	max-width: 100%;
+#mainCont {
 	height: 100%;
-	flex-direction: row;
-	font-size: 14px;
+	width: 100%;
+	background-color: black;
+	display: block;
+	font-size: 0.8vw;
+	color:  white;
 }
-#group1 button,
-#group1 input,
-#group1 select {
-	font-size: 14px;
-}
-
 #mainCont button {
 	background-color: #3C3C3C;
 	color: white;
 	border: solid 2px black;
 	border-radius: 5px;
 	transition: 0.3s all;
+	font-size: 0.8vw;
 }
 #mainCont button:hover {
 	box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
 		0 17px 50px 0 rgba(0, 0, 0, 0.19);
-	background-color: rgba(255, 255, 255, 1);
+	background-color: rgba(255, 255, 255, 1) !important;
 	color: black;
 }
-
+#mainCont select{
+	font-size: 0.8vw;
+}
 #mapCont {
 	position: relative;
 	width: 60%;
@@ -88,12 +39,8 @@ canvas {
 	overflow: auto;
 	background-color: gray;
 }
-#mapCont p {
-	position: absolute;
-	left: 0;
-	top: 0;
-	color: white;
-}
+/* DETAILS --------------------------*/
+
 #mapBase1,
 #mapBase2,
 #mapBase3,
@@ -138,6 +85,7 @@ canvas {
 #mapTop {
 	z-index: 9;
 }
+
 #z,
 #mapGrid,
 #charGrid {
@@ -157,7 +105,6 @@ canvas {
 	position: relative;
 	transition: all 0.7s;
 	background-color: #202020;
-	/* padding: 10%; */
 }
 #tilesCont {
 	position: relative;
@@ -182,44 +129,8 @@ canvas {
 #frameSelectAnimation {
 	opacity: 1;
 }
-#controls {
-	width: 40%;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	background-color: gray;
-}
-#headersControls {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: flex-start;
-}
-.mainControls {
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-end;
-	align-items: flex-start;
-}
-.justifyEnd div {
-	width: 100%;
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-end;
-	font-weight: bold;
-	color: white;
-	border-bottom: 1px solid white;
-}
-.justifyEnd div canvas {
-	background-color: white;
-	width: 25px;
-	height: 25px;
-}
-.mCChild {
-	border: solid black 1px;
-	display: flex;
-	flex-direction: column;
-}
+
+
 #popupBG {
 	position: fixed;
 	width: 100%;
@@ -234,7 +145,7 @@ canvas {
 	z-index: 12;
 }
 .popupCont {
-	background-color: white;
+	background-color: black;
 	opacity: 1;
 	width: 400px;
 	height: 400px;
@@ -243,7 +154,7 @@ canvas {
 	align-items: center;
 	padding: 10px;
 	border-radius: 10px;
-	border: solid black 3px;
+	border: solid white 3px;
 }
 .popupCont button {
 	width: 80px;
@@ -286,4 +197,84 @@ canvas {
 }
 #versioning ol {
 	list-style-type: lower-alpha;
+}
+/* GROUP1 ------------------*/
+#Group1{
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	height: 5%;
+}
+#G1s1{
+	display: inherit;
+	width: 50%;
+}
+#G1s2{
+	display: inherit;
+	width: 40%;
+}
+#G1s3{
+	display: inherit;
+	width: 10%;
+}
+/* GROUP2 ------------------*/
+#Group2{
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	height: 95%;
+}
+#G2s1{
+	width: 35%;
+	background-color: gray;
+}
+#G2s2{
+	display: flex;
+	flex-direction: column;
+	width: 15%;
+	padding: 0px 10px 0px 10px;
+}
+#G2s3{
+	width: 50%;
+	background-color: gray;
+}
+.G2s2subSection{
+	display: flex;
+	flex-direction: column;
+	border-top: solid #3561F2 1px;
+	border-right: solid #3561F2 1px;
+	border-bottom: solid #284CBF 1px;
+	border-left: solid #284CBF 1px;
+	margin-bottom: 1vw;
+	width: 100%;
+}
+.G2s2subSection span{
+	text-align: center;
+	color: #3561F2;
+	font-weight: bold;
+	margin-bottom: 3px;
+}
+.G2s2subSection canvas{
+	background-color: white;
+	width: 2vw;
+}
+.G2s2subSection input{
+	width: 4vw;
+	height: 2vw;
+}
+.G2s2subSection select{
+	background-color: #3C3C3C;
+	color:  white;
+}
+.G2s2subSection .layerSelInner1, .G2s2subSection .layerSelInner2{
+	width: 50%;
+}
+ .G2s2subSection .layerSelInner2{
+	display: flex;
+	flex-direction: row;
+ 	justify-content: flex-end;
+ }
+.G2s2subSection div{
+	display: flex;
+	flex-direction: row;
 }

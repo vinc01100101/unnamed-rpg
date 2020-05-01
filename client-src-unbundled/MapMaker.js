@@ -1,6 +1,7 @@
 const React = require("react");
 const Versioning = require("./mapmaker/Versioning");
-const TileUploader = require("./mapmaker/TileUploader");
+const Group1 = require("./mapmaker/Group1");
+const Group2 = require("./mapmaker/Group2");
 
 let capturer = new CCapture({
 	format: "webm",
@@ -64,18 +65,6 @@ let mapCellArr = {
 let mapPathArr = {};
 let stash = null;
 
-const layers = [
-	"mapTop",
-	"mapShadowTop",
-	"mapMid2",
-	"mapShadowMid2",
-	"mapAnimate",
-	"mapMid1",
-	"mapShadowMid1",
-	"mapBase3",
-	"mapBase2",
-	"mapBase1",
-];
 class MapMaker extends React.Component {
 	constructor(props) {
 		super(props);
@@ -83,7 +72,6 @@ class MapMaker extends React.Component {
 			showTile: "",
 			showFileOptions: true,
 			showOpsChildren: "main",
-			showCONTROLS: true,
 			showRenderControls: true,
 			errormessage: "",
 			toggleMapGrid: true,
@@ -131,10 +119,13 @@ class MapMaker extends React.Component {
 		this._mapHistory = this._mapHistory.bind(this);
 		this._drawTimeTravel = this._drawTimeTravel.bind(this);
 		this._layerOnChange = this._layerOnChange.bind(this);
+		this._setStateCallback = this._setStateCallback.bind(this);
+		this._zoomFunction = this._zoomFunction.bind(this);
+		this._returnATileset = this._returnATileset.bind(this);
 	}
 
 	componentDidMount() {
-		document.querySelector("#group1").oncontextmenu = (event) => {
+		document.querySelector("#Group2").oncontextmenu = (event) => {
 			event.preventDefault();
 		};
 		//I injected a function to CCapture.all.min.js
@@ -169,37 +160,8 @@ class MapMaker extends React.Component {
 		mapScaler = document.querySelector("#mapScaler");
 		mapCont = document.querySelector("#mapCont");
 		//ZOOM FUNCTION
-		this.zoomFunction = (e) => {
-			scX = parseFloat(scX);
-			scY = parseFloat(scY);
 
-			if (e) {
-				e.preventDefault();
-				[scX, scY] =
-					e.deltaY < 0
-						? [scX + 0.1, scY + 0.1]
-						: [scX - 0.1, scY - 0.1];
-
-				if (scX < -0.5) {
-					[scX, scY] = [-0.5, -0.5];
-				}
-				if (scX > 7) {
-					[scX, scY] = [7, 7];
-				}
-
-				document.querySelector("#zoomValue").textContent =
-					parseInt((scX + 1) * 100) + "%";
-				document.querySelector("#zoom").value = "label";
-			}
-
-			const x = (cols * cellWidth * scX) / 2,
-				y = (rows * cellHeight * scY) / 2;
-
-			mapScaler.style.transform = `translate(${x}px,${y}px) scale(${
-				1 + scX
-			},${1 + scY})`;
-		};
-		mapCont.addEventListener("wheel", this.zoomFunction);
+		mapCont.addEventListener("wheel", this._zoomFunction);
 
 		//HOTKEYS
 		window.addEventListener("keypress", (e) => {
@@ -710,8 +672,7 @@ class MapMaker extends React.Component {
 			(prevState.changes != this.state.changes ||
 				JSON.stringify(prevState.layersStackPreview) !=
 					JSON.stringify(this.state.layersStackPreview)) &&
-			this.state.showRenderControls &&
-			this.state.showCONTROLS
+			this.state.showRenderControls
 		) {
 			this.state.layersStackPreview.map((x, i) => {
 				const ctx = document
@@ -736,6 +697,38 @@ class MapMaker extends React.Component {
 				}
 			});
 		}
+	}
+	_setStateCallback(value) {
+		this.setState(value);
+	}
+
+	_zoomFunction(e) {
+		scX = parseFloat(scX);
+		scY = parseFloat(scY);
+
+		if (e) {
+			e.preventDefault();
+			[scX, scY] =
+				e.deltaY < 0 ? [scX + 0.1, scY + 0.1] : [scX - 0.1, scY - 0.1];
+
+			if (scX < -0.5) {
+				[scX, scY] = [-0.5, -0.5];
+			}
+			if (scX > 7) {
+				[scX, scY] = [7, 7];
+			}
+
+			document.querySelector("#zoomValue").textContent =
+				parseInt((scX + 1) * 100) + "%";
+			document.querySelector("#zoom").value = "label";
+		}
+
+		const x = (cols * cellWidth * scX) / 2,
+			y = (rows * cellHeight * scY) / 2;
+
+		mapScaler.style.transform = `translate(${x}px,${y}px) scale(${
+			1 + scX
+		},${1 + scY})`;
 	}
 	_showFileOptions() {
 		this.setState((currState) => {
@@ -828,7 +821,7 @@ class MapMaker extends React.Component {
 		const ctx = g.getContext("2d");
 		const ctx2 = cg.getContext("2d");
 		ctx.clearRect(0, 0, g.width, g.height);
-		ctx.strokeStyle = "white";
+		ctx.strokeStyle = "black";
 		ctx.lineWidth = 1;
 		ctx2.clearRect(0, 0, cg.width, cg.height);
 		ctx2.strokeStyle = "#538EF0";
@@ -1242,10 +1235,8 @@ class MapMaker extends React.Component {
 		}
 	}
 	_toggleVisibility(e) {
-		document.querySelector("#" + e.target.value).style.display = e.target
-			.checked
-			? "block"
-			: "none";
+		document.querySelector("#" + e.target.name).style.opacity =
+			parseInt(e.target.value) * 0.1;
 	}
 	_createNewStash() {
 		const cStashName = document.querySelector("#cStashName").value;
@@ -1677,18 +1668,51 @@ class MapMaker extends React.Component {
 			this.setState({
 				layer: e.target.id.replace("_", ""),
 			});
-
-			document.querySelector(
-				"#opacitySelect"
-			).value = document.querySelector(
-				"#" + e.target.id.replace("_", "")
-			).style.opacity;
 		}
 	}
 	render() {
 		return (
 			<div id="mainCont">
-				{/*FILES OPTION*/}
+				{/*GROUP1-----------------------------------*/}
+				<Group1
+					_drawTile={this._drawTile}
+					_setStateCallback={this._setStateCallback}
+					_tilesetOnChange={this._tilesetOnChange}
+					_showChild={this._showChild}
+					_showFileOptions={this._showFileOptions}
+					_toggleMapGrid={this._toggleMapGrid}
+					_zoomFunction={this._zoomFunction}
+					showRenderControls={this.state.showRenderControls}
+					changes={this.state.changes}
+				/>
+				<Group2
+					_setStateCallback={this._setStateCallback}
+					_returnATileset={this._returnATileset}
+					_layerOnChange={this._layerOnChange}
+					_toggleVisibility={this._toggleVisibility}
+					_toggleAnimation={this._toggleAnimation}
+					customTiles={{
+						custom1: this.state.custom1,
+						custom2: this.state.custom2,
+						custom3: this.state.custom3,
+					}}
+					showTile={this.state.showTile}
+					erase={this.state.erase}
+					layer={this.state.layer}
+					isAnimationOn={this.state.isAnimationOn}
+					mapAnimationArr={this.state.mapAnimationArr}
+					showRenderControls={this.state.showRenderControls}
+					fps={this.state.fps}
+					toggleMapGrid={this.state.toggleMapGrid}
+					z={this.state.z}
+					z_={this.state.z_}
+					mapClickCatcher={mapClickCatcher}
+					pathXY={pathXY}
+					charCellWidth={charCellWidth}
+					cellWidth={cellWidth}
+					cellHeight={cellHeight}
+				/>
+				{/*FILES OPTION---------------------------------*/}
 				{this.state.showFileOptions && (
 					<div id="popupBG">
 						{/*CHILDREN OPTIONS*/}
@@ -2097,473 +2121,6 @@ class MapMaker extends React.Component {
 						)}
 					</div>
 				)}
-				{/*CANVASES--------------------------------------------*/}
-				<div id="group1">
-					<div id="controls">
-						{/*CONTROLS ON TOP*/}
-						<div id="headersControls">
-							<select
-								onChange={(e) => {
-									this._tilesetOnChange(e.target.value);
-								}}
-								defaultValue="tileset1"
-							>
-								<option value="tileset1">
-									Slates V2 by Ivan Voirol
-								</option>
-								<option value="tileset2">
-									Slates V2[updated] by Ivan Voirol
-								</option>
-								<option value="sample">
-									Sample [Development]
-								</option>
-								<option value="sample2">
-									Sample 2 [Development]
-								</option>
-								<option value="custom1">
-									Custom Tileset 1
-								</option>
-								<option value="custom2">
-									Custom Tileset 2
-								</option>
-								<option value="custom3">
-									Custom Tileset 3
-								</option>
-							</select>
-							<button
-								onClick={() => {
-									this._showChild("files");
-									this._showFileOptions();
-								}}
-							>
-								File
-							</button>
-							<button
-								onClick={() => {
-									this._showChild("help");
-									this._showFileOptions();
-								}}
-							>
-								HELP!
-							</button>
-							<button onClick={this._toggleMapGrid}>
-								Grid[G]
-							</button>
-
-							<button
-								onClick={() => {
-									this.setState((currState) => {
-										return {
-											showCONTROLS: !currState.showCONTROLS,
-										};
-									});
-								}}
-							>
-								Tools[W]
-							</button>
-						</div>
-						{/*TILESET*/}
-						<div id="tilesCont" onClick={(e) => {}}>
-							{this.state[this.state.showTile] == "" && (
-								<TileUploader
-									cb={(dataUrl) => {
-										const customs = (this.state[
-											this.state.showTile
-										] = dataUrl);
-
-										this.setState((currState) => {
-											return {
-												customs,
-											};
-										});
-									}}
-								/>
-							)}
-							{this._returnATileset("tileset1", "maptiles1")}
-							{this._returnATileset("tileset2", "maptiles2")}
-							{this._returnATileset("sample", "sample")}
-							{this._returnATileset("sample2", "sample2")}
-							{this._returnATileset("custom1")}
-							{this._returnATileset("custom2")}
-							{this._returnATileset("custom3")}
-
-							<canvas id="frame"></canvas>
-							<canvas id="frameSelectAnimation"></canvas>
-							<canvas id="frameSelect"></canvas>
-						</div>
-						{/*CONTROLS*/}
-
-						<div
-							className="mainControls"
-							style={{
-								display:
-									this.state.showRenderControls &&
-									this.state.showCONTROLS
-										? "flex"
-										: "none",
-							}}
-						>
-							<div className="mCChild">
-								<button
-									id="eraser"
-									style={{
-										backgroundColor: this.state.erase
-											? "#13DF26"
-											: "white",
-										color: this.state.erase
-											? "white"
-											: "black",
-									}}
-									onClick={(e) => {
-										this.setState((currState) => {
-											return {
-												erase: !currState.erase,
-											};
-										});
-									}}
-								>
-									Eraser[E]
-								</button>
-								[E] Eraser
-								<br />
-								[W] Toggle Tools
-								<br />
-								[A] Animate
-								<br />
-								[Z] Undo
-								<br />
-								[Y] Redo
-								<br />
-								[G] Toggle Grid
-								<br />
-								<div
-									style={{
-										color: "#13DF26",
-										backgroundColor: "black",
-									}}
-								>
-									Changes since
-									<br />
-									your last save: {this.state.changes}
-								</div>
-							</div>
-							<div className="mCChild">
-								<div>
-									<button
-										style={
-											this.state.isAnimationOn
-												? {
-														color: "white",
-														backgroundColor:
-															"#13DF26",
-												  }
-												: {
-														color: "black",
-														backgroundColor:
-															"white",
-												  }
-										}
-										onClick={this._toggleAnimation}
-									>
-										{this.state.isAnimationOn
-											? "Select frames[A]"
-											: "Animate![A]"}
-									</button>
-
-									<label
-										style={{
-											color: "white",
-											display: this.state.isAnimationOn
-												? "block"
-												: "none",
-										}}
-										htmlFor="fps"
-									>
-										FPS:
-										<input
-											style={{ width: "50px" }}
-											min="1"
-											max="60"
-											id="fps"
-											type="number"
-											value={this.state.fps}
-											onChange={(e) => {
-												let val = e.target.value;
-												if (e.target.value > 60)
-													val = 60;
-												if (e.target.value < 1) val = 1;
-												this.setState({
-													fps: val,
-												});
-											}}
-										/>
-									</label>
-								</div>
-								<select
-									id="selAnimationInstance"
-									size="7"
-									onChange={(e) => {
-										const x = this.state.mapAnimationArr[
-												e.target.value
-											].rx,
-											y = this.state.mapAnimationArr[
-												e.target.value
-											].ry,
-											w = this.state.mapAnimationArr[
-												e.target.value
-											].src[0].w,
-											h = this.state.mapAnimationArr[
-												e.target.value
-											].src[0].h;
-
-										const ctx2 = mapClickCatcher.getContext(
-											"2d"
-										);
-										ctx2.clearRect(
-											0,
-											0,
-											mapClickCatcher.width,
-											mapClickCatcher.height
-										);
-										ctx2.beginPath();
-
-										ctx2.rect(x, y, w, h);
-
-										ctx2.strokeStyle = "blue";
-										ctx2.lineWidth = 5;
-										ctx2.stroke();
-									}}
-								>
-									{this.state.mapAnimationArr.map(
-										(instance, i) => {
-											return (
-												<option key={i} value={i}>
-													{instance.rx / cellWidth +
-														"_" +
-														instance.ry /
-															cellHeight}
-												</option>
-											);
-										}
-									)}
-								</select>
-								<button
-									onClick={() => {
-										this._drawTile(false, true);
-									}}
-								>
-									Delete Selected
-									<br />
-									Animation
-								</button>
-								Opacity
-								<select
-									id="opacitySelect"
-									defaultValue="label"
-									onChange={(e) => {
-										document.querySelector(
-											"#" + this.state.layer
-										).style.opacity = e.target.value;
-									}}
-								>
-									<option disabled value="label">
-										Opacity
-									</option>
-									<option value="1">100%</option>
-									<option value="0.7">70%</option>
-									<option value="0.3">30%</option>
-								</select>
-								Zoom
-								<select
-									id="zoom"
-									defaultValue="label"
-									onChange={(e) => {
-										scX = e.target.value;
-										scY = e.target.value;
-										this.zoomFunction();
-										document.querySelector(
-											"#zoomValue"
-										).textContent = "zoom";
-									}}
-								>
-									<option
-										id="zoomValue"
-										disabled
-										value="label"
-									>
-										Zoom
-									</option>
-									<option value={-0.5}>50%</option>
-									<option value={0}>100%</option>
-									<option value={0.5}>150%</option>
-									<option value={1}>200%</option>
-									<option value={2}>300%</option>
-									<option value={3}>400%</option>
-									<option value={4}>500%</option>
-									<option value={5}>600%</option>
-									<option value={6}>700%</option>
-									<option value={7}>800%</option>
-								</select>
-							</div>
-							<div
-								className="mCChild justifyEnd"
-								style={{ color: "white" }}
-							>
-								{(() => {
-									let tempJsx = [],
-										i = layers.length - 1;
-
-									for (const l of layers) {
-										tempJsx.push(
-											<div
-												id={"_" + l}
-												key={i}
-												onClick={
-													l != "mapAnimate"
-														? this._layerOnChange
-														: () => {}
-												}
-												style={
-													this.state.layer == l
-														? {
-																backgroundColor:
-																	"#13DF26",
-														  }
-														: l == "mapAnimate"
-														? {
-																backgroundColor:
-																	"gray",
-														  }
-														: {
-																backgroundColor:
-																	"black",
-														  }
-												}
-											>
-												{l.replace("map", "")}
-												{l != "mapAnimate" && (
-													<canvas
-														id={
-															"lsp_" +
-															(i > 5 ? i - 1 : i)
-														}
-														width={cellWidth}
-														height={cellHeight}
-														disabled
-													/>
-												)}
-												<input
-													onChange={
-														this._toggleVisibility
-													}
-													type="checkbox"
-													defaultChecked
-													value={l}
-													className="option-input radio"
-												/>
-											</div>
-										);
-
-										i--;
-									}
-
-									return tempJsx;
-								})()}
-							</div>
-						</div>
-
-						{this.state.showCONTROLS && (
-							<button
-								onClick={() => {
-									this.setState((currState) => {
-										return {
-											showRenderControls: !currState.showRenderControls,
-										};
-									});
-								}}
-							>
-								{this.state.showRenderControls
-									? "Switch to [PATH MODE]"
-									: "Back to [RENDER MODE]"}
-							</button>
-						)}
-					</div>
-					<div id="mapCont" style={{ width: "60%" }}>
-						<div id="mapScaler">
-							<canvas id="mapBase1" width="0" height="0"></canvas>
-							<canvas id="mapBase2" width="0" height="0"></canvas>
-							<canvas id="mapBase3" width="0" height="0"></canvas>
-							<canvas id="mapShadowMid1" width="0" height="0" />
-							<canvas id="mapMid1" width="0" height="0"></canvas>
-							<canvas id="mapAnimate" width="0" height="0" />
-							<canvas id="mapShadowMid2" width="0" height="0" />
-							<canvas id="mapMid2" width="0" height="0"></canvas>
-							<canvas id="mapShadowTop" width="0" height="0" />
-							<canvas id="mapTop" width="0" height="0"></canvas>
-							<canvas
-								id="mapGrid"
-								width="0"
-								height="0"
-								style={{
-									display: this.state.toggleMapGrid
-										? "block"
-										: "none",
-								}}
-							/>
-							<canvas
-								id="charGrid"
-								width="0"
-								height="0"
-								style={{
-									display: this.state.toggleMapGrid
-										? "block"
-										: "none",
-								}}
-							/>
-							<ul
-								id="z"
-								style={{
-									left: pathXY[0] + charCellWidth || 0,
-									top: pathXY[1] || 0,
-									display: this.state.z ? "block" : "none",
-								}}
-							>
-								{this.state.z &&
-									this.state.z.map((x, i) => {
-										return (
-											<li
-												key={i}
-												id={"z_" + i}
-												style={
-													this.state.z_ == i
-														? {
-																color: "white",
-																backgroundColor:
-																	"black",
-														  }
-														: {
-																color: "black",
-																backgroundColor:
-																	"white",
-														  }
-												}
-											>
-												[{x}]
-											</li>
-										);
-									})}
-							</ul>
-
-							<canvas id="mapClickCatcher" width="0" height="0" />
-							<canvas
-								id="captureCanvas"
-								width="0"
-								height="0"
-								style={{ display: "none" }}
-							/>
-						</div>
-					</div>
-				</div>
 			</div>
 		);
 	}
