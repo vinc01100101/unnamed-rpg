@@ -11,13 +11,15 @@ canvas {
 	height: 100%;
 	width: 100%;
 	background-color: black;
-	display: block;
-	font-size: 0.8vw;
-	color:  white;
+	/* display: grid; */
+	/* grid-template-rows: 20px 1fr;
+	grid-template-columns: 100%;
+ */	font-size: 0.8vw;
+	color:  #D4D4D4;
 }
 #mainCont button {
 	background-color: #3C3C3C;
-	color: white;
+	color: #D4D4D4;
 	border: solid 2px black;
 	border-radius: 5px;
 	transition: 0.3s all;
@@ -203,18 +205,21 @@ canvas {
 	display: flex;
 	flex-direction: row;
 	width: 100%;
-	height: 5%;
+	height: 16px;
 }
 #G1s1{
-	display: inherit;
+	display: flex;
+	flex-direction: row;
 	width: 50%;
 }
 #G1s2{
-	display: inherit;
+	display: flex;
+	flex-direction: row;
 	width: 40%;
 }
 #G1s3{
-	display: inherit;
+	display: flex;
+	flex-direction: row;
 	width: 10%;
 }
 /* GROUP2 ------------------*/
@@ -222,7 +227,7 @@ canvas {
 	display: flex;
 	flex-direction: row;
 	width: 100%;
-	height: 95%;
+	height: 98%;
 }
 #G2s1{
 	width: 35%;
@@ -255,8 +260,9 @@ canvas {
 	margin-bottom: 3px;
 }
 .G2s2subSection canvas{
-	background-color: white;
+	background-color: #A0A0A0;
 	width: 2vw;
+	height: 2vw;
 }
 .G2s2subSection input{
 	width: 4vw;
