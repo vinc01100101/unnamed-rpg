@@ -265,7 +265,7 @@ mongoose.connect(
               message: "Stash name doesn't exist",
             });
 
-          doc.maps = req.body.maps;
+          doc.maps[req.body.mapName] = req.body.mapData;
           doc.markModified("maps");
           doc.save((err) => {
             if (err) return res.json({ type: "error", message: err });

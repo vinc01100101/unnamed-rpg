@@ -13,8 +13,8 @@ canvas {
 	background-color: black;
 	/* display: grid; */
 	/* grid-template-rows: 20px 1fr;
-	grid-template-columns: 100%;
- */	font-size: 0.8vw;
+	grid-template-columns: 100%; */	
+	font-size: 14px;
 	color:  #D4D4D4;
 }
 #mainCont button {
@@ -23,16 +23,24 @@ canvas {
 	border: solid 2px black;
 	border-radius: 5px;
 	transition: 0.3s all;
-	font-size: 0.8vw;
+	font-size: 14px;
+	padding: 0px;
 }
 #mainCont button:hover {
 	box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
 		0 17px 50px 0 rgba(0, 0, 0, 0.19);
-	background-color: rgba(255, 255, 255, 1) !important;
+	background-color: rgba(255, 255, 255, 1);
 	color: black;
 }
 #mainCont select{
-	font-size: 0.8vw;
+	font-size: 14px;
+}
+.buttonActive{
+	background-color: #4F57C1 !important;
+	box-shadow: 0px 0px 20px 7px #4F57C1 !important;
+	color: black !important;
+	font-weight: bold;
+	border: none !important;
 }
 #mapCont {
 	position: relative;
@@ -159,7 +167,7 @@ canvas {
 	border: solid white 3px;
 }
 .popupCont button {
-	width: 80px;
+	width: 200px;
 	margin: 5px;
 }
 #cStashVal,
@@ -238,6 +246,7 @@ canvas {
 	flex-direction: column;
 	width: 15%;
 	padding: 0px 10px 0px 10px;
+	overflow-y: scroll;
 }
 #G2s3{
 	width: 50%;
@@ -250,7 +259,8 @@ canvas {
 	border-right: solid #3561F2 1px;
 	border-bottom: solid #284CBF 1px;
 	border-left: solid #284CBF 1px;
-	margin-bottom: 1vw;
+	margin-bottom: 5px;
+	/* padding: 10px; */
 	width: 100%;
 }
 .G2s2subSection span{
@@ -261,8 +271,8 @@ canvas {
 }
 .G2s2subSection canvas{
 	background-color: #A0A0A0;
-	width: 2vw;
-	height: 2vw;
+	width: 32px;
+	height: 32px;
 }
 .G2s2subSection input{
 	width: 4vw;
@@ -275,10 +285,19 @@ canvas {
 .G2s2subSection .layerSelInner1, .G2s2subSection .layerSelInner2{
 	width: 50%;
 }
+.G2s2subSection .layerSelInner1{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
  .G2s2subSection .layerSelInner2{
 	display: flex;
 	flex-direction: row;
  	justify-content: flex-end;
+ }
+ .G2s2subSection .G2s2layer{
+ 	margin-bottom: 10px;
+ 	background-color: rgb(20,20,20);
  }
 .G2s2subSection div{
 	display: flex;
