@@ -32,8 +32,11 @@ canvas {
 	background-color: rgba(255, 255, 255, 1);
 	color: black;
 }
-#mainCont select{
+#mainCont select,#mainCont input{
 	font-size: 14px;
+}
+#mainCont input{
+	width: 50px;
 }
 .buttonActive{
 	background-color: #4F57C1 !important;
@@ -47,7 +50,7 @@ canvas {
 	width: 60%;
 	height: 100%;
 	overflow: auto;
-	background-color: gray;
+	background-color: black;
 }
 /* DETAILS --------------------------*/
 
@@ -114,14 +117,14 @@ canvas {
 #mapScaler {
 	position: relative;
 	transition: all 0.7s;
-	background-color: #202020;
+	background-color: #9B9B9B;
 }
 #tilesCont {
+	background-color: #9B9B9B;
 	position: relative;
 	width: 100%;
 	height: 100%;
-	overflow: scroll;
-	margin: 5px;
+	overflow: auto;
 }
 .tileset {
 	z-index: 0;
@@ -158,7 +161,7 @@ canvas {
 	background-color: black;
 	opacity: 1;
 	width: 400px;
-	height: 400px;
+	height: 500px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -232,26 +235,33 @@ canvas {
 }
 /* GROUP2 ------------------*/
 #Group2{
-	display: flex;
-	flex-direction: row;
+	/* display: flex;
+	flex-direction: row; */
+	display: grid;
+	grid-template-columns: 35% 15% 50%;
+	grid-template-rows: 100%;
 	width: 100%;
 	height: 96%;
 }
 #G2s1{
-	width: 35%;
+	/* width: 35%; */
 	background-color: gray;
+	height: 100%;
 }
 #G2s2{
 	display: flex;
 	flex-direction: column;
-	width: 15%;
+	/* width: 15%; */
+	height: 100%;
 	padding: 0px 10px 0px 10px;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 #G2s3{
-	width: 50%;
+	/* width: 50%; */
 	background-color: gray;
+	height: 100%;
 }
+
 .G2s2subSection{
 	display: flex;
 	flex-direction: column;
@@ -259,9 +269,10 @@ canvas {
 	border-right: solid #3561F2 1px;
 	border-bottom: solid #284CBF 1px;
 	border-left: solid #284CBF 1px;
-	margin-bottom: 5px;
-	/* padding: 10px; */
+	margin-bottom: 20px;
+	padding: 10px;
 	width: 100%;
+
 }
 .G2s2subSection span{
 	text-align: center;
@@ -274,12 +285,8 @@ canvas {
 	width: 32px;
 	height: 32px;
 }
-.G2s2subSection input{
-	width: 4vw;
-	height: 2vw;
-}
 .G2s2subSection select{
-	background-color: #3C3C3C;
+	background-color: black;
 	color:  white;
 }
 .G2s2subSection .layerSelInner1, .G2s2subSection .layerSelInner2{
@@ -298,6 +305,10 @@ canvas {
  .G2s2subSection .G2s2layer{
  	margin-bottom: 10px;
  	background-color: rgb(20,20,20);
+ }
+ .G2s2subSection .G2s2layer:hover{
+ 	background-color: rgb(40,40,40);
+
  }
 .G2s2subSection div{
 	display: flex;

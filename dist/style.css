@@ -13,8 +13,11 @@ html {
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Opera and Firefox */
 }
+* {
+  box-sizing: border-box;
+}
 body {
-  height: 95%;
+  height: 97.4%;
 }
 button, input{
   font-family: "Baloo Tammudu 2";
