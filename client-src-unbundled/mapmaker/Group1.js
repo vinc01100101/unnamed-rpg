@@ -135,7 +135,6 @@ module.exports = function Group1(props) {
 					</option>
 					<option value={-0.5}>50%</option>
 					<option value={0}>100%</option>
-					<option value={0.5}>150%</option>
 					<option value={1}>200%</option>
 					<option value={2}>300%</option>
 					<option value={3}>400%</option>

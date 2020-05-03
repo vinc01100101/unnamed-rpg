@@ -19,8 +19,8 @@ let cellWidth = 32,
 	selY,
 	selW,
 	selH,
-	scX = 0.1,
-	scY = 0.1,
+	scX = 0,
+	scY = 0,
 	//DOMS
 	mapBase1,
 	mapBase2,
@@ -162,9 +162,9 @@ class MapMaker extends React.Component {
 		captureCanvas = document.querySelector("#captureCanvas");
 		mapScaler = document.querySelector("#mapScaler");
 		mapCont = document.querySelector("#mapCont");
-		//ZOOM FUNCTION
 
-		mapCont.addEventListener("wheel", this._zoomFunction);
+		//ZOOM FUNCTION
+		mapScaler.addEventListener("wheel", this._zoomFunction);
 
 		//HOTKEYS
 		window.addEventListener("keypress", (e) => {
@@ -401,11 +401,11 @@ class MapMaker extends React.Component {
 
 				let targetScroll;
 				if (e.target.id == "frameSelect") targetScroll = tilesCont;
-				if (
-					e.target.id == "mapClickCatcher" ||
-					e.target.id == "mapCont"
-				)
-					targetScroll = mapCont;
+				// if (
+				// 	e.target.id == "mapClickCatcher" ||
+				// 	e.target.id == "mapCont"
+				// )
+				// 	targetScroll = mapCont;
 				if (targetScroll) {
 					targetScroll.scrollLeft =
 						targetScroll.scrollLeft - difference[0];
@@ -413,6 +413,22 @@ class MapMaker extends React.Component {
 						targetScroll.scrollTop - difference[1];
 					lastPosition = [e.clientX, e.clientY];
 				}
+
+				//TRY TRANSLATE MOVE ON CANVAS
+				if (e.target.id == "mapClickCatcher") {
+					const matches = mapScaler.style.transform.match(
+						/(-)?(\d+)(\.)?(\d+)?/g
+					);
+
+					mapScaler.style.transform = `translate(${
+						parseInt(matches[0]) + difference[0]
+					}px,${parseInt(matches[1]) + difference[1]}px) scale(${
+						scX + 1
+					},${scY + 1})`;
+					lastPosition = [e.clientX, e.clientY];
+				}
+
+				//---------------------------------
 			}
 			//square on tileset
 			if (e.buttons == 1 && e.target.id == "frameSelect") {
@@ -746,30 +762,57 @@ class MapMaker extends React.Component {
 	_zoomFunction(e) {
 		scX = parseFloat(scX);
 		scY = parseFloat(scY);
-		console.log(scX);
+
+		let adj = 1,
+			deductX = 0,
+			deductY = 0;
 		if (e) {
 			e.preventDefault();
-			[scX, scY] =
-				e.deltaY < 0 ? [scX + 0.1, scY + 0.1] : [scX - 0.1, scY - 0.1];
 
-			if (scX < -0.5) {
-				[scX, scY] = [-0.5, -0.5];
+			[scX, scY] = e.deltaY < 0 ? [scX + 1, scY + 1] : [scX - 1, scY - 1];
+
+			//scale zoom associated with pointer position
+			console.log("BEFORE: " + scX);
+			if (scX >= -1 && scX <= 7) {
+				const mapScalerSize = [
+					parseInt(mapScaler.style.width),
+					parseInt(mapScaler.style.height),
+				];
+				const divider = scX == 0.5 || scX == -1 ? 0.5 : 1;
+				console.log(scX);
+				deductX = (mapScalerSize[0] / 2 - e.offsetX) * divider;
+				deductY = (mapScalerSize[1] / 2 - e.offsetY) * divider;
+				if (e.deltaY > 0) adj = -1;
 			}
-			if (scX > 7) {
-				[scX, scY] = [7, 7];
-			}
+
+			//--------------------------------------------
+
+			//min max
+			if (scX < -0.5) [scX, scY] = [-0.5, -0.5];
+			if (scX == 0.5) [scX, scY] = [0, 0]; //when increment from very bottom, readjust
+			if (scX > 7) [scX, scY] = [7, 7];
 
 			document.querySelector("#zoomValue").textContent =
 				parseInt((scX + 1) * 100) + "%";
 			document.querySelector("#zoom").value = "label";
 		}
 
-		const x = (cols * cellWidth * scX) / 2,
-			y = (rows * cellHeight * scY) / 2;
+		//for old scroll zoom
+		// const x = (cols * cellWidth * scX) / 2,
+		// 	y = (rows * cellHeight * scY) / 2;
 
-		mapScaler.style.transform = `translate(${x}px,${y}px) scale(${
-			1 + scX
-		},${1 + scY})`;
+		const matches = mapScaler.style.transform.match(
+			/(-)?(\d+)(\.)?(\d+)?/g
+		);
+
+		// const matches = mapScaler.style.transform.replace
+		console.log(mapScaler.style.transform);
+		console.log(matches);
+		mapScaler.style.transform = `translate(${
+			parseFloat(matches[0]) + deductX * adj
+		}px,${parseFloat(matches[1]) + deductY * adj}px) scale(${1 + scX},${
+			1 + scY
+		})`;
 	}
 	_showFileOptions() {
 		this.setState((currState) => {
@@ -802,7 +845,7 @@ class MapMaker extends React.Component {
 			if (!conf) return false;
 		}
 		//redeclare variables
-		(scX = 0.1), (scY = 0.1);
+		(scX = 0), (scY = 0);
 		mapCellArr = {
 			mapBase1: {},
 			mapBase2: {},

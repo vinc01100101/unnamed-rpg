@@ -21,7 +21,6 @@ body {
 }
 button, input{
   font-family: "Baloo Tammudu 2";
-  font-weight: bold;
   
 }
 #root {
@@ -178,6 +177,7 @@ button, input{
   width: 120px;
   margin-top: 10px;
   text-align: center;
+  font-weight: bold;
   background-color: rgba(255, 255, 255, 0.5);
 }
 .formContainer button:hover,

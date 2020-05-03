@@ -49,7 +49,7 @@ canvas {
 	position: relative;
 	width: 60%;
 	height: 100%;
-	overflow: auto;
+	overflow: hidden;
 	background-color: black;
 }
 /* DETAILS --------------------------*/
@@ -116,7 +116,7 @@ canvas {
 }
 #mapScaler {
 	position: relative;
-	transition: all 0.7s;
+	/* transition: all 0.7s; */
 	background-color: #9B9B9B;
 }
 #tilesCont {
@@ -265,10 +265,11 @@ canvas {
 .G2s2subSection{
 	display: flex;
 	flex-direction: column;
-	border-top: solid #3561F2 1px;
-	border-right: solid #3561F2 1px;
-	border-bottom: solid #284CBF 1px;
-	border-left: solid #284CBF 1px;
+	border-top: solid #3561F2 3px;
+	border-right: solid #3561F2 3px;
+	border-bottom: solid #284CBF 3px;
+	border-left: solid #284CBF 3px;
+	border-radius: 10px;
 	margin-bottom: 20px;
 	padding: 10px;
 	width: 100%;
@@ -313,4 +314,7 @@ canvas {
 .G2s2subSection div{
 	display: flex;
 	flex-direction: row;
+}
+.G2s2subSection button{
+	margin-bottom: 10px;
 }
