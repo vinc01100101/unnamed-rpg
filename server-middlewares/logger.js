@@ -9,7 +9,7 @@ router.use("/", (req, res, next) => {
       "\nPATH: " +
       req.path +
       "\nIP: " +
-      (req.ip || req.connection.remoteAddress) +
+      (req.headers["x-forwarded-for"] || req.connection.remoteAddress) +
       "__________________________________________"
   );
   next();
