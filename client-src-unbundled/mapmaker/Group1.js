@@ -55,16 +55,16 @@ module.exports = function Group1(props) {
 						props._setStateCallback((currState) => {
 							return {
 								autoResize:
-									currState.autoResize == "15% 15% 70%" ||
-									currState.autoResize == "55% 15% 30%"
+									currState.autoResize == "15% 300px 1fr" ||
+									currState.autoResize == "55% 300px 1fr"
 										? false
-										: "15% 15% 70%",
+										: "15% 300px 1fr",
 							};
 						});
 					}}
 					className={
-						props.autoResize == "15% 15% 70%" ||
-						props.autoResize == "55% 15% 30%"
+						props.autoResize == "15% 300px 1fr" ||
+						props.autoResize == "55% 300px 1fr"
 							? "buttonActive"
 							: ""
 					}
@@ -94,7 +94,7 @@ module.exports = function Group1(props) {
 					className="slider"
 					step="2"
 					min="0"
-					max="85"
+					max="75"
 					onChange={props._adjustFrameSize}
 				/>
 			</div>
@@ -158,6 +158,20 @@ module.exports = function Group1(props) {
 					<option value={6}>700%</option>
 					<option value={7}>800%</option>
 				</select>
+				<button
+					onClick={() => {
+						props.setScale(0);
+						document.querySelector("#zoomValue").textContent =
+							"zoom";
+						document.querySelector("#zoom").value = "label";
+
+						document.querySelector(
+							"#mapScaler"
+						).style.transform = `translate(0px,0px) scale(1,1)`;
+					}}
+				>
+					Reset View
+				</button>
 			</div>
 		</div>
 	);

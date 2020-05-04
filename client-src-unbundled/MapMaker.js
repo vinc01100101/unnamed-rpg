@@ -38,6 +38,7 @@ let cellWidth = 32,
 	captureCanvas,
 	mapScaler,
 	mapCont,
+	tilesCont,
 	//
 	scalerHeight,
 	durationCounter = 0,
@@ -69,13 +70,11 @@ class MapMaker extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			showTile: "",
 			showFileOptions: true,
 			showOpsChildren: "main",
 			showRenderControls: true,
 			errormessage: "",
 			toggleMapGrid: true,
-			erase: false,
 			mapList: "",
 			selectedMap: "",
 			stashName: "",
@@ -88,12 +87,22 @@ class MapMaker extends React.Component {
 			fps: 15,
 			cps: 15,
 			ads: 1,
+			//saved tile id before doing tilepick
+			tileBeforeTilepick: null,
+			//the id of current selected tileset
+			showTile: "",
+			//the <img/> element of selected tileset
 			ref: "",
+
 			layer: "mapBase1",
 			z: [],
 			z_: 0,
 			ztart: null,
 			zMult: 1,
+			//tools
+			erase: false,
+			bucket: false,
+			tilepick: false,
 			//custom tilesets
 			custom1: "",
 			custom2: "",
@@ -163,6 +172,7 @@ class MapMaker extends React.Component {
 		captureCanvas = document.querySelector("#captureCanvas");
 		mapScaler = document.querySelector("#mapScaler");
 		mapCont = document.querySelector("#mapCont");
+		tilesCont = document.querySelector("#tilesCont");
 
 		//ZOOM FUNCTION
 		mapScaler.addEventListener("wheel", this._zoomFunction);
@@ -177,8 +187,20 @@ class MapMaker extends React.Component {
 					//e == eraser button toggle
 					case 101:
 						this.setState((currState) => {
-							return { erase: !currState.erase };
+							return {
+								erase: !currState.erase,
+								bucket: false,
+								tilepick: false,
+							};
 						});
+						break;
+					//t == tilepicker button toggle
+					case 116:
+						this._toggleAnimation("tilepick");
+						break;
+					//b == bucket button toggle
+					case 98:
+						this._toggleAnimation("bucket");
 						break;
 					//g == toggle map grid
 					case 103:
@@ -289,10 +311,10 @@ class MapMaker extends React.Component {
 						this.setState((currState) => {
 							return {
 								autoResize:
-									currState.autoResize == "15% 15% 70%" ||
-									currState.autoResize == "55% 15% 30%"
+									currState.autoResize == "15% 300px 1fr" ||
+									currState.autoResize == "55% 300px 1fr"
 										? false
-										: "15% 15% 70%",
+										: "15% 300px 1fr",
 							};
 						});
 						break;
@@ -307,6 +329,34 @@ class MapMaker extends React.Component {
 							};
 						});
 						break;
+					//LAYERS SHORTCUT
+					case 49:
+						this._layerOnChange("mapBase1");
+						break;
+					case 50:
+						this._layerOnChange("mapBase2");
+						break;
+					case 51:
+						this._layerOnChange("mapBase3");
+						break;
+					case 52:
+						this._layerOnChange("mapShadowMid1");
+						break;
+					case 53:
+						this._layerOnChange("mapMid1");
+						break;
+					case 54:
+						this._layerOnChange("mapShadowMid2");
+						break;
+					case 55:
+						this._layerOnChange("mapMid2");
+						break;
+					case 56:
+						this._layerOnChange("mapShadowTop");
+						break;
+					case 57:
+						this._layerOnChange("mapTop");
+						break;
 				}
 			}
 		});
@@ -314,7 +364,6 @@ class MapMaker extends React.Component {
 		//================================================
 		//==============MOUSE EVENTS ON MAP/TILES=========
 		//================================================
-		const tilesCont = document.querySelector("#tilesCont");
 
 		let attachment = false,
 			lastPosition,
@@ -373,8 +422,19 @@ class MapMaker extends React.Component {
 				[saveX, saveY] = [selX, selY];
 				selW = cellWidth;
 				selH = cellHeight;
-				this.setState({
-					erase: false,
+				this.setState((currState) => {
+					return {
+						erase: false,
+						//reset tiles after using tilepick
+						ref: document.querySelector(
+							"#" +
+								(currState.tileBeforeTilepick ||
+									currState.showTile)
+						),
+						showTile:
+							currState.tileBeforeTilepick || currState.showTile,
+						tileBeforeTilepick: null,
+					};
 				});
 
 				frameSelectSquares();
@@ -392,7 +452,7 @@ class MapMaker extends React.Component {
 
 		//MOUSE MOVE
 		const mMove = (e) => {
-			//drag/move map/tileset
+			//drag/move tileset
 			if (e.buttons == 2 && attachment == true) {
 				position = [e.clientX, e.clientY];
 				difference = [
@@ -402,11 +462,7 @@ class MapMaker extends React.Component {
 
 				let targetScroll;
 				if (e.target.id == "frameSelect") targetScroll = tilesCont;
-				// if (
-				// 	e.target.id == "mapClickCatcher" ||
-				// 	e.target.id == "mapCont"
-				// )
-				// 	targetScroll = mapCont;
+
 				if (targetScroll) {
 					targetScroll.scrollLeft =
 						targetScroll.scrollLeft - difference[0];
@@ -646,8 +702,14 @@ class MapMaker extends React.Component {
 				}
 			}
 
-			if (e.target.id == "mapClickCatcher")
+			if (e.target.id == "mapClickCatcher") {
 				e.target.style.cursor = !this.state.erase ? "grabbing" : "cell";
+				this.setState((currState) => {
+					return {
+						tilepick: false,
+					};
+				});
+			}
 		};
 
 		//AND NOW IT'S TIME TO ATTACH THESE EVENTS!!
@@ -662,13 +724,13 @@ class MapMaker extends React.Component {
 		const G2 = document.querySelector("#Group2");
 		const s1 = document.querySelector("#G2s1");
 		s1.addEventListener("mousedown", () => {
-			if (this.state.autoResize == "15% 15% 70%")
-				this.setState({ autoResize: "55% 15% 30%" });
+			if (this.state.autoResize == "15% 300px 1fr")
+				this.setState({ autoResize: "55% 300px 1fr" });
 		});
 		const s3 = document.querySelector("#G2s3");
 		s3.addEventListener("mousedown", () => {
-			if (this.state.autoResize == "55% 15% 30%")
-				this.setState({ autoResize: "15% 15% 70%" });
+			if (this.state.autoResize == "55% 300px 1fr")
+				this.setState({ autoResize: "15% 300px 1fr" });
 		});
 
 		//================DRAW FUNCTIONS=============
@@ -1037,6 +1099,33 @@ class MapMaker extends React.Component {
 					this.erasePath(pathXY[0], pathXY[1]);
 				} else return;
 			} else return;
+		}
+		//else if tilepicking
+		else if (this.state.tilepick) {
+			//get the data of the cell clicked
+			const cellData =
+				mapCellArr[this.state.layer][getRenderCoordinate()];
+			//if celldata is not null/undefined
+			if (cellData) {
+				//set the variable to render from the celldata
+				selX = cellData[0];
+				selY = cellData[1];
+				selW = cellWidth;
+				selH = cellHeight;
+				this.setState((currState) => {
+					return {
+						ref: document.querySelector("#" + cellData[2]),
+						//save the previous tileset before changing the showTile
+						tileBeforeTilepick:
+							currState.tileBeforeTilepick || currState.showTile,
+						showTile: cellData[2],
+					};
+				});
+			}
+			return;
+		}
+		//else if bucketing
+		else if (this.state.bucket) {
 		}
 		//else,if not animating and has selected tile, draw the tile
 		else if (
@@ -1583,6 +1672,14 @@ class MapMaker extends React.Component {
 		fsa.width = w;
 		fsa.height = h;
 
+		const g2s1 = document.querySelector("#G2s1");
+		console.log(g2s1.offsetHeight);
+		if (h < g2s1.offsetHeight) {
+			tilesCont.style.height = h + "px";
+		} else {
+			tilesCont.style.height = "100%";
+		}
+
 		const cols = w / cellWidth,
 			rows = h / cellHeight,
 			ctx = f.getContext("2d");
@@ -1608,9 +1705,12 @@ class MapMaker extends React.Component {
 		this.setState({
 			showTile: tileset,
 			ref: document.querySelector("#" + tileset),
+			tileBeforeTilepick: null,
 		});
+		//reset tile selection
+		[selX, selY] = [null, null];
 	}
-	_toggleAnimation() {
+	_toggleAnimation(isFalse) {
 		frameSelectAnimation
 			.getContext("2d")
 			.clearRect(
@@ -1628,7 +1728,10 @@ class MapMaker extends React.Component {
 		this.setState((currState) => {
 			return {
 				animationFrames: [],
-				isAnimationOn: !currState.isAnimationOn,
+				isAnimationOn: isFalse ? false : !currState.isAnimationOn,
+				bucket: isFalse == "bucket" && !currState.bucket,
+				tilepick: isFalse == "tilepick" && !currState.tilepick,
+				erase: false,
 			};
 		});
 	}
@@ -1726,7 +1829,16 @@ class MapMaker extends React.Component {
 						: this.state[id]
 				}
 				style={{
-					display: this.state.showTile == id ? "block" : "none",
+					display: (() => {
+						if (this.state.tileBeforeTilepick) {
+							return this.state.tileBeforeTilepick == id
+								? "block"
+								: "none";
+						} else {
+							return this.state.showTile == id ? "block" : "none";
+						}
+					})(),
+
 					position: "relative",
 				}}
 				onLoad={() => {
@@ -1739,19 +1851,15 @@ class MapMaker extends React.Component {
 		);
 	}
 
-	_layerOnChange(e) {
-		if (/^_/.test(e.target.id)) {
-			console.log(e.target.id.replace("_", ""));
-			this.setState({
-				layer: e.target.id.replace("_", ""),
-			});
-		}
+	_layerOnChange(l) {
+		this.setState({
+			layer: l,
+		});
 	}
 	_adjustFrameSize(e) {
-		let val1 = e.target.value,
-			val2 = 85 - parseInt(val1);
+		let val = e.target.value;
 		this.setState({
-			autoResize: `${val1}% 15% ${val2}%`,
+			autoResize: `${val}% 300px 1fr`,
 		});
 	}
 	render() {
@@ -1787,6 +1895,8 @@ class MapMaker extends React.Component {
 					custom3={this.state.custom3}
 					showTile={this.state.showTile}
 					erase={this.state.erase}
+					bucket={this.state.bucket}
+					tilepick={this.state.tilepick}
 					layer={this.state.layer}
 					isAnimationOn={this.state.isAnimationOn}
 					mapAnimationArr={this.state.mapAnimationArr}

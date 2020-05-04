@@ -21,26 +21,13 @@ module.exports = function Group2(props) {
 			style={{
 				gridTemplateColumns: props.autoResize
 					? props.autoResize
-					: "35% 15% 50%",
+					: "35% 300px 1fr",
 			}}
 		>
 			{/*SECTION 1---------------------------------------*/}
 			<div id="G2s1">
 				{/*TILESET*/}
 				<div id="tilesCont" onClick={(e) => {}}>
-					{props[props.showTile] == "" && (
-						<TileUploader
-							cb={(dataUrl) => {
-								const customs = {
-									[props.showTile]: dataUrl,
-								};
-								console.log(customs);
-								props._setStateCallback((currState) => {
-									return customs;
-								});
-							}}
-						/>
-					)}
 					{props._returnATileset("tileset1", "maptiles1")}
 					{props._returnATileset("tileset2", "maptiles2")}
 					{props._returnATileset("tileset3", "maptiles3")}
@@ -55,28 +42,22 @@ module.exports = function Group2(props) {
 					<canvas id="frameSelectAnimation"></canvas>
 					<canvas id="frameSelect"></canvas>
 				</div>
+				{props[props.showTile] == "" && (
+					<TileUploader
+						cb={(dataUrl) => {
+							const customs = {
+								[props.showTile]: dataUrl,
+							};
+							console.log(customs);
+							props._setStateCallback((currState) => {
+								return customs;
+							});
+						}}
+					/>
+				)}
 			</div>
 			{/*SECTION 2---------------------------------------*/}
 			<div id="G2s2">
-				{/*TOOLS*/}
-				<div className="G2s2subSection">
-					<span>Tools</span>
-					<button
-						id="eraser"
-						className={props.erase ? "buttonActive" : ""}
-						onClick={(e) => {
-							props._setStateCallback((currState) => {
-								return {
-									erase: !currState.erase,
-								};
-							});
-						}}
-					>
-						Eraser[E]
-					</button>
-					<button>Bucket[B]</button>
-					<button>Tile Picker[T]</button>
-				</div>
 				{/*LAYERS*/}
 				<div className="G2s2subSection">
 					<span>Layers</span>
@@ -98,16 +79,33 @@ module.exports = function Group2(props) {
 								>
 									<div
 										className="layerSelInner1"
-										id={"_" + l}
-										onClick={
-											l != "mapAnimate"
-												? props._layerOnChange
-												: () => {}
-										}
+										onClick={() => {
+											l != "mapAnimate" &&
+												props._layerOnChange(l);
+										}}
 									>
-										{l
-											.replace("map", "")
-											.replace("Shadow", "S-")}
+										{(() => {
+											const val = l.replace("map", "");
+
+											switch (val) {
+												case "ShadowTop":
+													return "[8]Shadow-C";
+													break;
+												case "ShadowMid2":
+													return "[6]Shadow-B";
+													break;
+												case "ShadowMid1":
+													return "[4]Shadow-A";
+													break;
+												case "Animate":
+													return "[ Animations ]";
+													break;
+												default:
+													return `[${
+														i > 5 ? i : i + 1
+													}]${val}`;
+											}
+										})()}
 									</div>
 									<div className="layerSelInner2">
 										{l != "mapAnimate" && (
@@ -139,17 +137,70 @@ module.exports = function Group2(props) {
 						return tempJsx;
 					})()}
 				</div>
+				{/*TOOLS*/}
+				<div className="G2s2subSection" id="tools">
+					<span>Tools</span>
+					<div>
+						<button
+							id="eraser"
+							className={props.erase ? "buttonActive" : ""}
+							onClick={(e) => {
+								props._setStateCallback((currState) => {
+									return {
+										erase: !currState.erase,
+										bucket: false,
+										tilepick: false,
+									};
+								});
+							}}
+						>
+							Eraser[E]
+						</button>
+						<button
+							className={props.bucket ? "buttonActive" : ""}
+							onClick={(e) => {
+								props._toggleAnimation("bucket");
+							}}
+						>
+							Bucket[B]
+						</button>
+					</div>
+					<div>
+						<button
+							className={props.tilepick ? "buttonActive" : ""}
+							onClick={(e) => {
+								props._toggleAnimation("tilepick");
+							}}
+						>
+							Tile Picker[T]
+						</button>
+					</div>
+				</div>
 				{/*ANIMATIONS*/}
 				<div className="G2s2subSection">
 					<span>Animations</span>
-					<button
-						className={props.isAnimationOn ? "buttonActive" : ""}
-						onClick={props._toggleAnimation}
-					>
-						{props.isAnimationOn
-							? "Select frames[A]"
-							: "Animate![A]"}
-					</button>
+					<div>
+						<button
+							className={
+								props.isAnimationOn ? "buttonActive" : ""
+							}
+							onClick={() => {
+								props._toggleAnimation();
+							}}
+						>
+							{props.isAnimationOn
+								? "Select frames[A]"
+								: "Animate![A]"}
+						</button>
+
+						<button
+							onClick={() => {
+								props._drawTile(false, true);
+							}}
+						>
+							Delete
+						</button>
+					</div>
 
 					<label
 						style={{
@@ -214,18 +265,11 @@ module.exports = function Group2(props) {
 							);
 						})}
 					</select>
-					<button
-						onClick={() => {
-							props._drawTile(false, true);
-						}}
-					>
-						Delete Selected Animation
-					</button>
 				</div>
 			</div>
 			{/*SECTION 3---------------------------------------*/}
 			<div id="G2s3">
-				<div id="mapCont" style={{ width: "100%" }}>
+				<div id="mapCont">
 					<div id="mapScaler">
 						<canvas id="mapBase1" width="0" height="0"></canvas>
 						<canvas id="mapBase2" width="0" height="0"></canvas>

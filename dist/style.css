@@ -78,14 +78,14 @@ button, input{
   appearance: none;
   width: 25px;
   height: 25px;
-  background: #4F57C1;
+  background: #3563BC;
   cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
   width: 25px;
   height: 25px;
-  background: #4F57C1;
+  background: #3563BC;
   cursor: pointer;
 }
 /* -------------------------------------------------- */
