@@ -17,11 +17,7 @@ onmessage = (e) => {
 			//clear
 			animationEngine = undefined;
 			//redefine
-			animationEngine = new AnimationEngine(
-				args[0],
-				JSON.parse(args[1])
-				//args[2]
-			);
+			animationEngine = new AnimationEngine(args[0], JSON.parse(args[1]));
 
 			animationEngine.initialize();
 			break;
@@ -35,10 +31,14 @@ onmessage = (e) => {
 					.catch(() => {
 						console.log("error");
 					});
-				const img = await createImageBitmap(blob).catch(() => {
-					console.log("error uploading an image: " + e.data.path);
-				});
-				blobs[e.data.name] = img;
+				await createImageBitmap(blob)
+					.then((i) => {
+						blobs[e.data.name] = i;
+						postMessage({ type: "success", name: e.data.name });
+					})
+					.catch(() => {
+						console.log("error uploading an image: " + e.data.path);
+					});
 			}
 			toBlob();
 			break;
@@ -212,6 +212,7 @@ class AnimationEngine {
 		//initialize the timer
 		this.initialize = () => {
 			const render = (timestamp) => {
+				console.log("rendering");
 				//clear canvas first
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				//map on array of objects to render

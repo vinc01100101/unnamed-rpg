@@ -1,11 +1,30 @@
 const bcrypt = require("bcryptjs");
 const registrationPromise = require("./registration-promise");
 
-module.exports = (io, AccountModel) => {
+module.exports = (io, AccountModel, MapStashModel) => {
   //as soon as logged in
   let connectedUsers = {};
+  //as soon as loadmap or selected a character
+  let usersInMap = {};
 
   io.on("connection", (socket) => {
+    //LOAD MAP
+    socket.on("loadmap", (stashName, mapName, cb) => {
+      MapStashModel.findOne({ mapStashName: stashName }, (err, doc) => {
+        if (err) return cb({ type: "error", message: err });
+        if (!doc)
+          return cb({
+            type: "error",
+            message: "Stash name doesn't exist",
+          });
+
+        cb({
+          type: "success",
+          message: { mapStashName: doc.mapStashName, map: doc.maps[mapName] },
+        });
+      });
+    });
+
     //LOGIN
     socket.on("login", (attempt, done) => {
       console.log("SOCKET STRATEGY OYEA!!");
@@ -40,6 +59,7 @@ module.exports = (io, AccountModel) => {
           connectedUsers[doc.username] = socket;
           //attach doc to socket.__user
           socket.__user = doc;
+          console.log(connectedUsers);
           done({ type: "success", message: doc.characters });
         }
       });
@@ -47,7 +67,6 @@ module.exports = (io, AccountModel) => {
 
     //LOGOUT
     socket.on("logout", (cb) => {
-      console.log(socket.__user);
       if (socket.__user) {
         console.log("User " + socket.__user.username + " logged out");
         delete connectedUsers[socket.__user.username];
@@ -104,7 +123,7 @@ module.exports = (io, AccountModel) => {
                     class: "fNinja",
                     lv: 20,
                     head: "fHead18",
-                    map: "Kunlun",
+                    map: "r.Prontera",
                     x: 32,
                     y: 20,
                     z: 5,

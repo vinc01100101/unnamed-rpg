@@ -116,7 +116,7 @@ mongoose.connect(
       createDataIfNotExistingYet(x);
     });
     //routes
-    emits(io, AccountModel);
+    emits(io, AccountModel, MapStashModel);
     app.get("/", (req, res) => {
       if (req.useragent.isFirefox && req.useragent.isDesktop) {
         res.send(
