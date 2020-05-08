@@ -1489,11 +1489,7 @@ module.exports = function () {
           fetch("./assets/titles/titleImages.jpg").then(function (response) {
             return response.blob();
           }).then(function (blob) {
-            return createImageBitmap(blob, {
-              resizeWidth: 28080,
-              resizeHeight: 2400,
-              resizeQuality: "pixelated"
-            });
+            return createImageBitmap(blob);
           }).then(function (imageBitmap) {
             _this2.bgAnimate.initialize(imageBitmap, titleSpriteSheetData);
 
@@ -2293,12 +2289,11 @@ module.exports = function bgAnimate() {
     }]; //background images: 4 portrait, 17 landscapes
 
     function drawBG(rand, bg) {
-      var width = dataSprites.widths[rand],
-          height = dataSprites.heights[rand],
-          xPos = dataSprites.xPos[rand];
-      bg.c.width = width;
+      var height = dataSprites.heights[rand],
+          yPos = dataSprites.yPos[rand];
+      bg.c.width = 1200;
       bg.c.height = height;
-      bg.ctx.drawImage(spritesheet, xPos, 0, width, height, 0, 0, width, height);
+      bg.ctx.drawImage(spritesheet, 0, yPos, 1200, height, 0, 0, 1200, height);
     }
 
     var BgConstructor = function BgConstructor(bg) {
@@ -5090,9 +5085,8 @@ webpackContext.id = 74;
 /***/ (function(module, exports) {
 
 module.exports = {
-  xPos: [0, 800, 1280, 2030, 2780, 3900, 5234, 6514, 9714, 10364, 11564, 13164, 15084, 16174, 17774, 19694, 21614, 22894, 24116, 24916, 26836],
-  widths: [800, 480, 750, 750, 1120, 1334, 1280, 3200, 650, 1200, 1600, 1920, 1090, 1600, 1920, 1920, 1280, 1222, 800, 1920, 1244],
-  heights: [1026, 800, 1030, 1020, 700, 1000, 1024, 2400, 458, 846, 1200, 1200, 1000, 874, 1440, 1080, 720, 700, 600, 1200, 700]
+  yPos: [0, 1539, 3539, 5187, 6819, 7569, 8469, 9429, 10329, 11175, 12021, 12921, 13671, 14772, 15428, 16328, 17003, 17678, 18365, 19265, 20015],
+  heights: [1539, 2000, 1648, 1632, 750, 900, 960, 900, 846, 846, 900, 750, 1101, 656, 900, 675, 675, 687, 900, 750, 675]
 };
 
 /***/ }),

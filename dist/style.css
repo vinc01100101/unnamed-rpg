@@ -1,5 +1,5 @@
 html {
-  font-family: "Baloo Tammudu 2";
+  font-family: "Baloo Tammudu 2", cursive;
   /* font-weight: bold; */
   height: 100%;
   width: 100%;
@@ -20,7 +20,7 @@ body {
   height: 97.4%;
 }
 button, input{
-  font-family: "Baloo Tammudu 2";
+  font-family: "Baloo Tammudu 2", cursive;
   
 }
 #root {

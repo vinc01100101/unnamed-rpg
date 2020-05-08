@@ -24,6 +24,11 @@ let canvasHeight = 0;
 let maxWidth = 0;
 //-------------------
 
+//FOR TITLE IMAGES GET----
+
+let titleCanvasHeight = 0;
+
+//------------------------
 const hacked = (img) => {
   console.log("Hacked >:)");
   images.push(img);
@@ -38,6 +43,11 @@ const hacked = (img) => {
   if (img.width > maxWidth) {
     maxWidth = img.width;
   }
+
+  //title images get
+  //what is img.width percentage to 1200?
+  const h = Math.round((1200 / img.width) * img.height);
+  titleCanvasHeight += h;
 };
 
 //FOR HORIZONTAL GET
@@ -72,6 +82,24 @@ const getVertical = () => {
     lastHeight += x.height;
   });
   num.textContent = "yPos: [" + heightIncrement + "],";
+};
+
+//FOR TITLE IMAGES GET
+const getTitleImages = () => {
+  let heightIncrement = [],
+    heightList = [],
+    lastHeight = 0;
+  c.width = 1200;
+  c.height = titleCanvasHeight;
+  images.map((x) => {
+    const h = Math.round((1200 / x.width) * x.height);
+    ctx.drawImage(x, 0, lastHeight, 1200, h);
+    heightIncrement.push(lastHeight);
+    heightList.push(h);
+    lastHeight += h;
+  });
+  num.textContent = "yPos: [" + heightIncrement + "],";
+  hyt.textContent = "heights: [" + heightList + "],";
 };
 
 //FOR MAKING TRANSPARENT BG WITH ONE CLICK
