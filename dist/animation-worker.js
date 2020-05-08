@@ -10,14 +10,13 @@ const requestAnimationFrame =
 const cancelAnimationFrame =
 	self.cancelAnimationFrame || self.mozCancelAnimationFrame;
 
-onmessage = (e) => {
+self.onmessage = (e) => {
 	switch (e.data.type) {
 		case "animationInit":
-			const args = e.data.args;
 			//clear
 			animationEngine = undefined;
 			//redefine
-			animationEngine = new AnimationEngine(args[0], JSON.parse(args[1]));
+			animationEngine = new AnimationEngine(...e.data.args);
 
 			animationEngine.initialize();
 			break;
@@ -34,7 +33,10 @@ onmessage = (e) => {
 				await createImageBitmap(blob)
 					.then((i) => {
 						blobs[e.data.name] = i;
-						postMessage({ type: "success", name: e.data.name });
+						self.postMessage({
+							type: "success",
+							name: e.data.name,
+						});
 					})
 					.catch(() => {
 						console.log("error uploading an image: " + e.data.path);
@@ -153,7 +155,7 @@ onmessage = (e) => {
 };
 
 class AnimationEngine {
-	constructor(canvas, spriteSheetData) {
+	constructor(canvas, spriteSheetData, backgroundCanvas) {
 		//variables for adjusting head sprites position
 		this.adjustHeadXY = {
 			x: { f: 0, fl: 0, l: 0, bl: 0, b: 0, br: 0, r: 0, fr: 0 },
@@ -202,9 +204,14 @@ class AnimationEngine {
 		//convert facing direction to index for 456indices.js
 		const dirToIndex = ["f", "fl", "l", "bl", "b", "br", "r", "fr"];
 		const ctx = canvas.getContext("2d");
-
+		const ctxBG = backgroundCanvas
+			? backgroundCanvas.getContext("2d")
+			: null;
 		//variable for array of objects to be rendered
 		this.renderThese = [];
+
+		//variable for array of map tiles to be rendered
+		this.renderTiles = [];
 
 		//store request id's
 		let reqID;

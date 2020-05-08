@@ -18,6 +18,12 @@ module.exports = (io, AccountModel, MapStashModel) => {
             message: "Stash name doesn't exist",
           });
 
+        if (!doc.maps[mapName])
+          return cb({
+            type: "error",
+            message: "Map doesn't exist",
+          });
+
         cb({
           type: "success",
           message: { mapStashName: doc.mapStashName, map: doc.maps[mapName] },

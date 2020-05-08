@@ -279,14 +279,12 @@ button, input{
   justify-content: center;
 }
 
-#testerCanvas {
-  /* position: absolute; */
-  margin: 20px;
-}
+
 #testControls {
-  position: relative;
+  position: absolute;
   width: 100%;
-  height: 100%;
+  height: 10%;
+  top: 80%;
   z-index: 1;
   display: flex;
   flex-direction: row;
@@ -328,10 +326,14 @@ button, input{
   width: 100%;
   height: 100%;
 }
-#OGCanvas {
-  background-color: blue;
-  width: 100%;
+#mainCanvas, #backgroundCanvas {
+  /* background-color: blue; */
+  /* width: 100%; */
+  /* height: 100%; */
 }
-#OGPage h1 {
-  color: white;
+#backgroundCanvas{
+  z-index: 0;
+}
+#mainCanvas{
+  z-index: 1;
 }
