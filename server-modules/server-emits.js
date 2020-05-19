@@ -1,7 +1,6 @@
 const bcrypt = require("bcryptjs");
 const registrationPromise = require("./registration-promise");
-const sortedClass = require("../client-src-unbundled/SpriteSheetData")
-  .sortedClass;
+const sortedClass = require("./sortedClass").sortedClass;
 
 module.exports = (io, AccountModel, MapStashModel) => {
   //GLOBAL HASH TABLES
