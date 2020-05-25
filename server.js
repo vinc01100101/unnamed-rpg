@@ -1,8 +1,5 @@
 //Odin
 
-//GLOBAL variables
-const GLOBALS = require("./GLOBALS");
-
 //server
 const express = require("express");
 const app = express();

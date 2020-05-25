@@ -11,16 +11,24 @@ let capturer = new CCapture({
 
 let cellWidth = 32,
 	cellHeight = 32,
+	//path size (character walking path square)
 	charCellWidth = cellWidth / 2,
 	charCellHeight = cellHeight / 2,
 	cols,
 	rows,
+	//variables for tileset selection area
 	selX,
 	selY,
 	selW,
 	selH,
+	//used for saving the selX and selY on tileset selection
+	saveX,
+	saveY,
+	//scroll X and Y for Zooming
 	scX = 0,
 	scY = 0,
+	//the data of a cell on the map to restore after transparent preview
+	mapTileBeforePreview = {},
 	//DOMS
 	mapBase1,
 	mapBase2,
@@ -40,19 +48,20 @@ let cellWidth = 32,
 	mapCont,
 	tilesCont,
 	coordinates,
-	//
-	scalerHeight,
+	//export duration
 	durationCounter = 0,
+	//raw values of mouse offsets according to cell sizes
 	renderXY = [],
 	pathXY = [],
+	//mainly used as property for mapPathArr
 	getPathCoordinate = () =>
 		Math.round(pathXY[0] / charCellWidth) +
 		"_" +
 		Math.round(pathXY[1] / charCellHeight),
+	//mainly used as property for mapCellArr
 	getRenderCoordinate = () =>
 		renderXY[0] / cellWidth + "_" + renderXY[1] / cellHeight;
-
-let saveX, saveY;
+//data used for rendering the tiles in the map
 let mapCellArr = {
 	mapBase1: {},
 	mapBase2: {},
@@ -64,7 +73,9 @@ let mapCellArr = {
 	mapShadowTop: {},
 	mapTop: {},
 };
+//data used for rendering the path in the map
 let mapPathArr = {};
+//used to store the stash data from database
 let stash = null;
 
 class MapMaker extends React.Component {
@@ -74,7 +85,7 @@ class MapMaker extends React.Component {
 			showFileOptions: true,
 			showOpsChildren: "main",
 			showRenderControls: true,
-			errormessage: "",
+			errormessage: "", //for showing error message in file options
 			toggleMapGrid: true,
 			mapList: "",
 			selectedMap: "",
@@ -94,7 +105,7 @@ class MapMaker extends React.Component {
 			showTile: "",
 			//the <img/> element of selected tileset
 			ref: "",
-
+			//active layer
 			layer: "mapBase1",
 			//pathmode
 			isThirds: false,
@@ -144,7 +155,7 @@ class MapMaker extends React.Component {
 		document.querySelector("#Group2").oncontextmenu = (event) => {
 			event.preventDefault();
 		};
-		//I injected a function to CCapture.all.min.js
+		//I injected a function to CCapture.all.min.js to handle the exporting details and termination
 		injectThis = (type, data) => {
 			console.log("Triggering injected function..");
 			switch (type) {
@@ -159,6 +170,9 @@ class MapMaker extends React.Component {
 					break;
 			}
 		};
+		//assign the DOM variables when componentDidMount
+
+		//layer canvases
 		mapBase1 = document.querySelector("#mapBase1");
 		mapBase2 = document.querySelector("#mapBase2");
 		mapBase3 = document.querySelector("#mapBase3");
@@ -169,13 +183,23 @@ class MapMaker extends React.Component {
 		mapAnimate = document.querySelector("#mapAnimate");
 		mapShadowTop = document.querySelector("#mapShadowTop");
 		mapTop = document.querySelector("#mapTop");
+
+		//canvas responsible for exporting. all layers will be drawn here
+		captureCanvas = document.querySelector("#captureCanvas");
+
+		//tileset frames
 		frameSelect = document.querySelector("#frameSelect");
 		frameSelectAnimation = document.querySelector("#frameSelectAnimation");
+
+		//map frames
 		mapClickCatcher = document.querySelector("#mapClickCatcher");
-		captureCanvas = document.querySelector("#captureCanvas");
 		mapScaler = document.querySelector("#mapScaler");
+
+		//containers
 		mapCont = document.querySelector("#mapCont");
 		tilesCont = document.querySelector("#tilesCont");
+
+		//the map xy coordinate at the top right corner
 		coordinates = document.querySelector("#coordinates");
 
 		//ZOOM FUNCTION
@@ -417,18 +441,21 @@ class MapMaker extends React.Component {
 				attachment = true;
 				lastPosition = [e.clientX, e.clientY];
 			}
-			//square
+			//on left click mouse down on Tileset Selection
 			if (e.buttons == 1 && e.target.id == "frameSelect") {
 				(offX = e.offsetX), (offY = e.offsetY);
-
+				//same as Math.floor(offX/cellWidth)
 				selX = offX - (offX % cellWidth);
 				selY = offY - (offY % cellHeight);
+				//save the starting X and Y
 				[saveX, saveY] = [selX, selY];
 				selW = cellWidth;
 				selH = cellHeight;
 				this.setState((currState) => {
 					return {
 						erase: false,
+						tilepick: false,
+						bucket: false,
 						//reset tiles after using tilepick
 						ref: document.querySelector(
 							"#" +
@@ -665,6 +692,7 @@ class MapMaker extends React.Component {
 							);
 						} else {
 							strokeRect(renderXY[0], renderXY[1], selW, selH);
+							this.drawPreview();
 						}
 
 						//the layers stack preview function
@@ -781,18 +809,120 @@ class MapMaker extends React.Component {
 				Math.floor(charCellHeight - 2)
 			);
 		};
-		this.drawRender = (ref, sx, sy, sw, sh, rx, ry, rw, rh, layer) => {
+		this.drawRender = (
+			ref,
+			sx,
+			sy,
+			sw,
+			sh,
+			rx,
+			ry,
+			rw,
+			rh,
+			layer,
+			preview
+		) => {
 			const ctx3 = layer
-				? document.querySelector("#" + layer).getContext("2d")
+				? //for undo redo????
+				  document.querySelector("#" + layer).getContext("2d")
 				: getLayer();
-			ctx3.clearRect(rx, ry, rw, rh);
-			ctx3.drawImage(ref, sx, sy, sw, sh, rx, ry, rw, rh, layer);
+
+			if (ref != "clear") {
+				//make it transparent if the tile is just a preview
+				ctx3.globalAlpha = preview ? 0.7 : 1;
+				ctx3.clearRect(rx, ry, rw, rh);
+				ctx3.drawImage(ref, sx, sy, sw, sh, rx, ry, rw, rh, layer);
+			} else {
+				//modified variables:
+				//ref == "clear"
+				//sx == layer
+				//sy == [x and y to clear]
+				console.log("clearing ");
+				console.log(sx);
+				console.log(sy);
+				const clearCTX = document
+					.querySelector("#" + sx)
+					.getContext("2d");
+				clearCTX.clearRect(sy[0], sy[1], cellWidth, cellHeight);
+			}
 		};
 		this.eraseRender = (x, y, layer) => {
 			const ctx3 = layer
 				? document.querySelector("#" + layer).getContext("2d")
 				: getLayer();
 			ctx3.clearRect(x, y, cellWidth, cellHeight);
+		};
+		this.drawPreview = (willDelete) => {
+			//draw the original tile from the previous mouse pointer cell
+
+			//bad case? return
+			if (this.state.isAnimationOn || selX == null || selX == undefined)
+				return;
+			if (
+				mapTileBeforePreview.size &&
+				!isNaN(mapTileBeforePreview.size[0])
+			) {
+				const axis = mapTileBeforePreview.propCoord.split("_");
+				for (let i = 0; i < mapTileBeforePreview.size[0]; i++) {
+					for (let j = 0; j < mapTileBeforePreview.size[1]; j++) {
+						const prevData =
+							mapCellArr[mapTileBeforePreview.propLayer] &&
+							mapCellArr[mapTileBeforePreview.propLayer][
+								parseInt(axis[0]) +
+									i +
+									"_" +
+									(parseInt(axis[1]) + j)
+							];
+						if (prevData) {
+							this.drawRender(
+								document.querySelector("#" + prevData[2]),
+								prevData[0],
+								prevData[1],
+								cellWidth,
+								cellHeight,
+								(parseInt(axis[0]) + i) * cellWidth,
+								(parseInt(axis[1]) + j) * cellHeight,
+								cellWidth,
+								cellHeight,
+								mapTileBeforePreview.propLayer
+							);
+						} else {
+							this.drawRender(
+								"clear",
+								mapTileBeforePreview.propLayer,
+								[
+									(parseInt(axis[0]) + i) * cellWidth,
+									(parseInt(axis[1]) + j) * cellHeight,
+								]
+							);
+						}
+					}
+				}
+			}
+
+			//zxc
+			//draw the preview
+			if (!willDelete) {
+				this.drawRender(
+					this.state.ref,
+					selX,
+					selY,
+					selW,
+					selH,
+					renderXY[0],
+					renderXY[1],
+					selW,
+					selH,
+					false,
+					true //preview == true
+				);
+
+				mapTileBeforePreview = {
+					propLayer: this.state.layer,
+					propCoord: getRenderCoordinate(),
+					size: [selW / cellWidth, selH / cellHeight],
+				};
+			}
 		};
 		//================================================
 		//================================================
@@ -968,7 +1098,6 @@ class MapMaker extends React.Component {
 		mapScaler.style.left = 0;
 		mapScaler.style.top = 0;
 		mapScaler.style.transform = "scale(1,1)";
-		scalerHeight = mapH;
 
 		const adderWidth = this.state.isThirds ? 0 : charCellWidth / 2,
 			adderHeight = this.state.isThirds ? 0 : charCellHeight / 2;
@@ -1058,14 +1187,14 @@ class MapMaker extends React.Component {
 						coordRender: [pathXY[0], pathXY[1]],
 					},
 				};
+				//set the data
 				mapPathArr[coordTemp] = ["0.0"];
-
+				//draw the path
 				this.drawPath(pathXY[0], pathXY[1]);
 			} else return;
 		}
 		//else if erase, just erase, update and return
 		else if (this.state.erase && !fromAnimationHistory) {
-			//use 'let' so we can delete it
 			const prop1 = this.state.layer,
 				prop2 = getRenderCoordinate();
 
@@ -1160,6 +1289,12 @@ class MapMaker extends React.Component {
 			//setting for mapCellArr
 			//DAYS LATER.. I DONT FKING KNOW NOW HOW DID THIS WORK
 			//BECAUSE I FORGOT TO WRITE THE COMMENTS @#@#!%$#@$#@#
+
+			//5/25/2020 THE RETURN OF THE COMEBACK.
+			//IMMA RE-UNDERSTAND THIS HAHAHAHA! :D
+
+			//we use these objects for FOR looping
+			//while validate == true, then commands
 			const forJ =
 				selH > 0
 					? { validate: (a, b) => a < b, incDec: 1, adj: 0 }
@@ -1172,8 +1307,9 @@ class MapMaker extends React.Component {
 			//4/23/2020 - i'm modifying this now and surely gonna write comment!!
 
 			//store data here to validate
-			let data = [];
+			let data = []; //the new data
 			let dataCompare = []; //the previous data to compare  to new
+
 			for (
 				let j = 0;
 				forJ.validate(j, selH / cellHeight);
@@ -1194,13 +1330,14 @@ class MapMaker extends React.Component {
 						xIndex < cols &&
 						yIndex < rows
 					) {
+						// the data that will be compared is the val
 						dataCompare.push({
 							layer: this.state.layer,
 							prop: xIndex + "_" + yIndex,
 							val:
 								mapCellArr[this.state.layer][
 									xIndex + "_" + yIndex
-								],
+								], //old data
 						});
 						data.push({
 							layer: this.state.layer,
@@ -1209,7 +1346,7 @@ class MapMaker extends React.Component {
 								selX + (i + forI.adj) * cellWidth,
 								selY + (j + forJ.adj) * cellHeight,
 								this.state.showTile,
-							],
+							], //new data
 						});
 					}
 				}
@@ -1686,6 +1823,7 @@ class MapMaker extends React.Component {
 			: JSON.parse(JSON.stringify(map.pathData));
 	}
 	_tilesetOnChange(tileset) {
+		this.drawPreview(true);
 		const ts = document.querySelector("#" + tileset),
 			w = ts.width,
 			h = ts.height,
@@ -1739,6 +1877,7 @@ class MapMaker extends React.Component {
 		[selX, selY] = [null, null];
 	}
 	_toggleAnimation(isFalse) {
+		this.drawPreview(true);
 		frameSelectAnimation
 			.getContext("2d")
 			.clearRect(
@@ -1839,6 +1978,7 @@ class MapMaker extends React.Component {
 				capturer.capture(captureCanvas);
 
 				durationCounter--;
+				//gif has special case for ending the export process
 				durationCounter <= 0 &&
 					this.state.exFormat != "gif" &&
 					this._showFileOptions();
@@ -1883,6 +2023,7 @@ class MapMaker extends React.Component {
 		this.setState({
 			layer: l,
 		});
+		this.drawPreview();
 	}
 	_adjustFrameSize(e) {
 		let val = e.target.value;
