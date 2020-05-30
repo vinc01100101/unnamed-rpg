@@ -1,9 +1,9 @@
 const filesToCache = [];
 const staticCacheName = "inGameAssets-v0.3";
 let i = 1;
-for (i; i < 22; i++) {
-  filesToCache.push("assets/titles/_ (" + i + ").jpg");
-}
+// for (i; i < 22; i++) {
+//   filesToCache.push("assets/titles/_ (" + i + ").jpg");
+// }
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   console.log("Installing service worker");
