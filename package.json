@@ -16,6 +16,7 @@
     "detect-browser": "^5.0.0",
     "express": "^4.17.1",
     "express-useragent": "^1.0.13",
+    "file-saver": "^2.0.2",
     "fs": "0.0.1-security",
     "mongoose": "^5.9.6",
     "mongoose-unique-validator": "^2.0.3",

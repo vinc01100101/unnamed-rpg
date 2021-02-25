@@ -1,5 +1,3 @@
-//Odin
-
 //server
 const express = require("express");
 const app = express();
@@ -142,7 +140,7 @@ mongoose.connect(
           <h3>Sorry! Our mapMaker is not yet compatible with mobile.. :(</h3>
           <a href='/'>Back to game page</a>
           `);
-      } else if (req.useragent.isFirefox) {
+      } /*else if (req.useragent.isFirefox) {
         res.send(
           `<h3>Sorry, our app doesn't run well on Firefox.</h3>
           <p>Because Firefox doesn't support canvas transferring and webm which our app is using,
@@ -153,7 +151,7 @@ mongoose.connect(
           <li><a href='https://www.opera.com/'>Opera</a></li>
           </ul>`
         );
-      } else {
+      }*/ else {
         res.render(__dirname + "/dist/index.pug", {
           page: "MapMaker",
           isDesktop: req.useragent.isDesktop,
