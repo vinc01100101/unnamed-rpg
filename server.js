@@ -278,8 +278,8 @@ mongoose.connect(
       res.sendFile(__dirname + "/dist/sprGenerator/index.html");
     });
 
-    const port = process.env.PORT || 8080;
-    http.listen(port, () => {
+    // const port = process.env.PORT || 8080;
+    http.listen(process.env.PORT || 8080, () => {
       console.log("Listening to port: " + port);
     });
   }
