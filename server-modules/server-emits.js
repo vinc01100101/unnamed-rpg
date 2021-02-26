@@ -246,7 +246,12 @@ module.exports = (io, AccountModel, MapStashModel) => {
         if (Object.keys(packet).length > 0) {
           //if there is update, send the packet,
           //else, don't emit anything to save bandwidth
-          console.log("Sending packet: " + packet + " to socket: " + socket.id);
+          console.log(
+            "Sending packet: " +
+              JSON.stringify(packet) +
+              " to socket: " +
+              socket.id
+          );
           socket.emit("psps", packet);
         }
       }, 1000 / 30);

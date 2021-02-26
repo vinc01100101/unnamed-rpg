@@ -98,7 +98,6 @@ module.exports = class OG extends React.Component {
 				this.P_DIR = this.P_DIR | 0b0001;
 				break;
 		}
-		console.log(this.P_DIR.toString(2));
 	}
 	_keyUpEvents(e) {
 		switch (e.keyCode) {
@@ -119,7 +118,6 @@ module.exports = class OG extends React.Component {
 				this.P_DIR = this.P_DIR ^ 0b0001;
 				break;
 		}
-		console.log(this.P_DIR.toString(2));
 	}
 	_socketEventListeners() {
 		//reference for decrypting data from 8bit integer
@@ -175,8 +173,6 @@ module.exports = class OG extends React.Component {
 			},
 		];
 		this.props.socket.on("psps", (packet) => {
-			console.log(packet);
-
 			//object to store the packet values
 			let renderThese = {};
 
@@ -216,7 +212,6 @@ module.exports = class OG extends React.Component {
 				//renderThese.characterName = decrypted
 				renderThese[keyVal[0]] = decrypted;
 			});
-			console.log(JSON.stringify(renderThese));
 			this.props.worker.postMessage({
 				type: "renderThese",
 				renderThese,
