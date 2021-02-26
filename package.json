@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "compile": "webpack && node server",
-    "start": "node server"
+    "build": "webpack --mode production",
+    "postinstall": "npm run build",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "vince-r",
