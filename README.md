@@ -19,6 +19,5 @@
 
 -   **Map Maker** https://unnamed-rpg.herokuapp.com/mapmaker
     (supposed to be used as map maker of the game, arts were made by my teammate, just click "Auto" to use the test account)
--   **Animation** Tester development tool that I built to test the animations, here's how I test them: https://www.youtube.com/watch?v=Qa5rHBS0rtc&t=4s
--   **Sprites** Tool a sprite sheet generator I built to make sprites, here's the demo:
-    https://www.youtube.com/watch?v=zS5dc3_CD6s
+-   **Animation Tester** (development tool that I built to test the animations, here's **_[how I test them](https://www.youtube.com/watch?v=Qa5rHBS0rtc&t=4s)_**)
+-   **Sprites Tool** (a sprite sheet generator I built to make sprites, here's the **_[demo](https://www.youtube.com/watch?v=zS5dc3_CD6s)_**)
