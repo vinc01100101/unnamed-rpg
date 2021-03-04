@@ -8,11 +8,11 @@ const data_body = require("../server-modules/sortedClass").data_body;
 module.exports = function SpriteSheetData() {
     //.PNG SPRITESHEET PATHS
     this.paths = {
-        shadow: "./assets/characters/shadow.png",
-        selectCharacterFrame: "./assets/system/selectCharacterFrame.png",
-        fClass: `./assets/characters/body/fClass.png`,
-        head: `./assets/characters/head/head.png`,
-        maptiles1: `./assets/maps/maptiles1.png`,
+        shadow: "../assets/characters/shadow.png",
+        selectCharacterFrame: "../assets/system/selectCharacterFrame.png",
+        fClass: `../assets/characters/body/fClass.png`,
+        head: `../assets/characters/head/head.png`,
+        maptiles1: `../assets/maps/maptiles1.png`,
     };
 
     //JOB CLASS CONSTRUCTOR

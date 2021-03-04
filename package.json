@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile": "webpack && node server",
+    "babel:watch": "babel-watch ./server.js",
+    "node:sass": "node-sass -w client-src-unbundled/scss/ -o dist/css/",
+    "dev:start": "parallelshell \"npm run node:sass\" \"npm run babel:watch\"",
     "build": "webpack --mode production",
     "postinstall": "npm run build",
     "start": "node server.js"
@@ -15,27 +17,29 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "colors": "^1.4.0",
-    "detect-browser": "^5.0.0",
+    "detect-browser": "^5.2.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "express-useragent": "^1.0.13",
-    "file-saver": "^2.0.2",
+    "express-useragent": "^1.0.15",
+    "file-saver": "^2.0.5",
     "fs": "0.0.1-security",
-    "mongoose": "^5.9.6",
+    "mongoose": "^5.11.18",
     "mongoose-unique-validator": "^2.0.3",
     "pug": "^2.0.4",
-    "socket.io": "^2.3.0",
-    "uuid": "^7.0.3",
-    "dotenv": "^8.2.0"
+    "socket.io": "^2.4.1",
+    "uuid": "^7.0.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
-    "@babel/preset-react": "^7.9.4",
-    "babel-loader": "^8.1.0",
+    "@babel/core": "^7.13.8",
+    "@babel/preset-env": "^7.13.9",
+    "@babel/preset-react": "^7.12.13",
+    "babel-loader": "^8.2.2",
     "babel-polyfill": "^6.26.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "babel-watch": "^7.4.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-middleware": "^4.1.0"
   }
 }

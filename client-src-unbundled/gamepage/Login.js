@@ -98,6 +98,13 @@ module.exports = function Login(props) {
       >
         Animation Tester (DEV)
       </button>
+      <button
+        onClick={() => {
+          window.location.href = "/spr";
+        }}
+      >
+        Sprites Tool
+      </button>
     </div>
   );
 };

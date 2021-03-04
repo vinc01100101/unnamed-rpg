@@ -62,7 +62,8 @@ self.onmessage = (e) => {
 							name: e.data.name,
 						});
 					})
-					.catch(() => {
+					.catch((e) => {
+						console.log(e);
 						console.log("error uploading an image: " + e.data.path);
 					});
 			}

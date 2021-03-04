@@ -19,7 +19,7 @@ module.exports = function AssetManager() {
       worker.onmessage = (e) => {
         if (e.data.type == "success") {
           prog += toAdd;
-          console.log(prog);
+          console.log(prog + "% complete");
           updateProgress(prog, `${e.data.name} sprite cached.`);
           if (prog >= 100) {
             cb(null, "All images successfully passed to worker");

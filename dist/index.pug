@@ -4,8 +4,8 @@ html(lang="en")
         meta(charset="UTF-8")
         meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale = 1.0, user-scalable=no")
         title unnamedRPG
-        link(rel='stylesheet', href='/style.css', type='text/css')
-        link(rel='stylesheet', href='/mapMakerV2.css', type='text/css')
+        link(rel='stylesheet', href='/css/style.css', type='text/css')
+        link(rel='stylesheet', href='/css/mapMakerV2.css', type='text/css')
         //- link(rel='manifest', href='/manifest.json')
 
         //- fb
@@ -18,11 +18,17 @@ html(lang="en")
 
 
         link(href="https://fonts.googleapis.com/css2?family=Baloo+Tammudu+2:wght@500&display=swap", rel="stylesheet")
+
+
+        script(src='/socket.io/socket.io.js' defer)
+        script(src="/js/CCapture.all.min.js" type='text/javascript' defer)
+        script(src='/js/dynamicImport.js' type='text/javascript' defer)
+        script(src='/js/runtime.js' type='text/javascript' defer)
         
     body
         
         div(id="fb-root")
-        script(async='', defer='', crossorigin='anonymous', src='https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v6.0')
+        //- script(async='', defer='', crossorigin='anonymous', src='https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v6.0')
 
         div(id='variables')
             div(id="page") #{page}
@@ -33,13 +39,11 @@ html(lang="en")
     
         div(id='root')
 
-        script(src='/socket.io/socket.io.js')
-        script(src="/CCapture.all.min.js", type='application/javascript')
-        script(src='/gate-bundle.js', type='application/javascript')
+        
         script.
             if('serviceWorker' in navigator){
                 window.addEventListener('load',()=>{
-                    navigator.serviceWorker.register('service-worker.js').then(swReg=>{
+                    navigator.serviceWorker.register('/js/service-worker.js').then(swReg=>{
                         console.log("Service worker has been registered: " + swReg)
                     }).catch(e=>{
                         console.log("Error while registering the service worker: " + e)
@@ -48,5 +52,7 @@ html(lang="en")
                     
                 })
                 
+            }else{
+                console.log('service worker not supported')
             }
         

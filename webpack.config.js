@@ -1,10 +1,14 @@
+const path = require("path");
+
 module.exports = {
   entry: {
-    gate: "./client-src-unbundled/gate.js",
+    MainPage: "./client-src-unbundled/MainPage.js",
+    MapMaker: "./client-src-unbundled/MapMaker.js",
   },
   output: {
-    path: __dirname + "/dist",
-    filename: "[name]-bundle.js",
+    path: path.join(__dirname, "dist"),
+    publicPath: "/js/",
+    filename: "[name].js",
   },
   module: {
     rules: [
@@ -20,12 +24,10 @@ module.exports = {
       },
     ],
   },
-  mode: "production",
-  node: {
-    fs: "empty",
-  },
+  mode: "development",
+  plugins: [],
   optimization: {
-    // We no not want to minimize our code.
-    minimize: true,
+    runtimeChunk: "single",
+    minimize: false,
   },
 };

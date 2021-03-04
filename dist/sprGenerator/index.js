@@ -4,8 +4,8 @@ const element = document.querySelector("form");
 element.addEventListener("submit", (event) => {
   console.log("DONT SUB");
   event.preventDefault();
-  return false;
   console.log("Form submission cancelled.");
+  return false;
 });
 
 const c = document.querySelector("#hackerCanvas");
@@ -108,25 +108,37 @@ c.addEventListener("click", (e) => {
     y = e.offsetY;
 
   const imageDot = ctx.getImageData(x, y, 1, 1);
-  console.log(imageDot.data);
+  console.log(imageDot);
 
   let image = ctx.getImageData(0, 0, c.width, c.height);
   let imageData = image.data,
     length = imageData.length;
 
-  let i = 0;
-  for (i; i < length; i += 4) {
+  const radius = 100;
+  const minRed = imageDot.data[0] - radius,
+    maxRed = imageDot.data[0] + radius,
+    minGreen = imageDot.data[1] - radius,
+    maxGreen = imageDot.data[1] + radius,
+    minBlue = imageDot.data[2] - radius,
+    maxBlue = imageDot.data[2] + radius;
+
+  for (let i = 0; i < length; i += 4) {
     if (
-      imageData[i] == imageDot.data[0] &&
-      imageData[i + 1] == imageDot.data[1] &&
-      imageData[i + 2] == imageDot.data[2]
+      //1byte or 8bits or 0-255 value
+      imageData[i] >= minRed &&
+      imageData[i] <= maxRed && //red
+      imageData[i + 1] >= minGreen &&
+      imageData[i + 1] <= maxGreen && //green
+      imageData[i + 2] >= minBlue &&
+      imageData[i + 2] <= maxBlue //blue
     ) {
       imageData[i + 3] = 0;
     }
   }
   console.log(imageData);
-  image.data = imageData;
+  // image.data = imageData; //since array and object are reference type, assignig isnt necessary
 
   ctx.clearRect(0, 0, c.width, c.height);
   ctx.putImageData(image, 0, 0);
+  console.log(ctx);
 });

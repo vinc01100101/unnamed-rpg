@@ -5,22 +5,11 @@ module.exports = function About(props) {
     <div className="formContainer">
       <p>About</p>
       <p>
-        This game is still under development.
-        <br />
-        Will you wait for the completion of this project?
-        <br />
-        <br />
-        --vince-r
+        We plan to re-work this entire game because the code is bloated and it
+        is too much to refactor lol.
       </p>
-      <div
-        className="fb-like"
-        data-href="https://vince-r-unnamed-rpg.glitch.me"
-        data-width="20"
-        data-layout="standard"
-        data-action="like"
-        data-size="small"
-        data-share="true"
-      ></div>
+      <br />
+      --vince-r
       <button
         onClick={() => {
           props._toggleVisibility("Login");

@@ -1,4 +1,6 @@
 const React = require("react");
+const ReactDOM = require("react-dom");
+
 const Versioning = require("./mapmaker/Versioning");
 const Group1 = require("./mapmaker/Group1");
 const Group2 = require("./mapmaker/Group2");
@@ -1847,7 +1849,6 @@ class MapMaker extends React.Component {
 		fsa.height = h;
 
 		const g2s1 = document.querySelector("#G2s1");
-		console.log(g2s1.offsetHeight);
 		if (h < g2s1.offsetHeight) {
 			tilesCont.style.height = h + 12 + "px";
 		} else {
@@ -2506,6 +2507,5 @@ class MapMaker extends React.Component {
 	}
 }
 
-module.exports = () => {
-	return MapMaker;
-};
+const root = document.querySelector("#root");
+ReactDOM.render(<MapMaker />, root);

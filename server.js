@@ -34,6 +34,40 @@ const registrationPromise = require("./server-modules/registration-promise");
 require("./server-modules/db-listeners")(mongoose, colors);
 const emits = require("./server-modules/server-emits");
 
+//Dev hot reload
+const devServerEnabled = true;
+
+if (devServerEnabled) {
+  const webpack = require("webpack");
+  const webpackDevMiddleware = require("webpack-dev-middleware");
+  const config = require("./webpack.config.js");
+
+  //Add HMR plugin
+  //  Hot Module Replacement (HMR) exchanges, adds, or removes modules
+  //  while an application is running, without a full reload.
+  //  This can significantly speed up development in a few ways:
+
+  //  -Retain application state which is lost during a full reload.
+  //  -Save valuable development time by only updating what's changed.
+  //  -Instantly update the browser when modifications are made to CSS/JS in the source code, which is almost comparable to changing styles directly in the browser's dev tools.
+
+  config.plugins.push(new webpack.HotModuleReplacementPlugin());
+
+  const compiler = webpack(config);
+
+  //Enable "webpack-dev-middleware"
+  //  Some of the benefits of using this middleware include:
+  //  -No files are written to disk, rather it handles files in memory
+  //  -If files changed in watch mode, the middleware delays requests until compiling has completed.
+  //  -Supports hot module reload (HMR).
+
+  app.use(
+    webpackDevMiddleware(compiler, {
+      publicPath: config.output.publicPath,
+    })
+  );
+}
+
 //SET ACCOUNT SCHEMA
 const account = new mongoose.Schema({
   set: String,
@@ -117,6 +151,7 @@ mongoose.connect(
         res.send(
           `<h3>Sorry, our app doesn't run on Firefox.</h3>
           <p>Because Firefox doesn't support canvas transferring which our app is using,
+          (read <a target='_blank' href='https://bugzilla.mozilla.org/show_bug.cgi?id=1609238'>Firefox Bug 1609238</a>)
           consider downloading other browser which supports it instead?</p>
           <ul>
           <li>Recommended: <a href='https://www.google.com/chrome/?brand=CHBD&gclid=CjwKCAjwnIr1BRAWEiwA6GpwNW3mAOe44k8Gt7bs_R45kW3AwTYZxt3FOD3wFnutclgrv5Rcn4XlghoCc4sQAvD_BwE&gclsrc=aw.ds'>Chrome</a></li>
@@ -128,7 +163,6 @@ mongoose.connect(
         res.render(__dirname + "/dist/index.pug", {
           page: "MainPage",
           isDesktop: req.useragent.isDesktop,
-          // userAgent: JSON.stringify(req.useragent),
         });
       }
     });
