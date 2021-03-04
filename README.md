@@ -1,6 +1,6 @@
 # unnamedRPG
 
-**[Live App's Link](https://unnamed-rpg.herokuapp.com/)**
+**[Live App's Link](https://unnamed-rpg.herokuapp.com/ "an online rpg that is unnamed. :D")**
 (still under development)
 
 ## Technologies used:
