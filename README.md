@@ -1,5 +1,8 @@
 # unnamedRPG
 
+**[Live App's Link](https://unnamed-rpg.herokuapp.com/)**
+(still under development)
+
 ## Technologies used:
 
 -   **React**
@@ -9,7 +12,7 @@
 -   **Web Worker API** (used canvas.transferControlToOffscreen() to let the worker thread handle huge calculations of the animations and prevent lag on the user interface)
 -   **Service Worker** (to cache the assets in the browser, so the next visit won't take too much time, since it will automatically look on the cached files, and will not perform re-download)
 -   **HTML5** Canvas (to render animation)
-    Socket.io (to communicate between the server and multiple clients)
+-   **Socket.io** (to communicate between the server and multiple clients)
 -   **Pug** (to perform dynamic import)
 
 ## Features:
