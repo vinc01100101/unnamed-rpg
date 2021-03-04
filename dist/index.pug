@@ -43,7 +43,7 @@ html(lang="en")
         script.
             if('serviceWorker' in navigator){
                 window.addEventListener('load',()=>{
-                    navigator.serviceWorker.register('/js/service-worker.js').then(swReg=>{
+                    navigator.serviceWorker.register('/service-worker.js').then(swReg=>{
                         console.log("Service worker has been registered: " + swReg)
                     }).catch(e=>{
                         console.log("Error while registering the service worker: " + e)

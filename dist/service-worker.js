@@ -1,15 +1,15 @@
 const filesToCache = [
-  "../assets/characters/body/fClass.png",
-  "../assets/characters/head/head.png",
-  "../assets/maps/wip1.png",
+  "/assets/characters/body/fClass.png",
+  "/assets/characters/head/head.png",
+  "/assets/maps/wip1.png",
 ];
 const staticCacheName = "inGameAssets-v0";
 
 for (let i = 1; i <= 5; i++) {
-  filesToCache.push("../assets/maps/maptiles" + i + ".png");
+  filesToCache.push("/assets/maps/maptiles" + i + ".png");
 }
 self.addEventListener("install", (event) => {
-  self.skipWaiting();
+  // self.skipWaiting();
   console.log("Installing service worker");
   event.waitUntil(
     caches.open(staticCacheName).then((cache) => {
@@ -20,10 +20,38 @@ self.addEventListener("install", (event) => {
   );
 });
 
+//delete the outdated/unused cache
+self.addEventListener("activate", (event) => {
+  // console.log("Claiming control");
+  // self.clients.claim();
+
+  console.log("Activating service worker..");
+
+  const cacheWhiteList = [staticCacheName];
+
+  event.waitUntil(
+    caches.keys().then((cacheList) => {
+      return Promise.all(
+        cacheList.map((x) => {
+          if (cacheWhiteList.indexOf(x) === -1) {
+            return caches.delete(x).then(() => {
+              console.log("Unused cache " + x + "successfully deleted");
+            });
+          }
+        })
+      );
+    })
+  );
+});
+
 self.addEventListener("fetch", (event) => {
+  console.log("fetch");
   // check if request is made by chrome extensions or web page
   // if request is made for web page url must contains http.
-  if (!(event.request.url.indexOf("http") === 0)) return; // skip the request. if request is not made with http protocol
+  if (!(event.request.url.indexOf("http") === 0)) {
+    console.log("not http");
+    return;
+  } // skip the request. if request is not made with http protocol
   console.log("Fetching: " + event.request.url);
 
   event.respondWith(
@@ -43,26 +71,6 @@ self.addEventListener("fetch", (event) => {
           return response;
         });
       });
-    })
-  );
-});
-
-//delete the outdated/unused cache
-self.addEventListener("activate", (event) => {
-  console.log("Activating service worker..");
-  const cacheWhiteList = [staticCacheName];
-
-  event.waitUntil(
-    caches.keys().then((cacheList) => {
-      return Promise.all(
-        cacheList.map((x) => {
-          if (cacheWhiteList.indexOf(x) === -1) {
-            return caches.delete(x).then(() => {
-              console.log("Unused cache " + x + "successfully deleted");
-            });
-          }
-        })
-      );
     })
   );
 });
