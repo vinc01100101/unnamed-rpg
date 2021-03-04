@@ -166,7 +166,7 @@ input {
 
 .formContainer {
   width: 280px;
-  /* height: 300px; */
+  height: 90%;
 
   color: rgb(48, 48, 48);
   /* background-color: rgba(184, 223, 255, 0.7); */
@@ -190,7 +190,7 @@ input {
   transition-duration: 0.4s;
   height: 10%;
   width: 150px;
-  margin-top: 10px;
+  margin-top: 5px;
   text-align: center;
   font-weight: bold;
   background-color: rgba(255, 255, 255, 0.5);

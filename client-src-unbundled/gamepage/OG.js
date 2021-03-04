@@ -175,10 +175,9 @@ module.exports = class OG extends React.Component {
 		this.props.socket.on("psps", (packet) => {
 			//object to store the packet values
 			let renderThese = {};
-
 			Object.entries(packet).map((keyVal) => {
 				let decrypted = {};
-				value = keyVal[1];
+				let value = keyVal[1];
 
 				//if empty, means that user has disappeared from the area of sight
 				if (value == 0) {

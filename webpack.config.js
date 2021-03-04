@@ -6,7 +6,7 @@ module.exports = {
     MapMaker: "./client-src-unbundled/MapMaker.js",
   },
   output: {
-    path: path.join(__dirname, "dist"),
+    path: path.join(__dirname, "dist/js/"),
     publicPath: "/js/",
     filename: "[name].js",
   },
@@ -24,7 +24,7 @@ module.exports = {
       },
     ],
   },
-  mode: "development",
+  mode: "production",
   plugins: [],
   optimization: {
     runtimeChunk: "single",

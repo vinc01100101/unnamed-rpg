@@ -189,7 +189,7 @@ module.exports = (io, AccountModel, MapStashModel) => {
                 JSON.stringify(AREA_UNITS[x[0]].mapCoords) !=
                 JSON.stringify(entryMapCoords)
               ) {
-                console.log("USER IS MOVING...");
+                // console.log("USER IS MOVING...");
                 packet[x[0]] = [entryMapCoords];
                 //update the area of sight
                 AREA_UNITS[x[0]].mapCoords = entryMapCoords.concat();
@@ -246,12 +246,7 @@ module.exports = (io, AccountModel, MapStashModel) => {
         if (Object.keys(packet).length > 0) {
           //if there is update, send the packet,
           //else, don't emit anything to save bandwidth
-          console.log(
-            "Sending packet: " +
-              JSON.stringify(packet) +
-              " to socket: " +
-              socket.id
-          );
+
           socket.emit("psps", packet);
         }
       }, 1000 / 30);
@@ -372,7 +367,6 @@ module.exports = (io, AccountModel, MapStashModel) => {
           connectedUsers[doc.username] = socket;
           //attach doc to socket.__user
           socket.__user = doc;
-          console.log(connectedUsers);
           done({ type: "success", message: doc.characters });
         }
       });
