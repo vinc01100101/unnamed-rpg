@@ -35,7 +35,7 @@ require("./server-modules/db-listeners")(mongoose, colors);
 const emits = require("./server-modules/server-emits");
 
 //Dev hot reload
-const devServerEnabled = true;
+const devServerEnabled = false;
 
 if (devServerEnabled) {
   const webpack = require("webpack");

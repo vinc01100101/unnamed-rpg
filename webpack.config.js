@@ -28,6 +28,6 @@ module.exports = {
   plugins: [],
   optimization: {
     runtimeChunk: "single",
-    minimize: false,
+    minimize: true,
   },
 };
