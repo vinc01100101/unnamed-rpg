@@ -18,6 +18,6 @@
 ## Features:
 
 -   **Map Maker** https://unnamed-rpg.herokuapp.com/mapmaker
-    (i originally built this to be used as the map-maker application of the game, the world's data will be saved into database and will be used ingame. arts were made by my teammate, just click "Auto" to use the test account)
+    (i originally built this to be used as the map-maker application of the game, the world's data will be saved into database and will be used ingame. arts were made by my **_[teammate](https://opengameart.org/users/ivan-voirol)_**, just click "Auto" to use the test account)
 -   **Animation Tester** (development tool that I built to test the animations, here's **_[how I test them](https://www.youtube.com/watch?v=Qa5rHBS0rtc&t=4s)_**)
 -   **Sprites Tool** (a sprite sheet generator I built to make sprites, here's the **_[demo](https://www.youtube.com/watch?v=zS5dc3_CD6s)_**)
