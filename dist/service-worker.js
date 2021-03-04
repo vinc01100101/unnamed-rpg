@@ -3,13 +3,13 @@ const filesToCache = [
   "/assets/characters/head/head.png",
   "/assets/maps/wip1.png",
 ];
-const staticCacheName = "inGameAssets-v0";
+const staticCacheName = "inGameAssets-v1.1";
 
 for (let i = 1; i <= 5; i++) {
   filesToCache.push("/assets/maps/maptiles" + i + ".png");
 }
 self.addEventListener("install", (event) => {
-  // self.skipWaiting();
+  self.skipWaiting();
   console.log("Installing service worker");
   event.waitUntil(
     caches.open(staticCacheName).then((cache) => {
@@ -45,7 +45,6 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  console.log("fetch");
   // check if request is made by chrome extensions or web page
   // if request is made for web page url must contains http.
   if (!(event.request.url.indexOf("http") === 0)) {
@@ -55,21 +54,28 @@ self.addEventListener("fetch", (event) => {
   console.log("Fetching: " + event.request.url);
 
   event.respondWith(
+    //check first if the request is cached
     caches.match(event.request).then((cachedFile) => {
       if (cachedFile) {
         console.log("Found: " + cachedFile.url + " in caches");
         return cachedFile;
       }
+
+      //if non found
       console.log(
         "No cache found, request for " + event.request.url + " sent.."
       );
       return fetch(event.request).then((response) => {
-        return caches.open(staticCacheName).then((cache) => {
-          //haha
-          cache.put(event.request.url, response.clone());
-          console.log("Response from server successfully cached");
+        if (!/socket\.io/.test(event.request.url)) {
+          return caches.open(staticCacheName).then((cache) => {
+            cache.put(event.request.url, response.clone());
+            console.log("Response from server successfully cached");
+            return response;
+          });
+        } else {
+          console.log("wont cache a socket.io");
           return response;
-        });
+        }
       });
     })
   );
