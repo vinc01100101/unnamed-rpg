@@ -25,7 +25,7 @@
     "fs": "0.0.1-security",
     "mongoose": "^5.11.18",
     "mongoose-unique-validator": "^2.0.3",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "socket.io": "^2.4.1",
     "uuid": "^7.0.3"
   },
