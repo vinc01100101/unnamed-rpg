@@ -9,7 +9,6 @@ const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
 //misc
-require("dotenv").config();
 const colors = require("colors");
 const bcrypt = require("bcryptjs");
 const { v4: uuidv4 } = require("uuid");
@@ -34,10 +33,11 @@ const registrationPromise = require("./server-modules/registration-promise");
 require("./server-modules/db-listeners")(mongoose, colors);
 const emits = require("./server-modules/server-emits");
 
-//Dev hot reload
-const devServerEnabled = false;
+//get the env mode set in package.json script, trip spaces
+const nodeEnv = process.env.NODE_ENV.trim();
+if (nodeEnv !== "production") {
+  require("dotenv").config();
 
-if (devServerEnabled) {
   const webpack = require("webpack");
   const webpackDevMiddleware = require("webpack-dev-middleware");
   const config = require("./webpack.config.js");
@@ -66,6 +66,8 @@ if (devServerEnabled) {
       publicPath: config.output.publicPath,
     })
   );
+} else {
+  console.log("mode = " + process.env.NODE_ENV);
 }
 
 //SET ACCOUNT SCHEMA

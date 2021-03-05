@@ -6,10 +6,10 @@
   "scripts": {
     "babel:watch": "babel-watch ./server.js",
     "node:sass": "node-sass -w client-src-unbundled/scss/ -o dist/css/",
-    "dev:start": "parallelshell \"npm run node:sass\" \"npm run babel:watch\"",
-    "build": "webpack --mode production",
+    "dev:start": "set NODE_ENV=development && parallelshell \"npm run node:sass\" \"npm run babel:watch\"",
+    "build": "webpack",
     "postinstall": "npm run build",
-    "start": "node server.js"
+    "start": "set NODE_ENV=production && node server.js"
   },
   "keywords": [],
   "author": "vince-r",
@@ -18,7 +18,6 @@
     "bcryptjs": "^2.4.3",
     "colors": "^1.4.0",
     "detect-browser": "^5.2.0",
-    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-useragent": "^1.0.15",
     "file-saver": "^2.0.5",
@@ -36,6 +35,7 @@
     "babel-loader": "^8.2.2",
     "babel-polyfill": "^6.26.0",
     "babel-watch": "^7.4.0",
+    "dotenv": "^8.2.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "webpack": "^4.46.0",

@@ -1,5 +1,8 @@
 const path = require("path");
 
+const nodeEnv = process.env.NODE_ENV.trim();
+console.log("NODE_ENV is: " + nodeEnv);
+
 module.exports = {
   entry: {
     MainPage: "./client-src-unbundled/MainPage.js",
@@ -24,7 +27,7 @@ module.exports = {
       },
     ],
   },
-  mode: "production",
+  mode: nodeEnv,
   plugins: [],
   optimization: {
     runtimeChunk: "single",
